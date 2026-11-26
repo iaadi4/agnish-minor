@@ -1,0 +1,118 @@
+{
+  "_note": "Hand-authored fixture (not a model recording). See scripts/author_fixtures.py.",
+  "match": [],
+  "prompt_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "responses": [
+    {
+      "blocks": [
+        {
+          "id": "usb_in",
+          "kind": "power_input",
+          "name": "USB-C input + ESD",
+          "covers": [
+            "usb"
+          ]
+        },
+        {
+          "id": "charger",
+          "kind": "charging",
+          "name": "LiPo charger",
+          "covers": [
+            "charging"
+          ]
+        },
+        {
+          "id": "battery",
+          "kind": "battery",
+          "name": "LiPo connector",
+          "covers": [
+            "battery"
+          ]
+        },
+        {
+          "id": "regulator",
+          "kind": "regulation",
+          "name": "3.3 V LDO",
+          "covers": [
+            "+3V3"
+          ]
+        },
+        {
+          "id": "mcu",
+          "kind": "mcu_wireless",
+          "name": "Wi-Fi MCU module",
+          "covers": [
+            "wifi"
+          ]
+        },
+        {
+          "id": "sensor",
+          "kind": "sensor",
+          "name": "T/RH sensor",
+          "covers": [
+            "temperature",
+            "humidity"
+          ]
+        },
+        {
+          "id": "ui",
+          "kind": "user_io",
+          "name": "LED and button",
+          "covers": [
+            "status LED",
+            "user button"
+          ]
+        }
+      ],
+      "links": [
+        {
+          "src": "usb_in",
+          "dst": "charger",
+          "kind": "power",
+          "label": "VBUS 5 V"
+        },
+        {
+          "src": "charger",
+          "dst": "battery",
+          "kind": "power",
+          "label": "charge"
+        },
+        {
+          "src": "battery",
+          "dst": "regulator",
+          "kind": "power",
+          "label": "VBAT 3.0-4.2 V"
+        },
+        {
+          "src": "regulator",
+          "dst": "mcu",
+          "kind": "power",
+          "label": "+3V3"
+        },
+        {
+          "src": "regulator",
+          "dst": "sensor",
+          "kind": "power",
+          "label": "+3V3"
+        },
+        {
+          "src": "usb_in",
+          "dst": "mcu",
+          "kind": "usb",
+          "label": "USB D+/D-"
+        },
+        {
+          "src": "mcu",
+          "dst": "sensor",
+          "kind": "i2c"
+        },
+        {
+          "src": "mcu",
+          "dst": "ui",
+          "kind": "gpio"
+        }
+      ],
+      "rationale": "Single Wi-Fi SoC module; LDO from the battery so the board runs without USB."
+    }
+  ]
+}

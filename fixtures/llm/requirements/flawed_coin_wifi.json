@@ -1,0 +1,92 @@
+{
+  "_note": "Hand-authored fixture (not a model recording). See scripts/author_fixtures.py.",
+  "match": [
+    "logger",
+    "10",
+    "seconds",
+    "redundancy",
+    "identical",
+    "15",
+    "years"
+  ],
+  "prompt_sha256": "2dd0336747887b32f92ccfde65e0cb68dea23081ab78ba0fff6a721296037b21",
+  "responses": [
+    {
+      "summary": "Wi-Fi T/RH logger on a CR2032 with a 5 V relay, two sensors, 15 x 15 mm.",
+      "functional_goals": [
+        "upload a temperature/humidity reading every 10 s over Wi-Fi",
+        "run 2 years on one CR2032",
+        "switch a 5 V relay",
+        "two identical humidity sensors for redundancy"
+      ],
+      "power_sources": [
+        {
+          "kind": "coin_cell",
+          "nominal_v": 3.0,
+          "min_v": 2.0,
+          "max_v": 3.0,
+          "capacity_mah": 220,
+          "max_current_ma": 15,
+          "rechargeable": false,
+          "notes": "CR2032: about 3 mA continuous, 15 mA pulse"
+        }
+      ],
+      "target_battery_life_days": 730,
+      "duty_cycle": "upload every 10 s, ~2 s awake",
+      "duty_active_s": 2,
+      "duty_period_s": 10,
+      "voltage_rails": [
+        {
+          "name": "+3V3",
+          "nominal_v": 3.3
+        }
+      ],
+      "interfaces": [
+        {
+          "kind": "I2C",
+          "purpose": "two humidity sensors"
+        }
+      ],
+      "wireless": [
+        {
+          "protocol": "wifi",
+          "antenna": "pcb"
+        }
+      ],
+      "sensors": [
+        {
+          "quantity": "humidity",
+          "notes": "two identical parts"
+        },
+        {
+          "quantity": "temperature"
+        }
+      ],
+      "actuators": [
+        {
+          "kind": "relay",
+          "voltage_v": 5,
+          "current_ma": 72
+        }
+      ],
+      "size": {
+        "max_width_mm": 15,
+        "max_height_mm": 15
+      },
+      "assumptions": [
+        {
+          "text": "Relay coil runs from the logic supply",
+          "field": "actuators"
+        }
+      ],
+      "conflicts": [
+        "A CR2032 cannot source Wi-Fi transmit peaks (300+ mA).",
+        "2-year life with an upload every 10 s is not achievable on 220 mAh.",
+        "A 15 x 15 mm board cannot hold a CR2032 holder plus a Wi-Fi module."
+      ],
+      "open_questions": [
+        "Is mains/USB power available instead of the coin cell?"
+      ]
+    }
+  ]
+}

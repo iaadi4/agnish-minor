@@ -118,6 +118,12 @@ class Requirements(Model):
     duty_cycle: str | None = Field(
         default=None, description="Expected activity pattern, e.g. 'wake every 10 min, 2 s active'"
     )
+    duty_active_s: float | None = Field(
+        default=None, gt=0, description="Seconds awake per wake-up (used for battery life)"
+    )
+    duty_period_s: float | None = Field(
+        default=None, gt=0, description="Seconds between wake-ups (used for battery life)"
+    )
     voltage_rails: list[RailRequirement] = Field(default_factory=list)
     interfaces: list[InterfaceRequirement] = Field(default_factory=list)
     wireless: list[WirelessRequirement] = Field(default_factory=list)

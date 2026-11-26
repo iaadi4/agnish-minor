@@ -1,0 +1,1 @@
+12 V DC-powered Wi-Fi controller for a small brushed DC motor (up to 0.5 A) and one 5 V relay output. Reverse-polarity, overcurrent and surge protection on the input, screw terminals for the motor and the relay contacts, a UART programming header, a status LED and four M3 mounting holes on an 80 x 60 mm board.

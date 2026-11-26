@@ -19,6 +19,10 @@ class RailConstraint(Model):
     source_ref: str | None = Field(
         default=None, description="Ref of the regulator/source driving it"
     )
+    source_kind: Literal[
+        "usb", "dc_input", "battery", "ldo", "buck", "boost", "charger", "load_switch", "other"
+    ] = "other"
+    parent_rail: str | None = Field(default=None, description="Upstream rail feeding the source")
 
 
 class NetClassRule(Model):

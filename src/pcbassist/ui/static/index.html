@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pcbassist review</title>
+<style>
+:root{--bg:#f7f7f5;--fg:#1d1d1b;--muted:#6b6b66;--card:#fff;--line:#deded8;--accent:#2f5fd0;
+--err:#c0392b;--warn:#b7791f;--ok:#2f8f4e;--info:#5a6b7d;--zone:#2f5fd033}
+@media (prefers-color-scheme:dark){:root{--bg:#161615;--fg:#ecece8;--muted:#9b9b95;--card:#20201e;
+--line:#34342f;--accent:#7ea2ff;--err:#ff7b6b;--warn:#f0b955;--ok:#6fd08e;--info:#9fb3c8;--zone:#7ea2ff33}}
+*{box-sizing:border-box}body{margin:0;font:14px/1.45 system-ui,sans-serif;background:var(--bg);color:var(--fg)}
+header{padding:10px 16px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+header h1{font-size:16px;margin:0}.disc{background:#c0392b;color:#fff;padding:6px 16px;font-weight:600;font-size:12px}
+main{display:grid;grid-template-columns:280px 1fr;gap:16px;padding:16px}
+@media (max-width:860px){main{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:12px}
+h2{font-size:14px;margin:0 0 8px}table{border-collapse:collapse;width:100%;font-size:12.5px}
+td,th{border-bottom:1px solid var(--line);padding:4px 6px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600}.scroll{overflow:auto;max-height:520px}
+button,select,input,textarea{font:inherit;color:inherit;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+button{cursor:pointer}button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+textarea{width:100%;min-height:70px}.sess{display:block;width:100%;text-align:left;margin-bottom:6px}
+.sess.active{border-color:var(--accent)}.pill{display:inline-block;padding:1px 7px;border-radius:10px;font-size:11px;font-weight:600}
+.FAIL,.error{color:var(--err)}.PASS_WITH_WARNINGS,.warning{color:var(--warn)}.PASS{color:var(--ok)}.info{color:var(--info)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.tabs button.on{border-color:var(--accent);color:var(--accent)}
+pre{white-space:pre-wrap;font-size:12px;background:var(--bg);padding:8px;border-radius:6px;border:1px solid var(--line)}
+.muted{color:var(--muted)}svg{width:100%;height:auto;background:var(--bg);border:1px solid var(--line);border-radius:6px}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+</style>
+</head>
+<body>
+<div class="disc">AI-GENERATED DESIGN PLAN &mdash; NOT VERIFIED FOR FABRICATION. Every item must be reviewed by a qualified engineer.</div>
+<header><h1>pcbassist review</h1><span class="muted" id="health"></span></header>
+<main>
+<aside>
+  <div class="card"><h2>New design</h2>
+    <textarea id="prompt" placeholder="Describe the board..."></textarea>
+    <div class="row" style="margin-top:6px"><label><input type="checkbox" id="mock" checked> mock LLM</label>
+    <button class="primary" id="create">Generate</button></div>
+    <div class="muted" id="createMsg"></div>
+  </div>
+  <div class="card"><h2>Sessions</h2><div id="sessions" class="muted">loading...</div></div>
+</aside>
+<section id="view"><div class="card muted">Select or create a session.</div></section>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let cur = null, plan = null, tab = "overview";
+async function api(path, opts={}) {
+  const r = await fetch(path, {headers:{"Content-Type":"application/json"}, ...opts});
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.detail || r.statusText);
+  return j;
+}
+async function loadSessions() {
+  const list = await api("/api/sessions");
+  $("#sessions").innerHTML = list.length ? list.map(s =>
+    `<button class="sess ${s.id===cur?"active":""}" data-id="${esc(s.id)}"><b>${esc(s.id)}</b> v${s.version}
+     <span class="pill ${esc(s.status)}">${esc(s.status||"")}</span><br><span class="muted">${esc(s.summary)}</span></button>`).join("")
+    : "No sessions yet.";
+  document.querySelectorAll(".sess").forEach(b => b.onclick = () => open(b.dataset.id));
+}
+async function open(id, version) {
+  cur = id;
+  plan = await api(`/api/sessions/${id}` + (version ? `?version=${version}` : ""));
+  render(); loadSessions();
+}
+function findingsTable(fs) {
+  return `<table><tr><th>Severity</th><th>ID</th><th>Message</th><th>Fix</th></tr>${fs.map(f =>
+    `<tr><td class="${f.severity}">${f.severity}</td><td><code>${esc(f.id)}</code></td><td>${esc(f.message)}</td><td>${esc(f.suggested_fix||"")}</td></tr>`).join("")}</table>`;
+}
+function reviewButtons(kind, id) {
+  return `<span class="row">${["approve","reject","lock","unlock"].map(d =>
+    `<button data-k="${kind}" data-i="${esc(id)}" data-d="${d}" class="dec">${d}</button>`).join("")}
+    <button data-k="${kind}" data-i="${esc(id)}" class="cmt">comment</button></span>`;
+}
+function board() {
+  const m = plan.constraints?.mechanical; if (!m || !plan.placement) return "<p class='muted'>No placement.</p>";
+  const W = m.outline.width_mm, H = m.outline.height_mm, pad = 2;
+  const zones = plan.placement.zones.map(z => `<rect x="${z.rect.x_mm}" y="${z.rect.y_mm}" width="${z.rect.w_mm}" height="${z.rect.h_mm}"
+     fill="${z.kind==="rf"?"#c0392b33":"var(--zone)"}" stroke="none"><title>${esc(z.name)}: ${esc(z.description)}</title></rect>`).join("");
+  const parts = plan.placement.placements.map(p => p.bbox ? `<g><rect x="${p.bbox.x_mm}" y="${p.bbox.y_mm}" width="${p.bbox.w_mm}" height="${p.bbox.h_mm}"
+     fill="none" stroke="var(--fg)" stroke-width="0.15"><title>${esc(p.ref)} (${p.x_mm}, ${p.y_mm})</title></rect>
+     <text x="${p.bbox.x_mm + p.bbox.w_mm/2}" y="${p.bbox.y_mm + p.bbox.h_mm/2}" font-size="${Math.min(1.6, p.bbox.h_mm*0.6)}" text-anchor="middle" dominant-baseline="middle" fill="var(--fg)">${esc(p.ref)}</text></g>` : "").join("");
+  const holes = m.mounting_holes.map(h => `<circle cx="${h.x_mm}" cy="${h.y_mm}" r="${h.drill_mm/2}" fill="none" stroke="var(--muted)" stroke-width="0.3"/>`).join("");
+  return `<svg viewBox="${-pad} ${-pad} ${W+2*pad} ${H+2*pad}"><rect x="0" y="0" width="${W}" height="${H}" rx="${m.outline.corner_radius_mm}" fill="none" stroke="var(--accent)" stroke-width="0.3"/>${zones}${parts}${holes}</svg>
+  <p class="muted">${W} x ${H} mm, ${m.layer_count} layers, ${esc(m.fab_profile)}. Shaded: zones; red: antenna keepout.</p>`;
+}
+function render() {
+  const cs = plan.check_summary || {}, req = plan.requirements || {};
+  const tabs = ["overview","components","nets","board","power","review","refine","files"];
+  let body = "";
+  if (tab === "overview") body = `<p>${esc(req.summary)}</p>
+     <p><b>Checks:</b> <span class="${cs.status}">${esc(cs.status)}</span> &middot; ${cs.errors} errors, ${cs.warnings} warnings &middot; KiCad DRC: ${esc(cs.kicad_drc_note||"not run")}</p>
+     <p class="muted">LLM: ${esc(plan.llm?.mode)} / ${esc(plan.llm?.model)} ${plan.llm?.mode==="mock"?"(hand-authored fixtures, not model output)":""}</p>
+     <div class="scroll">${findingsTable(plan.findings)}</div>
+     ${req.assumptions?.length?`<h2>Assumptions</h2><ul>${req.assumptions.map(a=>`<li>${esc(a.text)}</li>`).join("")}</ul>`:""}
+     ${req.open_questions?.length?`<h2>Open questions</h2><ul>${req.open_questions.map(q=>`<li>${esc(q)}</li>`).join("")}</ul>`:""}`;
+  if (tab === "components") body = `<div class="scroll"><table><tr><th>Ref</th><th>MPN</th><th>Role</th><th>Verified</th><th>Conf.</th><th>Status</th><th></th></tr>
+     ${plan.components.map(c => `<tr><td>${esc(c.ref_des)}${c.locked?" &#128274;":""}</td><td>${esc(c.mpn)}<br><span class="muted">${esc(c.value||"")}</span></td>
+     <td>${esc(c.role)}</td><td class="${c.verified?"PASS":"error"}">${c.verified?"yes":"NO"}</td><td>${c.confidence.toFixed(2)}</td>
+     <td>${esc(c.status)}</td><td>${reviewButtons("component", c.ref_des)}</td></tr>`).join("")}</table></div>`;
+  if (tab === "nets") body = `<div class="scroll"><table><tr><th>Net</th><th>Class</th><th>Connections</th><th></th></tr>
+     ${(plan.netlist?.nets||[]).map(n => `<tr><td>${esc(n.name)}${n.locked?" &#128274;":""}</td><td>${esc(n.net_class)}</td>
+     <td>${n.connections.map(c=>esc(c.ref+"."+c.pin)).join(" ")}</td><td>${reviewButtons("net", n.name)}</td></tr>`).join("")}</table></div>`;
+  if (tab === "board") body = board();
+  if (tab === "power") body = `<table><tr><th>Rail</th><th>Nominal</th><th>Source</th><th>From</th><th>Capability mA</th><th>Budget mA</th></tr>
+     ${(plan.constraints?.electrical.rails||[]).map(r => `<tr><td>${esc(r.name)}</td><td>${r.nominal_v} V</td><td>${esc(r.source_kind)} ${esc(r.source_ref||"")}</td>
+     <td>${esc(r.parent_rail||"-")}</td><td>${r.max_current_ma??"-"}</td><td>${r.budget_ma??"-"}</td></tr>`).join("")}</table>`;
+  if (tab === "review") body = `<p>Review status: <b>${esc(plan.review_status)}</b> ${reviewButtons("plan","*")}</p>
+     <h2>Comments</h2><table>${plan.comments.map(c => `<tr><td>${esc(c.id)}</td><td>${esc(c.target.kind+":"+c.target.id)}</td><td>${esc(c.text)}</td>
+     <td>${c.resolved?"resolved":`<button class="res" data-c="${esc(c.id)}">resolve</button>`}</td></tr>`).join("") || "<tr><td class='muted'>none</td></tr>"}</table>
+     <h2>Decisions</h2><table>${plan.decisions.map(d => `<tr><td>${esc(d.id)}</td><td>${esc(d.decision)}</td><td>${esc(d.target.kind+":"+d.target.id)}</td><td>${esc(d.note)}</td></tr>`).join("") || "<tr><td class='muted'>none</td></tr>"}</table>`;
+  if (tab === "refine") body = `<textarea id="fb" placeholder="e.g. Replace the SHT40 with a BME280 so we also get pressure"></textarea>
+     <div class="row"><button class="primary" id="doRefine">Refine (new version)</button><label><input type="checkbox" id="rmock" checked> mock LLM</label></div>
+     <h2 style="margin-top:12px">Compare versions</h2><div class="row">v<select id="va">${plan._versions.map(v=>`<option>${v}</option>`).join("")}</select>
+     &rarr; v<select id="vb">${plan._versions.map(v=>`<option ${v===plan.version?"selected":""}>${v}</option>`).join("")}</select><button id="doDiff">diff</button></div><pre id="diffOut"></pre>`;
+  if (tab === "files") body = `<ul>${plan._files.map(f => `<li><a href="/api/sessions/${cur}/files/${plan.version}/${encodeURIComponent(f)}">${esc(f)}</a></li>`).join("") || "<li class='muted'>no exports</li>"}</ul>
+     <p>Versions: ${plan._versions.map(v=>`<button class="ver" data-v="${v}">v${v}</button>`).join(" ")}</p>`;
+  $("#view").innerHTML = `<div class="card"><div class="row" style="justify-content:space-between"><h2>${esc(cur)} &middot; v${plan.version}
+     ${plan.parent_version?`<span class="muted">(from v${plan.parent_version})</span>`:""}</h2><span class="pill ${cs.status}">${esc(cs.status)}</span></div>
+     <div class="tabs">${tabs.map(t=>`<button class="${t===tab?"on":""}" data-tab="${t}">${t}</button>`).join("")}</div>${body}</div>`;
+  document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { tab = b.dataset.tab; render(); });
+  document.querySelectorAll(".dec").forEach(b => b.onclick = () => decide(b.dataset.k, b.dataset.i, b.dataset.d));
+  document.querySelectorAll(".cmt").forEach(b => b.onclick = () => commentOn(b.dataset.k, b.dataset.i));
+  document.querySelectorAll(".res").forEach(b => b.onclick = async () => { await api(`/api/sessions/${cur}/comments/${b.dataset.c}/resolve`, {method:"POST"}); open(cur); });
+  document.querySelectorAll(".ver").forEach(b => b.onclick = () => open(cur, b.dataset.v));
+  if ($("#doRefine")) $("#doRefine").onclick = refine;
+  if ($("#doDiff")) $("#doDiff").onclick = async () => {
+    const d = await api(`/api/sessions/${cur}/diff?a=${$("#va").value}&b=${$("#vb").value}`); $("#diffOut").textContent = d.text; };
+}
+async function decide(kind, id, decision) {
+  const note = prompt(`Note for ${decision} ${kind}:${id} (optional)`) ?? "";
+  try { await api(`/api/sessions/${cur}/decisions`, {method:"POST", body: JSON.stringify({target:{kind, id}, decision, note})}); open(cur); }
+  catch (e) { alert(e.message); }
+}
+async function commentOn(kind, id) {
+  const text = prompt(`Comment on ${kind}:${id}`); if (!text) return;
+  await api(`/api/sessions/${cur}/comments`, {method:"POST", body: JSON.stringify({target:{kind, id}, text})}); open(cur);
+}
+async function refine() {
+  const feedback = $("#fb").value.trim(); if (!feedback) return;
+  $("#doRefine").disabled = true;
+  try { const r = await api(`/api/sessions/${cur}/refine`, {method:"POST", body: JSON.stringify({feedback, mock: $("#rmock").checked})});
+        await open(cur); tab = "refine"; render(); $("#diffOut").textContent = `Regenerated from '${r.stage}' (${r.reason})\n\n` + r.diff; }
+  catch (e) { alert(e.message); } finally { const b = $("#doRefine"); if (b) b.disabled = false; }
+}
+$("#create").onclick = async () => {
+  const p = $("#prompt").value.trim(); if (!p) return;
+  $("#createMsg").textContent = "generating...";
+  try { const r = await api("/api/sessions", {method:"POST", body: JSON.stringify({prompt:p, mock: $("#mock").checked})});
+        $("#createMsg").textContent = ""; open(r.id); }
+  catch (e) { $("#createMsg").textContent = e.message; }
+};
+api("/api/health").then(h => $("#health").textContent = `${h.parts} library parts`);
+loadSessions();
+</script>
+</body>
+</html>

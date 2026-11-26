@@ -8,5 +8,6 @@ htmlcov/
 .mypy_cache/
 .ruff_cache/
 .pytest_cache/
-out/
-sessions/
+.pytest_kicad/
+/out/
+/sessions/

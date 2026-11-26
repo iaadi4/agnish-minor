@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 import typer
 
 from . import __version__
 from .library import ComponentLibrary, FootprintResolver, SearchQuery
-from .schemas import DISCLAIMER, export_json_schemas
+from .schemas import DISCLAIMER, DesignPlan, ItemRef, Severity, export_json_schemas
 
 app = typer.Typer(
     name="pcbassist",
@@ -20,21 +20,95 @@ app = typer.Typer(
 )
 library_app = typer.Typer(help="Inspect the curated component library.", no_args_is_help=True)
 schema_app = typer.Typer(help="JSON Schemas of all data models.", no_args_is_help=True)
+review_app = typer.Typer(
+    help="Comment on, approve, reject, edit or lock plan items.", no_args_is_help=True
+)
 app.add_typer(library_app, name="library")
 app.add_typer(schema_app, name="schema")
+app.add_typer(review_app, name="review")
 
 MockOpt = Annotated[
-    bool, typer.Option("--mock-llm", help="Use recorded fixtures instead of the API")
+    bool, typer.Option("--mock-llm", help="Use bundled fixtures instead of the API")
+]
+ModelOpt = Annotated[str | None, typer.Option("--model", help="Override PCBASSIST_MODEL")]
+NoDrcOpt = Annotated[bool, typer.Option("--no-drc", help="Skip KiCad DRC even if kicad-cli exists")]
+PlanArg = Annotated[Path, typer.Argument(help="Session directory, plan.json or plan.v<N>.json")]
+TargetOpt = Annotated[
+    str, typer.Option("--target", "-t", help="kind:id, e.g. component:U3, net:GND, plan:*")
 ]
 
 
-def _not_yet(feature: str, milestone: int) -> None:
-    typer.secho(
-        f"'{feature}' is not implemented yet (planned for milestone {milestone}).",
-        fg=typer.colors.YELLOW,
-        err=True,
+def _fail(msg: str, code: int = 1) -> None:
+    typer.secho(msg, fg=typer.colors.RED, err=True)
+    raise typer.Exit(code=code)
+
+
+def _client(
+    mock: bool, model: str | None, record: Path | None = None, name: str = "recorded"
+) -> Any:
+    from .llm import LLMError, make_client
+    from .llm.recording import RecordingClient
+
+    try:
+        client = make_client(mock=mock, model=model)
+    except LLMError as e:
+        _fail(str(e), 2)
+    if record is not None and not mock:
+        client = RecordingClient(client, record, name)
+    return client
+
+
+def _print_summary(plan: DesignPlan, out: Path | None = None) -> None:
+    cs = plan.check_summary
+    color = {
+        "PASS": typer.colors.GREEN,
+        "PASS_WITH_WARNINGS": typer.colors.YELLOW,
+        "FAIL": typer.colors.RED,
+    }
+    status = cs.status.value if cs else "UNCHECKED"
+    typer.secho(f"\n{DISCLAIMER}\n", fg=typer.colors.MAGENTA, err=True)
+    typer.echo(
+        f"Plan v{plan.version}: {len(plan.components)} components, "
+        f"{len(plan.netlist.nets) if plan.netlist else 0} nets"
     )
-    raise typer.Exit(code=2)
+    typer.secho(
+        f"Checks: {status}" + (f" ({cs.errors} errors, {cs.warnings} warnings)" if cs else ""),
+        fg=color.get(status, typer.colors.WHITE),
+    )
+    if cs and cs.kicad_drc_note:
+        typer.echo(f"KiCad DRC: {cs.kicad_drc_note}")
+    for f in plan.findings:
+        if f.severity == Severity.ERROR:
+            typer.secho(f"  ERROR {f.id}: {f.message}", fg=typer.colors.RED)
+    if out is not None:
+        typer.echo(f"Output: {out}")
+
+
+def _parse_target(t: str) -> ItemRef:
+    kind, sep, ident = t.partition(":")
+    if not sep:
+        _fail("target must look like kind:id, e.g. component:U3")
+    try:
+        return ItemRef(kind=kind, id=ident or "*")
+    except Exception as e:  # pydantic validation error
+        _fail(f"bad target '{t}': {e}")
+        raise  # pragma: no cover
+
+
+def _parse_value(v: str) -> Any:
+    try:
+        return json.loads(v)
+    except json.JSONDecodeError:
+        return v
+
+
+def _export(session: Any, plan: DesignPlan, drc: bool) -> Path:
+    from .export import export_plan
+
+    out: Path = session.export_dir(plan.version)
+    export_plan(plan, out, drc=drc)
+    session.save(plan)
+    return out
 
 
 @app.command()
@@ -45,52 +119,319 @@ def version() -> None:
 
 @app.command()
 def generate(
-    prompt: Annotated[str, typer.Argument(help="Natural-language hardware requirement")],
-    out: Annotated[Path, typer.Option("--out", "-o", help="Output/session directory")] = Path(
-        "out"
-    ),
+    prompt: Annotated[
+        str | None, typer.Argument(help="Natural-language hardware requirement")
+    ] = None,
+    prompt_file: Annotated[
+        Path | None, typer.Option("--prompt-file", "-f", help="Read the prompt from a file")
+    ] = None,
+    out: Annotated[Path, typer.Option("--out", "-o", help="Session directory")] = Path("out"),
     mock_llm: MockOpt = False,
-    model: Annotated[str | None, typer.Option(help="Override PCBASSIST_MODEL")] = None,
+    model: ModelOpt = None,
+    fab_profile: Annotated[str | None, typer.Option(help="generic_2layer | generic_4layer")] = None,
+    no_drc: NoDrcOpt = False,
+    record_fixtures: Annotated[
+        Path | None, typer.Option(help="Save live LLM answers as fixtures here")
+    ] = None,
 ) -> None:
-    """Generate a full design plan and output files from a prompt."""
-    _not_yet("generate", 2)
+    """Generate a full design plan and all output files from a prompt."""
+    from .llm import LLMError
+    from .pipeline import PipelineOptions, generate_plan
+    from .review import Session
+
+    if prompt_file is not None:
+        prompt = prompt_file.read_text().strip()
+    if not prompt:
+        _fail("give a prompt argument or --prompt-file")
+    assert prompt is not None
+    session = Session(out)
+    if session.exists():
+        _fail(f"{out} already holds a session; use `pcbassist refine` or another --out")
+    client = _client(mock_llm, model, record_fixtures, out.name)
+    try:
+        plan = generate_plan(
+            prompt,
+            client=client,
+            lib=ComponentLibrary.load(),
+            audit=session.audit(),
+            options=PipelineOptions(fab_profile=fab_profile),
+        )
+    except LLMError as e:
+        _fail(f"LLM stage '{e.stage}' failed: {e}", 2)
+    session.save(plan)
+    outdir = _export(session, plan, drc=not no_drc)
+    _print_summary(plan, outdir)
 
 
 @app.command()
-def check(plan: Annotated[Path, typer.Argument(help="plan.json")]) -> None:
-    """Run ERC / power / DFM (and KiCad DRC if available) on a plan."""
-    _not_yet("check", 4)
+def check(
+    plan_path: PlanArg,
+    drc: Annotated[bool, typer.Option("--drc", help="Re-export and run KiCad DRC")] = False,
+) -> None:
+    """Re-run ERC / power / DFM (and KiCad DRC with --drc) on a plan. Exit 1 on FAIL."""
+    from .checks import run_checks
+    from .review import resolve_plan_path
+
+    session, ver = resolve_plan_path(plan_path)
+    plan = session.load(ver)
+    if drc:
+        _export(session, plan, drc=True)
+    else:
+        run_checks(plan)
+        session.save(plan)
+    for f in plan.findings:
+        typer.echo(f"{f.severity.value.upper():7} {f.id}: {f.message}")
+    _print_summary(plan)
+    if plan.check_summary and plan.check_summary.status.value == "FAIL":
+        raise typer.Exit(code=1)
 
 
 @app.command()
 def refine(
-    plan: Annotated[Path, typer.Argument(help="plan.json")],
-    feedback: Annotated[str, typer.Option("--feedback", "-f")],
+    plan_path: PlanArg,
+    feedback: Annotated[str, typer.Option("--feedback", "-f", help="Reviewer feedback")],
+    stage: Annotated[str | None, typer.Option(help="Force the stage to regenerate from")] = None,
     mock_llm: MockOpt = False,
+    model: ModelOpt = None,
+    no_drc: NoDrcOpt = False,
 ) -> None:
-    """Regenerate only the stages affected by feedback and show a diff."""
-    _not_yet("refine", 6)
+    """Regenerate only the stages affected by feedback; saves a new version and prints a diff."""
+    from .llm import LLMError
+    from .review import diff_plans, format_diff, refine_plan, resolve_plan_path
+
+    session, ver = resolve_plan_path(plan_path)
+    plan = session.load(ver)
+    client = _client(mock_llm, model)
+    try:
+        new, cls = refine_plan(
+            plan,
+            feedback,
+            client=client,
+            lib=ComponentLibrary.load(),
+            audit=session.audit(),
+            stage=stage,
+            version=session.next_version(),
+        )
+    except LLMError as e:
+        _fail(f"LLM stage '{e.stage}' failed: {e}", 2)
+    except ValueError as e:
+        _fail(str(e))
+    typer.echo(f"Regenerated from stage '{cls.stage}' ({cls.reason}).")
+    session.save(new)
+    outdir = _export(session, new, drc=not no_drc)
+    typer.echo(format_diff(diff_plans(plan, new)))
+    _print_summary(new, outdir)
 
 
 @app.command()
 def export(
-    plan: Annotated[Path, typer.Argument(help="plan.json")],
+    plan_path: PlanArg,
     format: Annotated[str, typer.Option("--format", help="kicad|bom|report|all")] = "all",
+    out: Annotated[Path | None, typer.Option("--out", "-o", help="Output directory")] = None,
+    no_drc: NoDrcOpt = False,
 ) -> None:
-    """Export KiCad files, BOM CSV and/or report.md."""
-    _not_yet("export", 5)
+    """Export KiCad files, BOM CSV and/or report.md for a plan version."""
+    from .export import FORMATS, export_plan
+    from .review import resolve_plan_path
+
+    formats = FORMATS if format == "all" else tuple(format.split(","))
+    bad = set(formats) - set(FORMATS)
+    if bad:
+        _fail(f"unknown format(s) {sorted(bad)}; choose from {FORMATS} or all")
+    session, ver = resolve_plan_path(plan_path)
+    plan = session.load(ver)
+    target = out or session.export_dir(plan.version)
+    res = export_plan(plan, target, formats=formats, drc=not no_drc)
+    if out is None:
+        session.save(plan)
+    for f in res.files:
+        typer.echo(str(f))
+    if res.drc is not None:
+        typer.echo(f"KiCad DRC: {res.drc.note}")
 
 
 @app.command()
-def diff(a: Path, b: Path) -> None:
-    """Diff two plan versions."""
-    _not_yet("diff", 6)
+def diff(
+    a: Annotated[Path, typer.Argument(help="First plan file")],
+    b: Annotated[Path, typer.Argument(help="Second plan file")],
+    as_json: Annotated[bool, typer.Option("--json")] = False,
+) -> None:
+    """Diff two plan versions (components, nets, rails, outline, placement, findings)."""
+    from .review import diff_plans, format_diff
+
+    pa = DesignPlan.model_validate_json(a.read_text())
+    pb = DesignPlan.model_validate_json(b.read_text())
+    d = diff_plans(pa, pb)
+    if as_json:
+        typer.echo(json.dumps(d.to_dict(), indent=2, default=str))
+    else:
+        typer.echo(format_diff(d))
 
 
 @app.command()
-def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
+def serve(
+    sessions: Annotated[Path, typer.Option(help="Directory holding session folders")] = Path(
+        "sessions"
+    ),
+    host: str = "127.0.0.1",
+    port: int = 8000,
+) -> None:
     """Start the local review UI and REST API."""
-    _not_yet("serve", 6)
+    import uvicorn
+
+    from .ui.app import create_app
+
+    typer.echo(f"Review UI on http://{host}:{port}  (sessions in {sessions.resolve()})")
+    uvicorn.run(create_app(sessions), host=host, port=port)
+
+
+# ---------------------------------------------------------------------------
+# review
+# ---------------------------------------------------------------------------
+
+
+def _review_action(
+    plan_path: Path,
+    target: str,
+    decision: str,
+    note: str,
+    author: str,
+    force: bool = False,
+    edit: dict[str, Any] | None = None,
+) -> None:
+    from .checks import run_checks
+    from .review import ReviewError, apply_decision, resolve_plan_path
+
+    session, ver = resolve_plan_path(plan_path)
+    plan = session.load(ver)
+    ref = _parse_target(target)
+    if decision == "edit":
+        plan = plan.model_copy(deep=True)
+        plan.parent_version = plan.version
+        plan.version = session.next_version()
+    try:
+        d = apply_decision(
+            plan,
+            ref,
+            decision,
+            author=author,
+            note=note,
+            edit=edit,
+            lib=ComponentLibrary.load(),
+            force=force,
+        )
+    except ReviewError as e:
+        _fail(str(e))
+    if decision == "edit":
+        run_checks(plan)
+    session.save(plan)
+    session.audit().log(
+        "review",
+        data={
+            "decision": d.decision,
+            "target": ref.key(),
+            "note": note,
+            "author": author,
+            "version": str(plan.version),
+        },
+    )
+    typer.echo(f"{d.id}: {decision} {ref.key()} (plan v{plan.version})")
+    if decision == "edit":
+        typer.echo(
+            "Edit saved as a new version. Run `pcbassist refine --stage netlist` to "
+            "re-synthesize around it, or `pcbassist export` to regenerate files."
+        )
+        _print_summary(plan)
+
+
+@review_app.command("comment")
+def review_comment(
+    plan_path: PlanArg,
+    target: TargetOpt,
+    text: Annotated[str, typer.Option("--text", "-m")],
+    author: str = "reviewer",
+) -> None:
+    """Attach a comment to an item."""
+    from .review import ReviewError, add_comment, resolve_plan_path
+
+    session, ver = resolve_plan_path(plan_path)
+    plan = session.load(ver)
+    try:
+        c = add_comment(plan, _parse_target(target), text, author)
+    except ReviewError as e:
+        _fail(str(e))
+    session.save(plan)
+    session.audit().log("review", data={"comment": c.id, "target": c.target.key(), "text": text})
+    typer.echo(f"{c.id} on {c.target.key()}")
+
+
+@review_app.command("approve")
+def review_approve(
+    plan_path: PlanArg,
+    target: TargetOpt,
+    note: str = "",
+    author: str = "reviewer",
+    force: Annotated[bool, typer.Option(help="Approve a plan even if checks fail")] = False,
+) -> None:
+    """Approve an item (or plan:* for the whole plan)."""
+    _review_action(plan_path, target, "approve", note, author, force)
+
+
+@review_app.command("reject")
+def review_reject(
+    plan_path: PlanArg, target: TargetOpt, note: str = "", author: str = "reviewer"
+) -> None:
+    """Reject an item; rejected parts are avoided on the next refine."""
+    _review_action(plan_path, target, "reject", note, author)
+
+
+@review_app.command("lock")
+def review_lock(
+    plan_path: PlanArg, target: TargetOpt, note: str = "", author: str = "reviewer"
+) -> None:
+    """Lock an item so regeneration keeps it unchanged."""
+    _review_action(plan_path, target, "lock", note, author)
+
+
+@review_app.command("unlock")
+def review_unlock(
+    plan_path: PlanArg, target: TargetOpt, note: str = "", author: str = "reviewer"
+) -> None:
+    """Unlock an item."""
+    _review_action(plan_path, target, "unlock", note, author)
+
+
+@review_app.command("edit")
+def review_edit(
+    plan_path: PlanArg,
+    target: TargetOpt,
+    set_: Annotated[list[str], typer.Option("--set", help="field=value (JSON values allowed)")],
+    note: str = "",
+    author: str = "reviewer",
+) -> None:
+    """Edit fields of an item; saved as a new version and re-checked."""
+    edit: dict[str, Any] = {}
+    for kv in set_:
+        k, sep, v = kv.partition("=")
+        if not sep:
+            _fail(f"--set expects field=value, got '{kv}'")
+        edit[k] = _parse_value(v)
+    _review_action(plan_path, target, "edit", note, author, edit=edit)
+
+
+@review_app.command("status")
+def review_status(plan_path: PlanArg) -> None:
+    """Show review state: item statuses, locks, comments, decisions."""
+    from .review import resolve_plan_path, review_summary
+
+    session, ver = resolve_plan_path(plan_path)
+    plan = session.load(ver)
+    typer.echo(f"Plan v{plan.version} ({plan.review_status.value}); versions: {session.versions()}")
+    typer.echo(json.dumps(review_summary(plan)))
+    for c in plan.comments:
+        typer.echo(f"  {c.id} [{'x' if c.resolved else ' '}] {c.target.key()}: {c.text}")
+    for d in plan.decisions:
+        typer.echo(f"  {d.id} {d.decision} {d.target.key()} {d.note}")
 
 
 # ---------------------------------------------------------------------------
@@ -130,8 +471,8 @@ def library_show(mpn: str) -> None:
     """Print one part as JSON."""
     part = ComponentLibrary.load().get(mpn)
     if part is None:
-        typer.secho(f"not in library: {mpn}", fg=typer.colors.RED, err=True)
-        raise typer.Exit(code=1)
+        _fail(f"not in library: {mpn}")
+    assert part is not None
     typer.echo(part.model_dump_json(indent=2))
 
 
@@ -164,9 +505,7 @@ def library_validate() -> None:
 
 
 @schema_app.command("export")
-def schema_export(
-    out: Annotated[Path, typer.Option("--out", "-o")] = Path("schemas"),
-) -> None:
+def schema_export(out: Annotated[Path, typer.Option("--out", "-o")] = Path("schemas")) -> None:
     """Write <Model>.schema.json for every data model."""
     for p in export_json_schemas(out):
         typer.echo(str(p))
@@ -179,12 +518,8 @@ def schema_show(name: str) -> None:
 
     model = EXPORTED_MODELS.get(name)
     if model is None:
-        typer.secho(
-            f"unknown model; choose from: {', '.join(EXPORTED_MODELS)}",
-            fg=typer.colors.RED,
-            err=True,
-        )
-        raise typer.Exit(code=1)
+        _fail(f"unknown model; choose from: {', '.join(EXPORTED_MODELS)}")
+    assert model is not None
     typer.echo(json.dumps(model.model_json_schema(), indent=2))
 
 

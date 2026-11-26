@@ -1,0 +1,1 @@
+Wi-Fi temperature and humidity logger that runs for 2 years on a single CR2032 coin cell, uploads a reading every 10 seconds, switches a 5 V relay, uses two identical humidity sensors for redundancy, and fits on a 15 x 15 mm board.

@@ -1,0 +1,1 @@
+Coin-cell BLE asset tag with an accelerometer for wake-on-motion, a status LED and a button. Programmed over SWD with a Tag-Connect cable. Should run at least a year on a CR2032. As small as practical.

@@ -66,11 +66,32 @@ rule code are, and every LLM claim is checked against them.
    review, and the spec allows either.
 10. **Trace widths.** IPC-2221 external-layer formula `I = 0.048·ΔT^0.44·A^0.725`
     (A in mil², ΔT = 10 °C default, 1 oz copper), with a floor at the fab minimum.
-11. **Placement.** Deterministic zone packing: zones are derived from block kinds (RF at a
-    board edge with antenna keepout, power near input connector, sensors away from
-    regulators), then a shelf-packing algorithm with courtyard-size bounding boxes and
-    proximity pulls (decouplers next to their pin). Overlap freedom is asserted in tests.
+11. **Placement.** Deterministic, in this order: mounting holes at the corners; then edge
+    items flush against their edge (antenna modules on the top edge starting from the
+    right, power inputs on the left, field terminals on the right, battery and headers on
+    the bottom); then functional parts, largest first, each at the free spot nearest its
+    zone's preferred point (power near the input, drivers near the terminals, sensors far
+    from the regulators); then support parts at the free spot nearest the pad they serve.
+    Courtyards are decomposed into rectangles, so T-shaped module courtyards with antenna
+    clearance do not waste board area. A 2 mm "halo" around each IC is kept free while big
+    parts are placed. Positions are on a 0.5 mm grid. (The plan originally said shelf
+    packing; nearest-free-spot handled the edge and proximity constraints better.)
 12. **Web UI.** FastAPI serves a single static HTML/JS page (no build step).
+14. **Schematic.** A flat `.kicad_sch` of *generated* box symbols built from the same pin
+    tables, with a wire stub and a local net label on every pin and NC flags on the rest.
+    Embedding the KiCad 10 library symbols would risk format errors in a KiCad 8 file. The
+    test suite has KiCad export a netlist from the schematic and compares it with the
+    plan's netlist.
+15. **Version semantics.** A version's design content never changes once saved. Comments,
+    approvals, locks and check results update that version in place. Edits and refinements
+    create version N+1 with `parent_version = N`. `Session.save` enforces this.
+16. **Feedback routing.** `refine` picks the restart stage with deterministic keyword
+    rules, so a reviewer can predict what will change; `--stage` overrides it. Board size
+    and layer-count directives are applied without the LLM.
+17. **KiCad DRC classification.** Unrouted connections, silkscreen findings and missing
+    library tables are expected on an unrouted auto-placed board, so they are INFO.
+    Errors entirely inside one library footprint (module thermal vias, USB-C NPTH
+    clearance) are WARNING, with the footprint named.
 13. **Docker.** Image based on the official KiCad image so `kicad-cli` DRC is reproducible.
 
 ## 3. Assumptions (where the spec is silent)
@@ -85,6 +106,13 @@ rule code are, and every LLM claim is checked against them.
   placed on a grid and nets expressed as labels (no wires) — "if feasible" per spec.
 - KiCad target: version 8/9 file formats (`kicad-cli` 8+).
 - Default design-plan unit is millimetres; currents in mA, sleep currents in µA.
+- Battery life = 0.8 x capacity / (duty-weighted active + sleep current). Indicator LEDs
+  count toward peak current but not the average (their on-time is application-specific).
+  Regulators draw their quiescent current all the time. Switchers are 85 % efficient.
+- Coin-cell peak current: up to 1.5x the rated pulse current is a warning (it can be
+  bridged with bulk capacitance); beyond that it is an error.
+- Net-class clearance equals the fab minimum (0.15 mm), because fine-pitch library
+  footprints have 0.15 mm pad gaps.
 - When an LLM proposes an MPN that is not in the library it is kept, flagged
   `verified=false`, given confidence ≤ 0.3, and excluded from the netlist until a human
   confirms it with a pin table.
@@ -101,13 +129,18 @@ rule code are, and every LLM claim is checked against them.
 6. **Review & iteration** — versions, diff, comments/decisions/locks, partial regen, UI.
 7. **Examples, docs, Docker, `make demo`.**
 
-## 5. Risks / known limitations (initial)
+## 5. Risks / known limitations
 
 - Live-LLM path is untested until an API key is supplied; mock fixtures are hand-written.
 - KiCad symbol pin tables are trusted as the pin source; they are community-reviewed but
   still require datasheet verification before fabrication (stated in the report).
 - Electrical limits in `parts_curated.toml` are curated from datasheet knowledge and each
   entry carries `verified_by` provenance notes; anything uncertain is marked in `notes`.
+- No routing, single-sided placement, 0° rotation. Edge connectors still need rotating so
+  their mating face points off the board.
+- Subcircuit rules cover the parts the examples use plus their close relatives. Other
+  parts get power and ground, and their remaining pins become explicit NCs with a
+  SYNTH-INCOMPLETE warning, never silent guesses.
 
 ## 6. Milestone log
 
@@ -128,3 +161,58 @@ rule code are, and every LLM claim is checked against them.
   KiCad 8 library); USB connector shield pins remapped `SH→S1`/`SH→6` (symbol/footprint
   numbering differs across KiCad versions); barrel jack switched to the no-switch symbol
   to match the PJ-063AH footprint.
+
+### M2 - Core pipeline (done 2026-11-26)
+- **Works:** requirements -> architecture -> components (LLM, schema-validated) -> netlist
+  (deterministic synthesizer, `pipeline/synth.py`). The synthesizer builds the power tree
+  (USB/DC/battery sources, fuse + series diode + TVS chains, MCP73831 charger, fixed LDOs,
+  LM2596-5.0 buck), wires ESP32/nRF52 modules (decoupling, EN RC, strapping pull-ups,
+  boot/reset buttons, native USB, SWD, UART), I2C devices (pull-ups, address pins,
+  CS-high for I2C mode, address assignment and conflicts), LEDs, buttons, relays (FET,
+  flyback, gate resistors), DRV8871, battery-sense divider and headers. Every pin of every
+  verified part ends up on a net or as an explicit NC with a reason. Support-part keys are
+  stable, so ref designators survive refinements. Hand-authored fixtures cover 4 examples
+  and 1 refinement.
+- **Library fixes:** TVS `A1`/`A2` pins are no longer tagged as I2C address pins, and
+  LIS3DH `SPC` is tagged SCL.
+### M3 - Constraints, placement, routing (done 2026-11-26)
+- **Works:** rails with budgets; IPC-2221 power width (with 1.25x margin, minimum 0.4 mm);
+  Default/Power/Ground/USB net classes from the fab profile; decoupling requirements; USB
+  90 Ω differential target; outline from the requirements or auto-sized; corner mounting
+  holes; connector edge assignment; placement as in decision 11, with RF keepouts and
+  zones; stackup and prioritised routing guidance.
+- **Changed:** the IoT example board is 50 x 35 mm, because the C3 module's 28.5 mm-wide
+  courtyard (including antenna clearance) plus USB-C and JST did not fit in 45 x 30. The
+  BLE board is 40 x 30 mm because placement is single-sided (stated as an assumption).
+### M4 - Checks (done 2026-11-26)
+- **Works:** 17 ERC rules, 8 power rules, 14 DFM/placement rules, library rules, and the
+  KiCad DRC parser. Each ERC rule has a mutation test. The flawed example FAILs on 12
+  errors covering every intended flaw; the three good examples are PASS_WITH_WARNINGS
+  with realistic warnings.
+### M5 - Exporters (done 2026-11-26)
+- **Works:** `.net` (KiCad "E" format), `.kicad_pro` (net classes, rules from the fab
+  profile, disclaimer variable), `.kicad_pcb` (vendored footprints with nets, rounded
+  outline, unfilled GND pour on B.Cu, the modules' own keepout zones, deterministic
+  UUIDs), `.kicad_sch` (decision 14), BOM CSV, `report.md`, and DRC via `kicad-cli`.
+- **Verified with real KiCad 8.0.9 (Docker):** every board loads, DRC runs and finds no
+  courtyard overlaps, footprint zones land at the right board coordinates (checked
+  through the pcbnew Python API), and KiCad's netlist exported from our schematic equals
+  the plan netlist for all examples.
+### M6 - Review and iteration (done 2026-11-26)
+- **Works:** sessions with versions (decision 15); comment, resolve, approve, reject,
+  edit, lock and unlock on components, nets, rails, net classes, placements, constraints,
+  requirements and the whole plan. Plan approval is refused while checks FAIL unless
+  forced. `refine` does partial regeneration (decision 16), carrying locks, edits,
+  approvals and rejections over. `diff` (text or JSON); CLI `review` subcommands;
+  FastAPI REST API and a static review page.
+- **Fix:** the SQLite library connection is now shareable across API worker threads,
+  guarded by a lock.
+### M7 - Examples, docs, Docker, demo (done 2026-11-26)
+- **Works:** `examples/*/out` committed: full sessions with KiCad DRC, plus the IoT v2
+  refinement and its diff. README. A `Dockerfile` on `kicad/kicad:8.0.9` (built and run
+  locally: generate with in-container DRC works). `scripts/kicad-cli-docker`;
+  `make demo`, `serve-demo`, `examples`, `test-kicad`, `docker-demo`. CI gains a KiCad
+  container job.
+- **Tested:** 214 tests (+2 real-KiCad tests that run when kicad-cli is available), 92 %
+  line coverage, ruff clean, mypy strict on the core modules.
+- **Still untested:** the live Anthropic path against the real API (no key here).

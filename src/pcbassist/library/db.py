@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import re
 import sqlite3
+import threading
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -46,7 +47,9 @@ class SearchQuery:
 
 class ComponentLibrary:
     def __init__(self, parts: Iterable[LibraryPart], db_path: Path | str = ":memory:") -> None:
-        self._conn = sqlite3.connect(str(db_path))
+        # Read-mostly and shared by API worker threads: one connection, serialised by a lock.
+        self._conn = sqlite3.connect(str(db_path), check_same_thread=False)
+        self._lock = threading.Lock()
         self._conn.executescript(_SCHEMA)
         self._parts: dict[str, LibraryPart] = {}
         rows = []
@@ -90,8 +93,9 @@ class ComponentLibrary:
         return list(self._parts.values())
 
     def categories(self) -> list[str]:
-        cur = self._conn.execute("SELECT DISTINCT category FROM parts ORDER BY category")
-        return [str(r[0]) for r in cur.fetchall()]
+        with self._lock:
+            cur = self._conn.execute("SELECT DISTINCT category FROM parts ORDER BY category")
+            return [str(r[0]) for r in cur.fetchall()]
 
     def get(self, mpn: str) -> LibraryPart | None:
         """Exact MPN lookup, falling back to a case/whitespace-insensitive match."""
@@ -124,8 +128,9 @@ class ComponentLibrary:
             args += [q.supply_v, q.supply_v]
         sql.append("ORDER BY category, mpn LIMIT ?")
         args.append(q.limit)
-        cur = self._conn.execute(" ".join(sql), args)
-        return [self._parts[str(r[0])] for r in cur.fetchall()]
+        with self._lock:
+            rows = self._conn.execute(" ".join(sql), args).fetchall()
+        return [self._parts[str(r[0])] for r in rows]
 
 
 def _norm(mpn: str) -> str:

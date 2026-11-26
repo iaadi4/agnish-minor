@@ -315,3 +315,17 @@ def test_make_client_factory(monkeypatch: pytest.MonkeyPatch) -> None:
     assert make_client(mock=True).mode == "mock"
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test-not-real")
     assert make_client(mock=False, model="claude-sonnet-5-5").model_name == "claude-sonnet-5-5"
+
+
+def test_recording_client_writes_fixtures(tmp_path: Path) -> None:
+    from pcbassist.llm.recording import RecordingClient
+
+    root = tmp_path / "fx"
+    _write(root, "stage", "_default", {"responses": ['{"name": "a", "count": 1}']})
+    rec = RecordingClient(MockLLMClient(root), tmp_path / "rec", "demo")
+    assert rec.mode == "mock" and rec.model_name == "mock-llm"
+    for _ in range(2):
+        generate_structured(rec, stage="stage", output_model=Out, system="s", user="u")
+    doc = json.loads((tmp_path / "rec" / "stage" / "demo.json").read_text())
+    assert len(doc["responses"]) == 2 and doc["prompt_sha256"] == fixture_hash("u")
+    assert "Recorded" in doc["_note"]

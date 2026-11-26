@@ -1,0 +1,4713 @@
+{
+  "schema_version": "1.0",
+  "disclaimer": "AI-GENERATED DESIGN PLAN - NOT VERIFIED FOR FABRICATION. This output was produced with the help of a language model and deterministic rule checks. It must be reviewed and signed off by a qualified electronics engineer before any fabrication, assembly or use.",
+  "version": 1,
+  "parent_version": null,
+  "created_at": "2026-11-26T15:20:29.623706Z",
+  "prompt": "Battery-powered Wi-Fi temperature and humidity sensor. 1000 mAh LiPo charged over USB-C. Wakes every 15 minutes, measures and reports over Wi-Fi, then deep-sleeps; needs at least 3 months of battery life. Status LED and one user button. Board no larger than 50 x 35 mm.",
+  "feedback_history": [],
+  "llm": {
+    "mode": "mock",
+    "model": "mock-llm",
+    "fixture_set": "architecture/iot_env_sensor, components/iot_env_sensor, requirements/iot_env_sensor"
+  },
+  "requirements": {
+    "summary": "Battery-powered Wi-Fi temperature/humidity sensor with USB-C LiPo charging.",
+    "functional_goals": [
+      "measure temperature and relative humidity every 15 minutes",
+      "report readings over Wi-Fi then deep-sleep",
+      "charge a 1000 mAh LiPo from USB-C",
+      "status LED and one user button"
+    ],
+    "power_sources": [
+      {
+        "kind": "lipo_1s",
+        "nominal_v": 3.7,
+        "min_v": 3.0,
+        "max_v": 4.2,
+        "capacity_mah": 1000.0,
+        "max_current_ma": 1000.0,
+        "rechargeable": true,
+        "notes": "single cell with built-in protection PCB assumed"
+      },
+      {
+        "kind": "usb_5v",
+        "nominal_v": 5.0,
+        "min_v": 4.75,
+        "max_v": 5.25,
+        "capacity_mah": null,
+        "max_current_ma": 500.0,
+        "rechargeable": false,
+        "notes": "USB 2.0 default power; no PD negotiation"
+      }
+    ],
+    "target_battery_life_days": 90.0,
+    "duty_cycle": "wake every 15 min, about 3 s awake (sensor read + Wi-Fi report)",
+    "duty_active_s": 3.0,
+    "duty_period_s": 900.0,
+    "voltage_rails": [
+      {
+        "name": "+3V3",
+        "nominal_v": 3.3,
+        "tolerance_pct": 3.0,
+        "est_current_ma": null,
+        "purpose": "MCU and sensor"
+      }
+    ],
+    "interfaces": [
+      {
+        "kind": "USB",
+        "purpose": "charging and firmware upload",
+        "count": 1,
+        "external": true
+      },
+      {
+        "kind": "I2C",
+        "purpose": "temperature/humidity sensor",
+        "count": 1,
+        "external": false
+      }
+    ],
+    "wireless": [
+      {
+        "protocol": "wifi",
+        "notes": null,
+        "antenna": "pcb"
+      }
+    ],
+    "sensors": [
+      {
+        "quantity": "temperature",
+        "accuracy": "+/-0.5 C",
+        "notes": null
+      },
+      {
+        "quantity": "humidity",
+        "accuracy": "+/-3 %RH",
+        "notes": null
+      }
+    ],
+    "actuators": [],
+    "user_io": [
+      "status LED",
+      "user button"
+    ],
+    "environment": {
+      "temp_min_c": 0.0,
+      "temp_max_c": 50.0,
+      "ip_rating": null,
+      "notes": "indoor"
+    },
+    "size": {
+      "max_width_mm": 50.0,
+      "max_height_mm": 35.0,
+      "max_component_height_mm": null
+    },
+    "layer_count_target": 2,
+    "cost_target": null,
+    "assumptions": [
+      {
+        "text": "Indoor use, 0-50 C",
+        "field": "environment",
+        "rationale": null
+      },
+      {
+        "text": "About 3 s awake per report (connect, measure, publish)",
+        "field": "duty_active_s",
+        "rationale": null
+      },
+      {
+        "text": "LiPo has its own protection circuit (no on-board protector)",
+        "field": "power_sources",
+        "rationale": null
+      },
+      {
+        "text": "2-layer board is sufficient",
+        "field": "layer_count_target",
+        "rationale": null
+      },
+      {
+        "text": "USB is used for charging and native-USB programming",
+        "field": "interfaces",
+        "rationale": null
+      }
+    ],
+    "open_questions": [
+      "Which cloud protocol/backend (MQTT, HTTP)?",
+      "Enclosure and venting for accurate humidity readings?"
+    ],
+    "conflicts": [],
+    "out_of_scope": []
+  },
+  "architecture": {
+    "blocks": [
+      {
+        "id": "usb_in",
+        "kind": "power_input",
+        "name": "USB-C input + ESD",
+        "description": "",
+        "covers": [
+          "usb"
+        ]
+      },
+      {
+        "id": "charger",
+        "kind": "charging",
+        "name": "LiPo charger",
+        "description": "",
+        "covers": [
+          "charging"
+        ]
+      },
+      {
+        "id": "battery",
+        "kind": "battery",
+        "name": "LiPo connector",
+        "description": "",
+        "covers": [
+          "battery"
+        ]
+      },
+      {
+        "id": "regulator",
+        "kind": "regulation",
+        "name": "3.3 V LDO",
+        "description": "",
+        "covers": [
+          "+3V3"
+        ]
+      },
+      {
+        "id": "mcu",
+        "kind": "mcu_wireless",
+        "name": "Wi-Fi MCU module",
+        "description": "",
+        "covers": [
+          "wifi"
+        ]
+      },
+      {
+        "id": "sensor",
+        "kind": "sensor",
+        "name": "T/RH sensor",
+        "description": "",
+        "covers": [
+          "temperature",
+          "humidity"
+        ]
+      },
+      {
+        "id": "ui",
+        "kind": "user_io",
+        "name": "LED and button",
+        "description": "",
+        "covers": [
+          "status LED",
+          "user button"
+        ]
+      }
+    ],
+    "links": [
+      {
+        "src": "usb_in",
+        "dst": "charger",
+        "kind": "power",
+        "label": "VBUS 5 V"
+      },
+      {
+        "src": "charger",
+        "dst": "battery",
+        "kind": "power",
+        "label": "charge"
+      },
+      {
+        "src": "battery",
+        "dst": "regulator",
+        "kind": "power",
+        "label": "VBAT 3.0-4.2 V"
+      },
+      {
+        "src": "regulator",
+        "dst": "mcu",
+        "kind": "power",
+        "label": "+3V3"
+      },
+      {
+        "src": "regulator",
+        "dst": "sensor",
+        "kind": "power",
+        "label": "+3V3"
+      },
+      {
+        "src": "usb_in",
+        "dst": "mcu",
+        "kind": "usb",
+        "label": "USB D+/D-"
+      },
+      {
+        "src": "mcu",
+        "dst": "sensor",
+        "kind": "i2c",
+        "label": ""
+      },
+      {
+        "src": "mcu",
+        "dst": "ui",
+        "kind": "gpio",
+        "label": ""
+      }
+    ],
+    "rationale": "Single Wi-Fi SoC module; LDO from the battery so the board runs without USB."
+  },
+  "selection": {
+    "parts": [
+      {
+        "role": "USB-C receptacle (charging + data)",
+        "block_id": "usb_in",
+        "mpn": "USB4105-GF-A",
+        "quantity": 1,
+        "rationale": "USB 2.0 sink receptacle in the library",
+        "confidence": 0.85,
+        "alternates": [
+          "TYPE-C-31-M-12"
+        ]
+      },
+      {
+        "role": "USB ESD protection",
+        "block_id": "usb_in",
+        "mpn": "USBLC6-2SC6",
+        "quantity": 1,
+        "rationale": "standard 2-line TVS array for D+/D- and VBUS",
+        "confidence": 0.9,
+        "alternates": []
+      },
+      {
+        "role": "LiPo linear charger",
+        "block_id": "charger",
+        "mpn": "MCP73831T-2ACI/OT",
+        "quantity": 1,
+        "rationale": "single-cell 4.2 V charger, 500 mA max, tiny SOT-23-5",
+        "confidence": 0.9,
+        "alternates": [
+          "BQ24074RGTR"
+        ]
+      },
+      {
+        "role": "charge status LED",
+        "block_id": "charger",
+        "mpn": "LTST-C191KRKT",
+        "quantity": 1,
+        "rationale": "red LED driven by the charger STAT pin",
+        "confidence": 0.8,
+        "alternates": []
+      },
+      {
+        "role": "LiPo battery connector",
+        "block_id": "battery",
+        "mpn": "S2B-PH-SM4-TB(LF)(SN)",
+        "quantity": 1,
+        "rationale": "JST-PH is the common LiPo lead",
+        "confidence": 0.85,
+        "alternates": []
+      },
+      {
+        "role": "3.3 V LDO",
+        "block_id": "regulator",
+        "mpn": "AP2112K-3.3TRG1",
+        "quantity": 1,
+        "rationale": "600 mA covers ESP32-C3 Wi-Fi TX peaks; 250 mV dropout",
+        "confidence": 0.8,
+        "alternates": [
+          "AP7361C-33E-13"
+        ]
+      },
+      {
+        "role": "main Wi-Fi MCU",
+        "block_id": "mcu",
+        "mpn": "ESP32-C3-WROOM-02-N4",
+        "quantity": 1,
+        "rationale": "low-cost Wi-Fi/BLE module with native USB and deep sleep",
+        "confidence": 0.85,
+        "alternates": [
+          "ESP32-C6-MINI-1-N4"
+        ]
+      },
+      {
+        "role": "temperature/humidity sensor",
+        "block_id": "sensor",
+        "mpn": "SHT40-AD1B-R3",
+        "quantity": 1,
+        "rationale": "+/-0.2 C, +/-1.8 %RH, I2C, 0.08 uA idle",
+        "confidence": 0.9,
+        "alternates": [
+          "SHTC3",
+          "BME280"
+        ]
+      },
+      {
+        "role": "status LED",
+        "block_id": "ui",
+        "mpn": "LTST-C191KGKT",
+        "quantity": 1,
+        "rationale": "green status indicator",
+        "confidence": 0.8,
+        "alternates": []
+      },
+      {
+        "role": "user button",
+        "block_id": "ui",
+        "mpn": "PTS810 SJM 250 SMTR LFS",
+        "quantity": 1,
+        "rationale": "small SMD tactile switch",
+        "confidence": 0.8,
+        "alternates": []
+      }
+    ],
+    "notes": [
+      "Support passives are added by the synthesizer."
+    ],
+    "rejected_candidates": [
+      "MCP1700T-3302E/TT: 250 mA cannot cover Wi-Fi TX peaks"
+    ]
+  },
+  "components": [
+    {
+      "ref_des": "J1",
+      "role": "USB-C receptacle (charging + data)",
+      "mpn": "USB4105-GF-A",
+      "category": "connector_usb",
+      "manufacturer": "GCT",
+      "description": "USB Type-C receptacle, USB 2.0, 16-pin, SMT top-mount horizontal",
+      "package": "USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal",
+      "footprint": "Connector_USB:USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal",
+      "value": null,
+      "key_specs": {
+        "usb": "2.0",
+        "vbus_max_v": 20,
+        "current_rating_a": 3
+      },
+      "pins": [
+        {
+          "number": "A1",
+          "name": "GND",
+          "type": "passive",
+          "functions": [
+            "gnd"
+          ]
+        },
+        {
+          "number": "A4",
+          "name": "VBUS",
+          "type": "passive",
+          "functions": [
+            "vbus"
+          ]
+        },
+        {
+          "number": "A5",
+          "name": "CC1",
+          "type": "bidir",
+          "functions": [
+            "usb_cc"
+          ]
+        },
+        {
+          "number": "A6",
+          "name": "D+",
+          "type": "bidir",
+          "functions": [
+            "usb_dp"
+          ]
+        },
+        {
+          "number": "A7",
+          "name": "D-",
+          "type": "bidir",
+          "functions": [
+            "usb_dm"
+          ]
+        },
+        {
+          "number": "A8",
+          "name": "SBU1",
+          "type": "bidir",
+          "functions": [
+            "usb_sbu"
+          ]
+        },
+        {
+          "number": "A9",
+          "name": "VBUS",
+          "type": "passive",
+          "functions": [
+            "vbus"
+          ]
+        },
+        {
+          "number": "A12",
+          "name": "GND",
+          "type": "passive",
+          "functions": [
+            "gnd"
+          ]
+        },
+        {
+          "number": "B1",
+          "name": "GND",
+          "type": "passive",
+          "functions": [
+            "gnd"
+          ]
+        },
+        {
+          "number": "B4",
+          "name": "VBUS",
+          "type": "passive",
+          "functions": [
+            "vbus"
+          ]
+        },
+        {
+          "number": "B5",
+          "name": "CC2",
+          "type": "bidir",
+          "functions": [
+            "usb_cc"
+          ]
+        },
+        {
+          "number": "B6",
+          "name": "D+",
+          "type": "bidir",
+          "functions": [
+            "usb_dp"
+          ]
+        },
+        {
+          "number": "B7",
+          "name": "D-",
+          "type": "bidir",
+          "functions": [
+            "usb_dm"
+          ]
+        },
+        {
+          "number": "B8",
+          "name": "SBU2",
+          "type": "bidir",
+          "functions": [
+            "usb_sbu"
+          ]
+        },
+        {
+          "number": "B9",
+          "name": "VBUS",
+          "type": "passive",
+          "functions": [
+            "vbus"
+          ]
+        },
+        {
+          "number": "B12",
+          "name": "GND",
+          "type": "passive",
+          "functions": [
+            "gnd"
+          ]
+        },
+        {
+          "number": "S1",
+          "name": "SHIELD",
+          "type": "passive",
+          "functions": [
+            "shield"
+          ]
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [
+        "TYPE-C-31-M-12"
+      ],
+      "datasheet_url": "https://www.usb.org/sites/default/files/documents/usb_type-c.zip",
+      "kicad_symbol": "Connector:USB_C_Receptacle_USB2.0_16P",
+      "rationale": "USB 2.0 sink receptacle in the library",
+      "confidence": 0.85,
+      "verified": true,
+      "block_id": "usb_in",
+      "rail": "VBUS",
+      "support_for": null,
+      "support_pin": null,
+      "key": "usb_in/connector_usb",
+      "origin": "llm",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "D1",
+      "role": "USB ESD protection",
+      "mpn": "USBLC6-2SC6",
+      "category": "esd",
+      "manufacturer": "STMicroelectronics",
+      "description": "Low-capacitance ESD protection for USB 2.0 D+/D- and VBUS, SOT-23-6",
+      "package": "SOT-23-6",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "value": null,
+      "key_specs": {
+        "channels": 2,
+        "iec61000_4_2": "+/-15 kV air",
+        "vrwm_v": 5
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "I/O1",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "passive",
+          "functions": [
+            "gnd"
+          ]
+        },
+        {
+          "number": "3",
+          "name": "I/O2",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "4",
+          "name": "I/O2",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "5",
+          "name": "VBUS",
+          "type": "passive",
+          "functions": [
+            "vbus"
+          ]
+        },
+        {
+          "number": "6",
+          "name": "I/O1",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": {
+        "min_v": 0.0,
+        "max_v": 5.5
+      },
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": "https://www.st.com/resource/en/datasheet/usblc6-2.pdf",
+      "kicad_symbol": "Power_Protection:USBLC6-2SC6",
+      "rationale": "standard 2-line TVS array for D+/D- and VBUS",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "usb_in",
+      "rail": "VBUS",
+      "support_for": null,
+      "support_pin": null,
+      "key": "usb_in/esd",
+      "origin": "llm",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "U1",
+      "role": "LiPo linear charger",
+      "mpn": "MCP73831T-2ACI/OT",
+      "category": "charger",
+      "manufacturer": "Microchip Technology",
+      "description": "Single-cell Li-ion/LiPo linear charger, 4.20 V, up to 500 mA, SOT-23-5",
+      "package": "SOT-23-5",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "value": null,
+      "key_specs": {
+        "charge_voltage_v": 4.2,
+        "max_charge_ma": 500,
+        "prog_formula": "I_REG(mA) = 1000 / R_PROG(kOhm)",
+        "stat_output": "tri-state",
+        "thermal_regulation": true,
+        "charge_current_ma": 500.0
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "STAT",
+          "type": "output",
+          "functions": [
+            "status"
+          ]
+        },
+        {
+          "number": "2",
+          "name": "VSS",
+          "type": "power_in",
+          "functions": [
+            "gnd"
+          ]
+        },
+        {
+          "number": "3",
+          "name": "VBAT",
+          "type": "power_out",
+          "functions": [
+            "battery",
+            "power"
+          ]
+        },
+        {
+          "number": "4",
+          "name": "VDD",
+          "type": "power_in",
+          "functions": [
+            "power"
+          ]
+        },
+        {
+          "number": "5",
+          "name": "PROG",
+          "type": "input",
+          "functions": [
+            "current_set"
+          ]
+        }
+      ],
+      "supply_range": {
+        "min_v": 3.75,
+        "max_v": 6.0
+      },
+      "current": {
+        "typ_ma": 0.5,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [
+        "BQ24074RGTR"
+      ],
+      "datasheet_url": "http://ww1.microchip.com/downloads/en/DeviceDoc/20001984g.pdf",
+      "kicad_symbol": "Battery_Management:MCP73831-2-OT",
+      "rationale": "single-cell 4.2 V charger, 500 mA max, tiny SOT-23-5",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "charger",
+      "rail": "VBUS",
+      "support_for": null,
+      "support_pin": null,
+      "key": "charger/charger",
+      "origin": "llm",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "D2",
+      "role": "charge status LED",
+      "mpn": "LTST-C191KRKT",
+      "category": "led",
+      "manufacturer": "Lite-On",
+      "description": "Red LED, 0603",
+      "package": "LED_0603_1608Metric",
+      "footprint": "LED_SMD:LED_0603_1608Metric",
+      "value": "red",
+      "key_specs": {
+        "color": "red",
+        "vf_v": 2.0,
+        "if_max_ma": 30
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "functions": [
+            "cathode"
+          ]
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "functions": [
+            "anode"
+          ]
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": 0.0,
+        "max_ma": 3.0,
+        "sleep_ua": 0.0
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:LED",
+      "rationale": "red LED driven by the charger STAT pin",
+      "confidence": 0.8,
+      "verified": true,
+      "block_id": "charger",
+      "rail": "VBUS",
+      "support_for": null,
+      "support_pin": null,
+      "key": "charger/led",
+      "origin": "llm",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "J2",
+      "role": "LiPo battery connector",
+      "mpn": "S2B-PH-SM4-TB(LF)(SN)",
+      "category": "connector_battery",
+      "manufacturer": "JST",
+      "description": "JST PH 2-pin 2.0 mm SMT right-angle header (LiPo battery)",
+      "package": "JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal",
+      "footprint": "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal",
+      "value": null,
+      "key_specs": {
+        "pitch_mm": 2.0,
+        "current_rating_a": 2
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "Pin_1",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "Pin_2",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "MP",
+          "name": "MP",
+          "type": "passive",
+          "functions": [
+            "mounting"
+          ]
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": null,
+      "rationale": "JST-PH is the common LiPo lead",
+      "confidence": 0.85,
+      "verified": true,
+      "block_id": "battery",
+      "rail": "VBAT",
+      "support_for": null,
+      "support_pin": null,
+      "key": "battery/connector_battery",
+      "origin": "llm",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "U2",
+      "role": "3.3 V LDO",
+      "mpn": "AP2112K-3.3TRG1",
+      "category": "ldo",
+      "manufacturer": "Diodes Incorporated",
+      "description": "3.3 V 600 mA LDO with enable, SOT-23-5",
+      "package": "SOT-23-5",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "value": null,
+      "key_specs": {
+        "vout_v": 3.3,
+        "iout_max_ma": 600,
+        "dropout_mv": 250,
+        "iq_ua": 55,
+        "enable": true
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "VIN",
+          "type": "power_in",
+          "functions": [
+            "power"
+          ]
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "power_in",
+          "functions": [
+            "gnd"
+          ]
+        },
+        {
+          "number": "3",
+          "name": "EN",
+          "type": "input",
+          "functions": [
+            "enable"
+          ]
+        },
+        {
+          "number": "4",
+          "name": "NC",
+          "type": "nc",
+          "functions": [
+            "nc"
+          ]
+        },
+        {
+          "number": "5",
+          "name": "VOUT",
+          "type": "power_out",
+          "functions": [
+            "power"
+          ]
+        }
+      ],
+      "supply_range": {
+        "min_v": 2.5,
+        "max_v": 6.0
+      },
+      "current": {
+        "typ_ma": 0.055,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [
+        "AP7361C-33E-13"
+      ],
+      "datasheet_url": "https://www.diodes.com/assets/Datasheets/AP2112.pdf",
+      "kicad_symbol": "Regulator_Linear:AP2112K-3.3",
+      "rationale": "600 mA covers ESP32-C3 Wi-Fi TX peaks; 250 mV dropout",
+      "confidence": 0.8,
+      "verified": true,
+      "block_id": "regulator",
+      "rail": "VBAT",
+      "support_for": null,
+      "support_pin": null,
+      "key": "regulator/ldo",
+      "origin": "llm",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "U3",
+      "role": "main Wi-Fi MCU",
+      "mpn": "ESP32-C3-WROOM-02-N4",
+      "category": "mcu_wireless",
+      "manufacturer": "Espressif Systems",
+      "description": "WiFi 4 + BLE 5 module, ESP32-C3 RISC-V 160 MHz, 4 MB flash, PCB antenna",
+      "package": "ESP32-C3-WROOM-02",
+      "footprint": "RF_Module:ESP32-C3-WROOM-02",
+      "value": null,
+      "key_specs": {
+        "cpu": "RISC-V 160 MHz",
+        "flash_mb": 4,
+        "wifi": "802.11 b/g/n 2.4 GHz",
+        "ble": "5.0",
+        "antenna": "PCB trace",
+        "gpio": 15,
+        "native_usb": true,
+        "module_size_mm": "18x20"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "3V3",
+          "type": "power_in",
+          "functions": [
+            "power"
+          ]
+        },
+        {
+          "number": "2",
+          "name": "EN",
+          "type": "input",
+          "functions": [
+            "enable",
+            "reset"
+          ]
+        },
+        {
+          "number": "3",
+          "name": "IO4",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "4",
+          "name": "IO5",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "5",
+          "name": "IO6",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "6",
+          "name": "IO7",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "7",
+          "name": "IO8",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "strapping"
+          ]
+        },
+        {
+          "number": "8",
+          "name": "IO9",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "strapping",
+            "boot"
+          ]
+        },
+        {
+          "number": "9",
+          "name": "GND",
+          "type": "power_in",
+          "functions": [
+            "gnd"
+          ]
+        },
+        {
+          "number": "10",
+          "name": "IO10",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "11",
+          "name": "IO20/RXD",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "uart_rx"
+          ]
+        },
+        {
+          "number": "12",
+          "name": "IO21/TXD",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "uart_tx"
+          ]
+        },
+        {
+          "number": "13",
+          "name": "IO18",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "usb_dm"
+          ]
+        },
+        {
+          "number": "14",
+          "name": "IO19",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "usb_dp"
+          ]
+        },
+        {
+          "number": "15",
+          "name": "IO3",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "16",
+          "name": "IO2",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "strapping"
+          ]
+        },
+        {
+          "number": "17",
+          "name": "IO1",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "18",
+          "name": "IO0",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "19",
+          "name": "GND",
+          "type": "passive",
+          "functions": [
+            "gnd"
+          ]
+        }
+      ],
+      "supply_range": {
+        "min_v": 3.0,
+        "max_v": 3.6
+      },
+      "current": {
+        "typ_ma": 85.0,
+        "max_ma": 350.0,
+        "sleep_ua": 5.0
+      },
+      "alternates": [
+        "ESP32-C6-MINI-1-N4"
+      ],
+      "datasheet_url": "https://www.espressif.com/sites/default/files/documentation/esp32-c3-wroom-02_datasheet_en.pdf",
+      "kicad_symbol": "RF_Module:ESP32-C3-WROOM-02",
+      "rationale": "low-cost Wi-Fi/BLE module with native USB and deep sleep",
+      "confidence": 0.85,
+      "verified": true,
+      "block_id": "mcu",
+      "rail": "+3V3",
+      "support_for": null,
+      "support_pin": null,
+      "key": "mcu/mcu_wireless",
+      "origin": "llm",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "U4",
+      "role": "temperature/humidity sensor",
+      "mpn": "SHT40-AD1B-R3",
+      "category": "sensor_env",
+      "manufacturer": "Sensirion",
+      "description": "Digital temperature + humidity sensor, +/-1.8 %RH, +/-0.2 C, I2C, DFN-4 1.5x1.5",
+      "package": "Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad",
+      "footprint": "Sensor_Humidity:Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad",
+      "value": null,
+      "key_specs": {
+        "interface": "I2C",
+        "i2c_address": "0x44",
+        "rh_accuracy": "+/-1.8 %RH",
+        "t_accuracy": "+/-0.2 C",
+        "i2c_address_assigned": "0x44"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "SDA",
+          "type": "bidir",
+          "functions": [
+            "i2c_sda"
+          ]
+        },
+        {
+          "number": "2",
+          "name": "SCL",
+          "type": "input",
+          "functions": [
+            "i2c_scl"
+          ]
+        },
+        {
+          "number": "3",
+          "name": "VDD",
+          "type": "power_in",
+          "functions": [
+            "power"
+          ]
+        },
+        {
+          "number": "4",
+          "name": "VSS",
+          "type": "power_in",
+          "functions": [
+            "gnd"
+          ]
+        }
+      ],
+      "supply_range": {
+        "min_v": 1.08,
+        "max_v": 3.6
+      },
+      "current": {
+        "typ_ma": 0.32,
+        "max_ma": 0.5,
+        "sleep_ua": 0.08
+      },
+      "alternates": [
+        "SHTC3",
+        "BME280"
+      ],
+      "datasheet_url": "https://sensirion.com/media/documents/33FD6951/624C4357/Datasheet_SHT4x.pdf",
+      "kicad_symbol": "Sensor_Humidity:SHT4x",
+      "rationale": "+/-0.2 C, +/-1.8 %RH, I2C, 0.08 uA idle",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "sensor",
+      "rail": "+3V3",
+      "support_for": null,
+      "support_pin": null,
+      "key": "sensor/sensor_env",
+      "origin": "llm",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "D3",
+      "role": "status LED",
+      "mpn": "LTST-C191KGKT",
+      "category": "led",
+      "manufacturer": "Lite-On",
+      "description": "Green LED, 0603",
+      "package": "LED_0603_1608Metric",
+      "footprint": "LED_SMD:LED_0603_1608Metric",
+      "value": "green",
+      "key_specs": {
+        "color": "green",
+        "vf_v": 2.0,
+        "if_max_ma": 30
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "functions": [
+            "cathode"
+          ]
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "functions": [
+            "anode"
+          ]
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": 0.0,
+        "max_ma": 1.3,
+        "sleep_ua": 0.0
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:LED",
+      "rationale": "green status indicator",
+      "confidence": 0.8,
+      "verified": true,
+      "block_id": "ui",
+      "rail": "+3V3",
+      "support_for": null,
+      "support_pin": null,
+      "key": "ui/led",
+      "origin": "llm",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "SW1",
+      "role": "user button",
+      "mpn": "PTS810 SJM 250 SMTR LFS",
+      "category": "switch",
+      "manufacturer": "C&K",
+      "description": "SMD tactile switch, 4.2x3.2 mm, 250 gf",
+      "package": "SW_SPST_PTS810",
+      "footprint": "Button_Switch_SMD:SW_SPST_PTS810",
+      "value": null,
+      "key_specs": {
+        "actuation_force_gf": 250
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Switch:SW_Push",
+      "rationale": "small SMD tactile switch",
+      "confidence": 0.8,
+      "verified": true,
+      "block_id": "ui",
+      "rail": "+3V3",
+      "support_for": null,
+      "support_pin": null,
+      "key": "ui/switch",
+      "origin": "llm",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "C1",
+      "role": "Input capacitor (4.7u) for LiPo linear charger",
+      "mpn": "GRM188R61A475KE15D",
+      "category": "capacitor",
+      "manufacturer": "Murata Electronics",
+      "description": "4.7 uF 10 V X5R MLCC, 0603",
+      "package": "C_0603_1608Metric",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "value": "4.7u",
+      "key_specs": {
+        "capacitance_f": 4.7e-6,
+        "voltage_v": 10,
+        "dielectric": "X5R"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:C",
+      "rationale": "Input capacitor on VBUS",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "charger",
+      "rail": null,
+      "support_for": "U1",
+      "support_pin": "4",
+      "key": "charger/charger/input:VDD:4.7u",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "C2",
+      "role": "Output capacitor (4.7u) for LiPo linear charger",
+      "mpn": "GRM188R61A475KE15D",
+      "category": "capacitor",
+      "manufacturer": "Murata Electronics",
+      "description": "4.7 uF 10 V X5R MLCC, 0603",
+      "package": "C_0603_1608Metric",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "value": "4.7u",
+      "key_specs": {
+        "capacitance_f": 4.7e-6,
+        "voltage_v": 10,
+        "dielectric": "X5R"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:C",
+      "rationale": "Output capacitor on VBAT",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "charger",
+      "rail": null,
+      "support_for": "U1",
+      "support_pin": "3",
+      "key": "charger/charger/output:VBAT:4.7u",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "R1",
+      "role": "Charge-current program resistor, I_REG = 1000/R = 500 mA (2k)",
+      "mpn": "RC0603FR-072KL",
+      "category": "resistor",
+      "manufacturer": "Yageo",
+      "description": "2 kOhm 1% 1/10 W thick-film resistor, 0603",
+      "package": "R_0603_1608Metric",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "value": "2k",
+      "key_specs": {
+        "resistance_ohm": 2000,
+        "tolerance": "1%",
+        "power_w": 0.1
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:R",
+      "rationale": "Charge-current program resistor, I_REG = 1000/R = 500 mA",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "charger",
+      "rail": null,
+      "support_for": "U1",
+      "support_pin": "5",
+      "key": "charger/charger/charge-current:PROG",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "R2",
+      "role": "Charge LED series resistor (1k)",
+      "mpn": "RC0402FR-071KL",
+      "category": "resistor",
+      "manufacturer": "Yageo",
+      "description": "1 kOhm 1% 1/16 W thick-film resistor, 0402",
+      "package": "R_0402_1005Metric",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "value": "1k",
+      "key_specs": {
+        "resistance_ohm": 1000,
+        "tolerance": "1%",
+        "power_w": 0.0625
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:R",
+      "rationale": "Charge LED series resistor",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "charger",
+      "rail": null,
+      "support_for": "D2",
+      "support_pin": "2",
+      "key": "charger/led/charge:A",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "C3",
+      "role": "Input capacitor (1u) for 3.3 V LDO",
+      "mpn": "GRM155R61A105KE15D",
+      "category": "capacitor",
+      "manufacturer": "Murata Electronics",
+      "description": "1 uF 10 V X5R MLCC, 0402",
+      "package": "C_0402_1005Metric",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "value": "1u",
+      "key_specs": {
+        "capacitance_f": 1e-6,
+        "voltage_v": 10,
+        "dielectric": "X5R"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:C",
+      "rationale": "Input capacitor on VBAT",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "regulator",
+      "rail": null,
+      "support_for": "U2",
+      "support_pin": "1",
+      "key": "regulator/ldo/input:VIN:1u",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "C4",
+      "role": "Output capacitor (1u) for 3.3 V LDO",
+      "mpn": "GRM155R61A105KE15D",
+      "category": "capacitor",
+      "manufacturer": "Murata Electronics",
+      "description": "1 uF 10 V X5R MLCC, 0402",
+      "package": "C_0402_1005Metric",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "value": "1u",
+      "key_specs": {
+        "capacitance_f": 1e-6,
+        "voltage_v": 10,
+        "dielectric": "X5R"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:C",
+      "rationale": "Output capacitor on +3V3",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "regulator",
+      "rail": null,
+      "support_for": "U2",
+      "support_pin": "5",
+      "key": "regulator/ldo/output:VOUT:1u",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "C5",
+      "role": "Decoupling (10u) for main Wi-Fi MCU",
+      "mpn": "GRM188R61A106KE69D",
+      "category": "capacitor",
+      "manufacturer": "Murata Electronics",
+      "description": "10 uF 10 V X5R MLCC, 0603",
+      "package": "C_0603_1608Metric",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "value": "10u",
+      "key_specs": {
+        "capacitance_f": 0.00001,
+        "voltage_v": 10,
+        "dielectric": "X5R"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:C",
+      "rationale": "Decoupling on +3V3",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "mcu",
+      "rail": null,
+      "support_for": "U3",
+      "support_pin": "1",
+      "key": "mcu/mcu_wireless/decoupling:3V3:10u",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "C6",
+      "role": "Decoupling (100n) for main Wi-Fi MCU",
+      "mpn": "GRM155R71C104KA88D",
+      "category": "capacitor",
+      "manufacturer": "Murata Electronics",
+      "description": "100 nF 16 V X7R MLCC, 0402",
+      "package": "C_0402_1005Metric",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "value": "100n",
+      "key_specs": {
+        "capacitance_f": 1e-7,
+        "voltage_v": 16,
+        "dielectric": "X7R"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:C",
+      "rationale": "Decoupling on +3V3",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "mcu",
+      "rail": null,
+      "support_for": "U3",
+      "support_pin": "1",
+      "key": "mcu/mcu_wireless/decoupling:3V3:100n",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "R3",
+      "role": "EN pull-up (10k)",
+      "mpn": "RC0402FR-0710KL",
+      "category": "resistor",
+      "manufacturer": "Yageo",
+      "description": "10 kOhm 1% 1/16 W thick-film resistor, 0402",
+      "package": "R_0402_1005Metric",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "value": "10k",
+      "key_specs": {
+        "resistance_ohm": 10000,
+        "tolerance": "1%",
+        "power_w": 0.0625
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:R",
+      "rationale": "EN pull-up",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "mcu",
+      "rail": null,
+      "support_for": "U3",
+      "support_pin": "2",
+      "key": "mcu/mcu_wireless/en:EN",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "C7",
+      "role": "EN reset-delay capacitor (1u) for main Wi-Fi MCU",
+      "mpn": "GRM155R61A105KE15D",
+      "category": "capacitor",
+      "manufacturer": "Murata Electronics",
+      "description": "1 uF 10 V X5R MLCC, 0402",
+      "package": "C_0402_1005Metric",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "value": "1u",
+      "key_specs": {
+        "capacitance_f": 1e-6,
+        "voltage_v": 10,
+        "dielectric": "X5R"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:C",
+      "rationale": "EN reset-delay capacitor on MCU_EN",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "mcu",
+      "rail": null,
+      "support_for": "U3",
+      "support_pin": "2",
+      "key": "mcu/mcu_wireless/en:EN:1u",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "R4",
+      "role": "Strapping pull-up IO2 (10k)",
+      "mpn": "RC0402FR-0710KL",
+      "category": "resistor",
+      "manufacturer": "Yageo",
+      "description": "10 kOhm 1% 1/16 W thick-film resistor, 0402",
+      "package": "R_0402_1005Metric",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "value": "10k",
+      "key_specs": {
+        "resistance_ohm": 10000,
+        "tolerance": "1%",
+        "power_w": 0.0625
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:R",
+      "rationale": "Strapping pull-up IO2",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "mcu",
+      "rail": null,
+      "support_for": "U3",
+      "support_pin": "16",
+      "key": "mcu/mcu_wireless/strapping:IO2",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "R5",
+      "role": "Strapping pull-up IO8 (10k)",
+      "mpn": "RC0402FR-0710KL",
+      "category": "resistor",
+      "manufacturer": "Yageo",
+      "description": "10 kOhm 1% 1/16 W thick-film resistor, 0402",
+      "package": "R_0402_1005Metric",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "value": "10k",
+      "key_specs": {
+        "resistance_ohm": 10000,
+        "tolerance": "1%",
+        "power_w": 0.0625
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:R",
+      "rationale": "Strapping pull-up IO8",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "mcu",
+      "rail": null,
+      "support_for": "U3",
+      "support_pin": "7",
+      "key": "mcu/mcu_wireless/strapping:IO8",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "SW2",
+      "role": "BOOT button (hold during reset for download mode)",
+      "mpn": "PTS810 SJM 250 SMTR LFS",
+      "category": "switch",
+      "manufacturer": "C&K",
+      "description": "SMD tactile switch, 4.2x3.2 mm, 250 gf",
+      "package": "SW_SPST_PTS810",
+      "footprint": "Button_Switch_SMD:SW_SPST_PTS810",
+      "value": null,
+      "key_specs": {
+        "actuation_force_gf": 250
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Switch:SW_Push",
+      "rationale": "boot strapping pin needs a way to be pulled low",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "mcu",
+      "rail": "+3V3",
+      "support_for": "U3",
+      "support_pin": "8",
+      "key": "mcu/mcu_wireless/boot_button",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "R6",
+      "role": "CC1 pull-down (UFP/sink advertisement) (5.1k)",
+      "mpn": "RC0402FR-075K1L",
+      "category": "resistor",
+      "manufacturer": "Yageo",
+      "description": "5.1 kOhm 1% 1/16 W thick-film resistor, 0402",
+      "package": "R_0402_1005Metric",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "value": "5.1k",
+      "key_specs": {
+        "resistance_ohm": 5100,
+        "tolerance": "1%",
+        "power_w": 0.0625
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:R",
+      "rationale": "CC1 pull-down (UFP/sink advertisement)",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "usb_in",
+      "rail": null,
+      "support_for": "J1",
+      "support_pin": "A5",
+      "key": "usb_in/connector_usb/cc1:CC1",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "R7",
+      "role": "CC2 pull-down (UFP/sink advertisement) (5.1k)",
+      "mpn": "RC0402FR-075K1L",
+      "category": "resistor",
+      "manufacturer": "Yageo",
+      "description": "5.1 kOhm 1% 1/16 W thick-film resistor, 0402",
+      "package": "R_0402_1005Metric",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "value": "5.1k",
+      "key_specs": {
+        "resistance_ohm": 5100,
+        "tolerance": "1%",
+        "power_w": 0.0625
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:R",
+      "rationale": "CC2 pull-down (UFP/sink advertisement)",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "usb_in",
+      "rail": null,
+      "support_for": "J1",
+      "support_pin": "B5",
+      "key": "usb_in/connector_usb/cc2:CC2",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "R8",
+      "role": "I2C SDA pull-up (4.7k)",
+      "mpn": "RC0402FR-074K7L",
+      "category": "resistor",
+      "manufacturer": "Yageo",
+      "description": "4.7 kOhm 1% 1/16 W thick-film resistor, 0402",
+      "package": "R_0402_1005Metric",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "value": "4.7k",
+      "key_specs": {
+        "resistance_ohm": 4700,
+        "tolerance": "1%",
+        "power_w": 0.0625
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:R",
+      "rationale": "I2C SDA pull-up",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "mcu",
+      "rail": null,
+      "support_for": "U3",
+      "support_pin": "5",
+      "key": "mcu/mcu_wireless/i2c:IO6",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "R9",
+      "role": "I2C SCL pull-up (4.7k)",
+      "mpn": "RC0402FR-074K7L",
+      "category": "resistor",
+      "manufacturer": "Yageo",
+      "description": "4.7 kOhm 1% 1/16 W thick-film resistor, 0402",
+      "package": "R_0402_1005Metric",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "value": "4.7k",
+      "key_specs": {
+        "resistance_ohm": 4700,
+        "tolerance": "1%",
+        "power_w": 0.0625
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:R",
+      "rationale": "I2C SCL pull-up",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "mcu",
+      "rail": null,
+      "support_for": "U3",
+      "support_pin": "6",
+      "key": "mcu/mcu_wireless/i2c:IO7",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "C8",
+      "role": "Decoupling (100n) for temperature/humidity sensor",
+      "mpn": "GRM155R71C104KA88D",
+      "category": "capacitor",
+      "manufacturer": "Murata Electronics",
+      "description": "100 nF 16 V X7R MLCC, 0402",
+      "package": "C_0402_1005Metric",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "value": "100n",
+      "key_specs": {
+        "capacitance_f": 1e-7,
+        "voltage_v": 16,
+        "dielectric": "X7R"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:C",
+      "rationale": "Decoupling on +3V3",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "sensor",
+      "rail": null,
+      "support_for": "U4",
+      "support_pin": "3",
+      "key": "sensor/sensor_env/decoupling:VDD:100n",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "R10",
+      "role": "LED series resistor (1k)",
+      "mpn": "RC0402FR-071KL",
+      "category": "resistor",
+      "manufacturer": "Yageo",
+      "description": "1 kOhm 1% 1/16 W thick-film resistor, 0402",
+      "package": "R_0402_1005Metric",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "value": "1k",
+      "key_specs": {
+        "resistance_ohm": 1000,
+        "tolerance": "1%",
+        "power_w": 0.0625
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:R",
+      "rationale": "LED series resistor",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "ui",
+      "rail": null,
+      "support_for": "D3",
+      "support_pin": "2",
+      "key": "ui/led/led:A",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "R11",
+      "role": "Button pull-up (10k)",
+      "mpn": "RC0402FR-0710KL",
+      "category": "resistor",
+      "manufacturer": "Yageo",
+      "description": "10 kOhm 1% 1/16 W thick-film resistor, 0402",
+      "package": "R_0402_1005Metric",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "value": "10k",
+      "key_specs": {
+        "resistance_ohm": 10000,
+        "tolerance": "1%",
+        "power_w": 0.0625
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:R",
+      "rationale": "Button pull-up",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "ui",
+      "rail": null,
+      "support_for": "SW1",
+      "support_pin": "1",
+      "key": "ui/switch/button:1",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "R12",
+      "role": "Battery divider top (1M)",
+      "mpn": "RC0402FR-071ML",
+      "category": "resistor",
+      "manufacturer": "Yageo",
+      "description": "1 MOhm 1% 1/16 W thick-film resistor, 0402",
+      "package": "R_0402_1005Metric",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "value": "1M",
+      "key_specs": {
+        "resistance_ohm": 1000000,
+        "tolerance": "1%",
+        "power_w": 0.0625
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": 0.0021000000000000003,
+        "max_ma": 0.0021000000000000003,
+        "sleep_ua": 2.1
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:R",
+      "rationale": "Battery divider top",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "mcu",
+      "rail": "VBAT",
+      "support_for": "U3",
+      "support_pin": "15",
+      "key": "mcu/mcu_wireless/battery:IO3",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "R13",
+      "role": "Battery divider bottom (1M)",
+      "mpn": "RC0402FR-071ML",
+      "category": "resistor",
+      "manufacturer": "Yageo",
+      "description": "1 MOhm 1% 1/16 W thick-film resistor, 0402",
+      "package": "R_0402_1005Metric",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "value": "1M",
+      "key_specs": {
+        "resistance_ohm": 1000000,
+        "tolerance": "1%",
+        "power_w": 0.0625
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:R",
+      "rationale": "Battery divider bottom",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "mcu",
+      "rail": null,
+      "support_for": "U3",
+      "support_pin": "15",
+      "key": "mcu/mcu_wireless/battery:IO3#1",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "C9",
+      "role": "ADC reservoir (100n) for main Wi-Fi MCU",
+      "mpn": "GRM155R71C104KA88D",
+      "category": "capacitor",
+      "manufacturer": "Murata Electronics",
+      "description": "100 nF 16 V X7R MLCC, 0402",
+      "package": "C_0402_1005Metric",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "value": "100n",
+      "key_specs": {
+        "capacitance_f": 1e-7,
+        "voltage_v": 16,
+        "dielectric": "X7R"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:C",
+      "rationale": "ADC reservoir on VBAT_SENSE",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "mcu",
+      "rail": null,
+      "support_for": "U3",
+      "support_pin": "15",
+      "key": "mcu/mcu_wireless/adc:IO3:100n",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    }
+  ],
+  "netlist": {
+    "nets": [
+      {
+        "name": "GND",
+        "net_class": "ground",
+        "connections": [
+          {
+            "ref": "C1",
+            "pin": "2"
+          },
+          {
+            "ref": "C2",
+            "pin": "2"
+          },
+          {
+            "ref": "C3",
+            "pin": "2"
+          },
+          {
+            "ref": "C4",
+            "pin": "2"
+          },
+          {
+            "ref": "C5",
+            "pin": "2"
+          },
+          {
+            "ref": "C6",
+            "pin": "2"
+          },
+          {
+            "ref": "C7",
+            "pin": "2"
+          },
+          {
+            "ref": "C8",
+            "pin": "2"
+          },
+          {
+            "ref": "C9",
+            "pin": "2"
+          },
+          {
+            "ref": "D1",
+            "pin": "2"
+          },
+          {
+            "ref": "D3",
+            "pin": "1"
+          },
+          {
+            "ref": "J1",
+            "pin": "A1"
+          },
+          {
+            "ref": "J1",
+            "pin": "A12"
+          },
+          {
+            "ref": "J1",
+            "pin": "B1"
+          },
+          {
+            "ref": "J1",
+            "pin": "B12"
+          },
+          {
+            "ref": "J1",
+            "pin": "S1"
+          },
+          {
+            "ref": "J2",
+            "pin": "2"
+          },
+          {
+            "ref": "R1",
+            "pin": "2"
+          },
+          {
+            "ref": "R6",
+            "pin": "2"
+          },
+          {
+            "ref": "R7",
+            "pin": "2"
+          },
+          {
+            "ref": "R13",
+            "pin": "2"
+          },
+          {
+            "ref": "SW1",
+            "pin": "2"
+          },
+          {
+            "ref": "SW2",
+            "pin": "2"
+          },
+          {
+            "ref": "U1",
+            "pin": "2"
+          },
+          {
+            "ref": "U2",
+            "pin": "2"
+          },
+          {
+            "ref": "U3",
+            "pin": "9"
+          },
+          {
+            "ref": "U3",
+            "pin": "19"
+          },
+          {
+            "ref": "U4",
+            "pin": "4"
+          }
+        ],
+        "voltage_v": 0.0,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "+3V3",
+        "net_class": "power",
+        "connections": [
+          {
+            "ref": "C4",
+            "pin": "1"
+          },
+          {
+            "ref": "C5",
+            "pin": "1"
+          },
+          {
+            "ref": "C6",
+            "pin": "1"
+          },
+          {
+            "ref": "C8",
+            "pin": "1"
+          },
+          {
+            "ref": "R3",
+            "pin": "1"
+          },
+          {
+            "ref": "R4",
+            "pin": "1"
+          },
+          {
+            "ref": "R5",
+            "pin": "1"
+          },
+          {
+            "ref": "R8",
+            "pin": "1"
+          },
+          {
+            "ref": "R9",
+            "pin": "1"
+          },
+          {
+            "ref": "R11",
+            "pin": "1"
+          },
+          {
+            "ref": "U2",
+            "pin": "5"
+          },
+          {
+            "ref": "U3",
+            "pin": "1"
+          },
+          {
+            "ref": "U4",
+            "pin": "3"
+          }
+        ],
+        "voltage_v": 3.3,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "VBAT",
+        "net_class": "power",
+        "connections": [
+          {
+            "ref": "C2",
+            "pin": "1"
+          },
+          {
+            "ref": "C3",
+            "pin": "1"
+          },
+          {
+            "ref": "J2",
+            "pin": "1"
+          },
+          {
+            "ref": "R12",
+            "pin": "1"
+          },
+          {
+            "ref": "U1",
+            "pin": "3"
+          },
+          {
+            "ref": "U2",
+            "pin": "1"
+          },
+          {
+            "ref": "U2",
+            "pin": "3"
+          }
+        ],
+        "voltage_v": 3.7,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "VBUS",
+        "net_class": "power",
+        "connections": [
+          {
+            "ref": "C1",
+            "pin": "1"
+          },
+          {
+            "ref": "D1",
+            "pin": "5"
+          },
+          {
+            "ref": "J1",
+            "pin": "A4"
+          },
+          {
+            "ref": "J1",
+            "pin": "A9"
+          },
+          {
+            "ref": "J1",
+            "pin": "B4"
+          },
+          {
+            "ref": "J1",
+            "pin": "B9"
+          },
+          {
+            "ref": "R2",
+            "pin": "1"
+          },
+          {
+            "ref": "U1",
+            "pin": "4"
+          }
+        ],
+        "voltage_v": 5.0,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "BTN1",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "R11",
+            "pin": "2"
+          },
+          {
+            "ref": "SW1",
+            "pin": "1"
+          },
+          {
+            "ref": "U3",
+            "pin": "3"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "CHG_LED",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "D2",
+            "pin": "2"
+          },
+          {
+            "ref": "R2",
+            "pin": "2"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "CHG_PROG",
+        "net_class": "analog",
+        "connections": [
+          {
+            "ref": "R1",
+            "pin": "1"
+          },
+          {
+            "ref": "U1",
+            "pin": "5"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "CHG_STAT",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "D2",
+            "pin": "1"
+          },
+          {
+            "ref": "U1",
+            "pin": "1"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "I2C_SCL",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "R9",
+            "pin": "2"
+          },
+          {
+            "ref": "U3",
+            "pin": "6"
+          },
+          {
+            "ref": "U4",
+            "pin": "2"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "I2C_SDA",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "R8",
+            "pin": "2"
+          },
+          {
+            "ref": "U3",
+            "pin": "5"
+          },
+          {
+            "ref": "U4",
+            "pin": "1"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "LED1_A",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "D3",
+            "pin": "2"
+          },
+          {
+            "ref": "R10",
+            "pin": "2"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "LED1_DRV",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "R10",
+            "pin": "1"
+          },
+          {
+            "ref": "U3",
+            "pin": "10"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "MCU_BOOT",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "SW2",
+            "pin": "1"
+          },
+          {
+            "ref": "U3",
+            "pin": "8"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "MCU_EN",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "C7",
+            "pin": "1"
+          },
+          {
+            "ref": "R3",
+            "pin": "2"
+          },
+          {
+            "ref": "U3",
+            "pin": "2"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "STRAP_IO2",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "R4",
+            "pin": "2"
+          },
+          {
+            "ref": "U3",
+            "pin": "16"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "STRAP_IO8",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "R5",
+            "pin": "2"
+          },
+          {
+            "ref": "U3",
+            "pin": "7"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "USB_CC1",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "J1",
+            "pin": "A5"
+          },
+          {
+            "ref": "R6",
+            "pin": "1"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "USB_CC2",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "J1",
+            "pin": "B5"
+          },
+          {
+            "ref": "R7",
+            "pin": "1"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "USB_DM",
+        "net_class": "high_speed",
+        "connections": [
+          {
+            "ref": "D1",
+            "pin": "3"
+          },
+          {
+            "ref": "D1",
+            "pin": "4"
+          },
+          {
+            "ref": "J1",
+            "pin": "A7"
+          },
+          {
+            "ref": "J1",
+            "pin": "B7"
+          },
+          {
+            "ref": "U3",
+            "pin": "13"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "USB_DP",
+        "net_class": "high_speed",
+        "connections": [
+          {
+            "ref": "D1",
+            "pin": "1"
+          },
+          {
+            "ref": "D1",
+            "pin": "6"
+          },
+          {
+            "ref": "J1",
+            "pin": "A6"
+          },
+          {
+            "ref": "J1",
+            "pin": "B6"
+          },
+          {
+            "ref": "U3",
+            "pin": "14"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "VBAT_SENSE",
+        "net_class": "analog",
+        "connections": [
+          {
+            "ref": "C9",
+            "pin": "1"
+          },
+          {
+            "ref": "R12",
+            "pin": "2"
+          },
+          {
+            "ref": "R13",
+            "pin": "1"
+          },
+          {
+            "ref": "U3",
+            "pin": "15"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      }
+    ],
+    "no_connects": [
+      {
+        "ref": "J1",
+        "pin": "A8",
+        "reason": "SBU unused (USB 2.0)"
+      },
+      {
+        "ref": "J1",
+        "pin": "B8",
+        "reason": "SBU unused (USB 2.0)"
+      },
+      {
+        "ref": "J2",
+        "pin": "MP",
+        "reason": "mechanical mounting pad"
+      },
+      {
+        "ref": "U2",
+        "pin": "4",
+        "reason": "NC per KiCad symbol"
+      },
+      {
+        "ref": "U3",
+        "pin": "4",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U3",
+        "pin": "11",
+        "reason": "UART0 console pin not brought out"
+      },
+      {
+        "ref": "U3",
+        "pin": "12",
+        "reason": "UART0 console pin not brought out"
+      },
+      {
+        "ref": "U3",
+        "pin": "17",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U3",
+        "pin": "18",
+        "reason": "unused GPIO"
+      }
+    ]
+  },
+  "power_tree": [
+    {
+      "name": "VBUS",
+      "nominal_v": 5.0,
+      "min_v": 4.75,
+      "max_v": 5.25,
+      "max_current_ma": 500.0,
+      "budget_ma": null,
+      "source_ref": "J1",
+      "source_kind": "usb",
+      "parent_rail": null
+    },
+    {
+      "name": "VBAT",
+      "nominal_v": 3.7,
+      "min_v": 3.0,
+      "max_v": 4.2,
+      "max_current_ma": 1000.0,
+      "budget_ma": null,
+      "source_ref": "J2",
+      "source_kind": "battery",
+      "parent_rail": null
+    },
+    {
+      "name": "+3V3",
+      "nominal_v": 3.3,
+      "min_v": 3.201,
+      "max_v": 3.399,
+      "max_current_ma": 600.0,
+      "budget_ma": null,
+      "source_ref": "U2",
+      "source_kind": "ldo",
+      "parent_rail": "VBAT"
+    }
+  ],
+  "constraints": {
+    "electrical": {
+      "rails": [
+        {
+          "name": "VBUS",
+          "nominal_v": 5.0,
+          "min_v": 4.75,
+          "max_v": 5.25,
+          "max_current_ma": 500.0,
+          "budget_ma": 503.5,
+          "source_ref": "J1",
+          "source_kind": "usb",
+          "parent_rail": null
+        },
+        {
+          "name": "VBAT",
+          "nominal_v": 3.7,
+          "min_v": 3.0,
+          "max_v": 4.2,
+          "max_current_ma": 1000.0,
+          "budget_ma": 351.86,
+          "source_ref": "J2",
+          "source_kind": "battery",
+          "parent_rail": null
+        },
+        {
+          "name": "+3V3",
+          "nominal_v": 3.3,
+          "min_v": 3.201,
+          "max_v": 3.399,
+          "max_current_ma": 600.0,
+          "budget_ma": 351.8,
+          "source_ref": "U2",
+          "source_kind": "ldo",
+          "parent_rail": "VBAT"
+        }
+      ],
+      "net_classes": [
+        {
+          "name": "Default",
+          "kind": "signal",
+          "trace_width_mm": 0.2,
+          "clearance_mm": 0.15,
+          "via_diameter_mm": 0.6,
+          "via_drill_mm": 0.3,
+          "nets": [
+            "BTN1",
+            "CHG_LED",
+            "CHG_PROG",
+            "CHG_STAT",
+            "I2C_SCL",
+            "I2C_SDA",
+            "LED1_A",
+            "LED1_DRV",
+            "MCU_BOOT",
+            "MCU_EN",
+            "STRAP_IO2",
+            "STRAP_IO8",
+            "USB_CC1",
+            "USB_CC2",
+            "VBAT_SENSE"
+          ],
+          "max_current_ma": null,
+          "rationale": "fab minimum 0.15 mm rounded up for yield"
+        },
+        {
+          "name": "Power",
+          "kind": "power",
+          "trace_width_mm": 0.4,
+          "clearance_mm": 0.15,
+          "via_diameter_mm": 0.8,
+          "via_drill_mm": 0.4,
+          "nets": [
+            "+3V3",
+            "VBAT",
+            "VBUS"
+          ],
+          "max_current_ma": 503.5,
+          "rationale": "IPC-2221 external, dT=10C, 1 oz: 504 mA x1.25 margin -> 0.159 mm (min 0.4 mm)"
+        },
+        {
+          "name": "Ground",
+          "kind": "ground",
+          "trace_width_mm": 0.4,
+          "clearance_mm": 0.15,
+          "via_diameter_mm": 0.6,
+          "via_drill_mm": 0.3,
+          "nets": [
+            "GND"
+          ],
+          "max_current_ma": null,
+          "rationale": "return currents; use a pour on B.Cu, short stubs elsewhere"
+        },
+        {
+          "name": "USB",
+          "kind": "high_speed",
+          "trace_width_mm": 0.2,
+          "clearance_mm": 0.15,
+          "via_diameter_mm": 0.6,
+          "via_drill_mm": 0.3,
+          "nets": [
+            "USB_DM",
+            "USB_DP"
+          ],
+          "max_current_ma": null,
+          "rationale": "USB 2.0 FS pair; keep short and matched"
+        }
+      ],
+      "decoupling": [
+        {
+          "ref": "U1",
+          "pin": "3",
+          "capacitors": [
+            "C2"
+          ],
+          "max_distance_mm": 3.0
+        },
+        {
+          "ref": "U1",
+          "pin": "4",
+          "capacitors": [
+            "C1"
+          ],
+          "max_distance_mm": 3.0
+        },
+        {
+          "ref": "U2",
+          "pin": "1",
+          "capacitors": [
+            "C3"
+          ],
+          "max_distance_mm": 3.0
+        },
+        {
+          "ref": "U2",
+          "pin": "5",
+          "capacitors": [
+            "C4"
+          ],
+          "max_distance_mm": 3.0
+        },
+        {
+          "ref": "U3",
+          "pin": "1",
+          "capacitors": [
+            "C5",
+            "C6"
+          ],
+          "max_distance_mm": 5.0
+        },
+        {
+          "ref": "U4",
+          "pin": "3",
+          "capacitors": [
+            "C8"
+          ],
+          "max_distance_mm": 3.0
+        }
+      ],
+      "impedance": [
+        {
+          "target": "USB",
+          "ohms": 90.0,
+          "kind": "differential",
+          "notes": "USB 2.0 90 Ohm +/-15%; for Full Speed (12 Mbit/s) short traces dominate. Use the fab's stackup calculator for the exact width/gap."
+        }
+      ],
+      "rf_keepouts": [
+        {
+          "name": "U3_antenna",
+          "kind": "rf",
+          "rect": {
+            "x_mm": 20.75,
+            "y_mm": 0.0,
+            "w_mm": 28.5,
+            "h_mm": 11.400000000000002
+          },
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ],
+          "reason": "PCB antenna region of the module (from its footprint courtyard, above the pads) plus the strip to the board edge: no copper on any layer. Confirm against the module datasheet's keepout drawing."
+        }
+      ],
+      "trace_width_method": "IPC-2221 external layer, dT=10C, 1 oz Cu: I = 0.048 * dT^0.44 * A^0.725 (A in mil^2)",
+      "notes": [
+        "Trace widths are minimums; wider is fine where space allows.",
+        "Fab profile: generic_2layer - Conservative 2-layer FR-4 rules that low-cost prototype fabs (6/6 mil class) accept."
+      ]
+    },
+    "mechanical": {
+      "outline": {
+        "width_mm": 50.0,
+        "height_mm": 35.0,
+        "corner_radius_mm": 1.0,
+        "thickness_mm": 1.6
+      },
+      "layer_count": 2,
+      "mounting_holes": [],
+      "connectors": [
+        {
+          "ref": "J1",
+          "edge": "left",
+          "offset_mm": null,
+          "reason": "power input"
+        },
+        {
+          "ref": "J2",
+          "edge": "bottom",
+          "offset_mm": null,
+          "reason": "battery lead"
+        },
+        {
+          "ref": "U3",
+          "edge": "top",
+          "offset_mm": null,
+          "reason": "PCB antenna must overhang/face the edge"
+        }
+      ],
+      "keepouts": [],
+      "max_component_height_mm": null,
+      "fab_profile": "generic_2layer"
+    },
+    "status": "proposed",
+    "locked": false
+  },
+  "placement": {
+    "zones": [
+      {
+        "name": "power",
+        "kind": "power",
+        "rect": {
+          "x_mm": 3.07,
+          "y_mm": 8.03,
+          "w_mm": 18.91,
+          "h_mm": 17.200000000000003
+        },
+        "description": "Power entry, protection, charging and regulation; keep high-current loops short."
+      },
+      {
+        "name": "mcu",
+        "kind": "mcu",
+        "rect": {
+          "x_mm": 20.75,
+          "y_mm": 0.0,
+          "w_mm": 28.5,
+          "h_mm": 34.35
+        },
+        "description": "MCU and its local decoupling/strapping."
+      },
+      {
+        "name": "sensor",
+        "kind": "sensor",
+        "rect": {
+          "x_mm": 42.8,
+          "y_mm": 30.0,
+          "w_mm": 2.6099999999999994,
+          "h_mm": 3.460000000000001
+        },
+        "description": "Sensors away from regulators and the MCU module to limit self-heating."
+      },
+      {
+        "name": "general",
+        "kind": "general",
+        "rect": {
+          "x_mm": 27.07,
+          "y_mm": 26.53,
+          "w_mm": 11.86,
+          "h_mm": 5.32
+        },
+        "description": "User I/O and miscellaneous parts."
+      },
+      {
+        "name": "connector",
+        "kind": "connector",
+        "rect": {
+          "x_mm": 0.0,
+          "y_mm": 13.24,
+          "w_mm": 24.6,
+          "h_mm": 21.759999999999998
+        },
+        "description": "Edge connectors."
+      },
+      {
+        "name": "U3_antenna",
+        "kind": "rf",
+        "rect": {
+          "x_mm": 20.75,
+          "y_mm": 0.0,
+          "w_mm": 28.5,
+          "h_mm": 11.400000000000002
+        },
+        "description": "Antenna keepout: no copper, components or vias on any layer."
+      }
+    ],
+    "hints": [
+      {
+        "ref": "J1",
+        "zone": "connector",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [],
+        "edge": "left",
+        "notes": "rotate so the mating face points off the board"
+      },
+      {
+        "ref": "D1",
+        "zone": "power",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "U1",
+        "zone": "power",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "D2",
+        "zone": "power",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "J2",
+        "zone": "connector",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [],
+        "edge": "bottom",
+        "notes": "rotate so the mating face points off the board"
+      },
+      {
+        "ref": "U2",
+        "zone": "power",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "U3",
+        "zone": "mcu",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [],
+        "edge": "top",
+        "notes": ""
+      },
+      {
+        "ref": "U4",
+        "zone": "sensor",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "D3",
+        "zone": "general",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "SW1",
+        "zone": "general",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "C1",
+        "zone": "power",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U1",
+            "target_pin": "4",
+            "max_distance_mm": 3.0,
+            "reason": "Input capacitor (4.7u) for LiPo linear charger"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "C2",
+        "zone": "power",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U1",
+            "target_pin": "3",
+            "max_distance_mm": 3.0,
+            "reason": "Output capacitor (4.7u) for LiPo linear charger"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "R1",
+        "zone": "power",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U1",
+            "target_pin": "5",
+            "max_distance_mm": 10.0,
+            "reason": "Charge-current program resistor, I_REG = 1000/R = 500 mA (2k)"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "R2",
+        "zone": "power",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "D2",
+            "target_pin": "2",
+            "max_distance_mm": 10.0,
+            "reason": "Charge LED series resistor (1k)"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "C3",
+        "zone": "power",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U2",
+            "target_pin": "1",
+            "max_distance_mm": 3.0,
+            "reason": "Input capacitor (1u) for 3.3 V LDO"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "C4",
+        "zone": "power",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U2",
+            "target_pin": "5",
+            "max_distance_mm": 3.0,
+            "reason": "Output capacitor (1u) for 3.3 V LDO"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "C5",
+        "zone": "mcu",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U3",
+            "target_pin": "1",
+            "max_distance_mm": 5.0,
+            "reason": "Decoupling (10u) for main Wi-Fi MCU"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "C6",
+        "zone": "mcu",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U3",
+            "target_pin": "1",
+            "max_distance_mm": 5.0,
+            "reason": "Decoupling (100n) for main Wi-Fi MCU"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "R3",
+        "zone": "mcu",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U3",
+            "target_pin": "2",
+            "max_distance_mm": 10.0,
+            "reason": "EN pull-up (10k)"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "C7",
+        "zone": "mcu",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U3",
+            "target_pin": "2",
+            "max_distance_mm": 10.0,
+            "reason": "EN reset-delay capacitor (1u) for main Wi-Fi MCU"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "R4",
+        "zone": "mcu",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U3",
+            "target_pin": "16",
+            "max_distance_mm": 10.0,
+            "reason": "Strapping pull-up IO2 (10k)"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "R5",
+        "zone": "mcu",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U3",
+            "target_pin": "7",
+            "max_distance_mm": 10.0,
+            "reason": "Strapping pull-up IO8 (10k)"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "SW2",
+        "zone": "mcu",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U3",
+            "target_pin": "8",
+            "max_distance_mm": 10.0,
+            "reason": "BOOT button (hold during reset for download mode)"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "R6",
+        "zone": "power",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "J1",
+            "target_pin": "A5",
+            "max_distance_mm": 10.0,
+            "reason": "CC1 pull-down (UFP/sink advertisement) (5.1k)"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "R7",
+        "zone": "power",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "J1",
+            "target_pin": "B5",
+            "max_distance_mm": 10.0,
+            "reason": "CC2 pull-down (UFP/sink advertisement) (5.1k)"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "R8",
+        "zone": "mcu",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U3",
+            "target_pin": "5",
+            "max_distance_mm": 10.0,
+            "reason": "I2C SDA pull-up (4.7k)"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "R9",
+        "zone": "mcu",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U3",
+            "target_pin": "6",
+            "max_distance_mm": 10.0,
+            "reason": "I2C SCL pull-up (4.7k)"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "C8",
+        "zone": "sensor",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U4",
+            "target_pin": "3",
+            "max_distance_mm": 3.0,
+            "reason": "Decoupling (100n) for temperature/humidity sensor"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "R10",
+        "zone": "general",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "D3",
+            "target_pin": "2",
+            "max_distance_mm": 10.0,
+            "reason": "LED series resistor (1k)"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "R11",
+        "zone": "general",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "SW1",
+            "target_pin": "1",
+            "max_distance_mm": 10.0,
+            "reason": "Button pull-up (10k)"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "R12",
+        "zone": "mcu",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U3",
+            "target_pin": "15",
+            "max_distance_mm": 10.0,
+            "reason": "Battery divider top (1M)"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "R13",
+        "zone": "mcu",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U3",
+            "target_pin": "15",
+            "max_distance_mm": 10.0,
+            "reason": "Battery divider bottom (1M)"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "C9",
+        "zone": "mcu",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U3",
+            "target_pin": "15",
+            "max_distance_mm": 10.0,
+            "reason": "ADC reservoir (100n) for main Wi-Fi MCU"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      }
+    ],
+    "placements": [
+      {
+        "ref": "C1",
+        "x_mm": 20.5,
+        "y_mm": 22.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "power",
+        "bbox": {
+          "x_mm": 19.02,
+          "y_mm": 21.77,
+          "w_mm": 2.960000000000001,
+          "h_mm": 1.4600000000000009
+        }
+      },
+      {
+        "ref": "C2",
+        "x_mm": 13.5,
+        "y_mm": 24.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "power",
+        "bbox": {
+          "x_mm": 12.02,
+          "y_mm": 23.77,
+          "w_mm": 2.960000000000001,
+          "h_mm": 1.4600000000000009
+        }
+      },
+      {
+        "ref": "C3",
+        "x_mm": 15.0,
+        "y_mm": 11.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "power",
+        "bbox": {
+          "x_mm": 14.09,
+          "y_mm": 10.54,
+          "w_mm": 1.8200000000000003,
+          "h_mm": 0.9200000000000017
+        }
+      },
+      {
+        "ref": "C4",
+        "x_mm": 17.5,
+        "y_mm": 11.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "power",
+        "bbox": {
+          "x_mm": 16.59,
+          "y_mm": 10.54,
+          "w_mm": 1.8200000000000003,
+          "h_mm": 0.9200000000000017
+        }
+      },
+      {
+        "ref": "C5",
+        "x_mm": 23.5,
+        "y_mm": 12.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 22.02,
+          "y_mm": 11.77,
+          "w_mm": 2.960000000000001,
+          "h_mm": 1.4600000000000009
+        }
+      },
+      {
+        "ref": "C6",
+        "x_mm": 24.0,
+        "y_mm": 14.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 23.09,
+          "y_mm": 13.54,
+          "w_mm": 1.8200000000000003,
+          "h_mm": 0.9200000000000017
+        }
+      },
+      {
+        "ref": "C7",
+        "x_mm": 24.0,
+        "y_mm": 15.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 23.09,
+          "y_mm": 15.04,
+          "w_mm": 1.8200000000000003,
+          "h_mm": 0.9200000000000017
+        }
+      },
+      {
+        "ref": "C8",
+        "x_mm": 44.5,
+        "y_mm": 33.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "sensor",
+        "bbox": {
+          "x_mm": 43.59,
+          "y_mm": 32.54,
+          "w_mm": 1.8199999999999932,
+          "h_mm": 0.9200000000000017
+        }
+      },
+      {
+        "ref": "C9",
+        "x_mm": 46.0,
+        "y_mm": 17.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 45.09,
+          "y_mm": 16.54,
+          "w_mm": 1.8199999999999932,
+          "h_mm": 0.9200000000000017
+        }
+      },
+      {
+        "ref": "D1",
+        "x_mm": 16.5,
+        "y_mm": 17.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "power",
+        "bbox": {
+          "x_mm": 14.45,
+          "y_mm": 15.8,
+          "w_mm": 4.100000000000001,
+          "h_mm": 3.3999999999999986
+        }
+      },
+      {
+        "ref": "D2",
+        "x_mm": 10.0,
+        "y_mm": 10.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "power",
+        "bbox": {
+          "x_mm": 8.52,
+          "y_mm": 9.27,
+          "w_mm": 2.960000000000001,
+          "h_mm": 1.4600000000000009
+        }
+      },
+      {
+        "ref": "D3",
+        "x_mm": 37.0,
+        "y_mm": 29.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "general",
+        "bbox": {
+          "x_mm": 35.52,
+          "y_mm": 28.77,
+          "w_mm": 2.9599999999999937,
+          "h_mm": 1.4600000000000009
+        }
+      },
+      {
+        "ref": "J1",
+        "x_mm": 5.32,
+        "y_mm": 18.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "connector",
+        "bbox": {
+          "x_mm": 0.0,
+          "y_mm": 13.24,
+          "w_mm": 10.64,
+          "h_mm": 8.94
+        }
+      },
+      {
+        "ref": "J2",
+        "x_mm": 20.0,
+        "y_mm": 29.9,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "connector",
+        "bbox": {
+          "x_mm": 15.4,
+          "y_mm": 24.799999999999997,
+          "w_mm": 9.200000000000001,
+          "h_mm": 10.200000000000003
+        }
+      },
+      {
+        "ref": "R1",
+        "x_mm": 20.5,
+        "y_mm": 20.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "power",
+        "bbox": {
+          "x_mm": 19.02,
+          "y_mm": 19.77,
+          "w_mm": 2.960000000000001,
+          "h_mm": 1.4600000000000009
+        }
+      },
+      {
+        "ref": "R10",
+        "x_mm": 38.0,
+        "y_mm": 28.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "general",
+        "bbox": {
+          "x_mm": 37.07,
+          "y_mm": 27.53,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9399999999999977
+        }
+      },
+      {
+        "ref": "R11",
+        "x_mm": 28.0,
+        "y_mm": 27.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "general",
+        "bbox": {
+          "x_mm": 27.07,
+          "y_mm": 26.53,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9399999999999977
+        }
+      },
+      {
+        "ref": "R12",
+        "x_mm": 46.0,
+        "y_mm": 15.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 45.07,
+          "y_mm": 15.03,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9400000000000013
+        }
+      },
+      {
+        "ref": "R13",
+        "x_mm": 46.0,
+        "y_mm": 18.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 45.07,
+          "y_mm": 18.03,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9399999999999977
+        }
+      },
+      {
+        "ref": "R2",
+        "x_mm": 11.0,
+        "y_mm": 8.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "power",
+        "bbox": {
+          "x_mm": 10.07,
+          "y_mm": 8.03,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9400000000000013
+        }
+      },
+      {
+        "ref": "R3",
+        "x_mm": 24.0,
+        "y_mm": 17.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 23.07,
+          "y_mm": 16.53,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9399999999999977
+        }
+      },
+      {
+        "ref": "R4",
+        "x_mm": 46.0,
+        "y_mm": 14.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 45.07,
+          "y_mm": 13.53,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9400000000000013
+        }
+      },
+      {
+        "ref": "R5",
+        "x_mm": 24.0,
+        "y_mm": 21.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 23.07,
+          "y_mm": 21.03,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9399999999999977
+        }
+      },
+      {
+        "ref": "R6",
+        "x_mm": 4.0,
+        "y_mm": 12.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "power",
+        "bbox": {
+          "x_mm": 3.07,
+          "y_mm": 12.03,
+          "w_mm": 1.8599999999999999,
+          "h_mm": 0.9400000000000013
+        }
+      },
+      {
+        "ref": "R7",
+        "x_mm": 7.0,
+        "y_mm": 12.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "power",
+        "bbox": {
+          "x_mm": 6.07,
+          "y_mm": 12.03,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9400000000000013
+        }
+      },
+      {
+        "ref": "R8",
+        "x_mm": 24.0,
+        "y_mm": 18.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 23.07,
+          "y_mm": 18.03,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9399999999999977
+        }
+      },
+      {
+        "ref": "R9",
+        "x_mm": 24.0,
+        "y_mm": 20.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 23.07,
+          "y_mm": 19.53,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9399999999999977
+        }
+      },
+      {
+        "ref": "SW1",
+        "x_mm": 30.0,
+        "y_mm": 30.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "general",
+        "bbox": {
+          "x_mm": 27.15,
+          "y_mm": 28.15,
+          "w_mm": 5.700000000000003,
+          "h_mm": 3.700000000000003
+        }
+      },
+      {
+        "ref": "SW2",
+        "x_mm": 36.0,
+        "y_mm": 32.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 33.15,
+          "y_mm": 30.65,
+          "w_mm": 5.700000000000003,
+          "h_mm": 3.700000000000003
+        }
+      },
+      {
+        "ref": "U1",
+        "x_mm": 16.5,
+        "y_mm": 21.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "power",
+        "bbox": {
+          "x_mm": 14.45,
+          "y_mm": 19.8,
+          "w_mm": 4.100000000000001,
+          "h_mm": 3.3999999999999986
+        }
+      },
+      {
+        "ref": "U2",
+        "x_mm": 16.0,
+        "y_mm": 13.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "power",
+        "bbox": {
+          "x_mm": 13.95,
+          "y_mm": 11.8,
+          "w_mm": 4.100000000000001,
+          "h_mm": 3.3999999999999986
+        }
+      },
+      {
+        "ref": "U3",
+        "x_mm": 35.0,
+        "y_mm": 18.35,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 20.75,
+          "y_mm": 0.0,
+          "w_mm": 28.5,
+          "h_mm": 25.5
+        }
+      },
+      {
+        "ref": "U4",
+        "x_mm": 44.0,
+        "y_mm": 31.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "sensor",
+        "bbox": {
+          "x_mm": 42.8,
+          "y_mm": 30.0,
+          "w_mm": 2.4000000000000057,
+          "h_mm": 2.0
+        }
+      }
+    ],
+    "algorithm": "zone shelf-packing with proximity ordering (deterministic)",
+    "notes": [
+      "Coordinates are footprint origins in mm from the board's top-left corner.",
+      "This is a deterministic starting placement; refine it in KiCad.",
+      "Edge connectors are flush with their edge at 0 deg; rotate them so the mating face points off the board."
+    ]
+  },
+  "routing": {
+    "stackup": {
+      "layers": [
+        {
+          "name": "F.Cu",
+          "kind": "copper",
+          "thickness_mm": 0.035,
+          "purpose": "components, signals"
+        },
+        {
+          "name": "Core",
+          "kind": "dielectric",
+          "thickness_mm": 1.53,
+          "purpose": "FR-4"
+        },
+        {
+          "name": "B.Cu",
+          "kind": "copper",
+          "thickness_mm": 0.035,
+          "purpose": "GND pour, few signals"
+        }
+      ],
+      "total_thickness_mm": 1.6,
+      "copper_weight_oz": 1.0
+    },
+    "priorities": [
+      {
+        "order": 1,
+        "target": "antenna keepout",
+        "reason": "keep the module antenna area free of copper first"
+      },
+      {
+        "order": 2,
+        "target": "USB_DP/USB_DM",
+        "reason": "route the USB pair first: short, parallel, no stubs, over GND"
+      },
+      {
+        "order": 3,
+        "target": "VBUS, VBAT, +3V3",
+        "reason": "power rails at Power net-class width; star from the source"
+      },
+      {
+        "order": 4,
+        "target": "decoupling",
+        "reason": "decoupling caps: pad -> cap -> via to GND, shortest possible"
+      },
+      {
+        "order": 5,
+        "target": "CHG_PROG, VBAT_SENSE",
+        "reason": "analog/sense nets away from switching nodes and RF"
+      },
+      {
+        "order": 6,
+        "target": "remaining signals",
+        "reason": "Default net class"
+      }
+    ],
+    "trace_widths_mm": {
+      "Default": 0.2,
+      "Power": 0.4,
+      "Ground": 0.4,
+      "USB": 0.2
+    },
+    "ground_strategy": "2-layer: solid GND pour on B.Cu, kept unbroken under the MCU, USB pair and regulators; GND pour on F.Cu stitched to B.Cu with vias every ~5 mm and around the board edge. Route signals on F.Cu; use B.Cu only for short jumpers so the ground plane is not cut.",
+    "diff_pairs": [
+      {
+        "name": "USB",
+        "positive": "USB_DP",
+        "negative": "USB_DM",
+        "impedance_ohms": 90.0,
+        "notes": "length-match within 1 mm; ESD array on the pair right at the connector"
+      }
+    ],
+    "length_matching": [
+      "USB_DP/USB_DM: match within 1 mm"
+    ],
+    "return_path_notes": [
+      "Every signal crossing between zones needs continuous GND underneath it.",
+      "Do not route traces through the antenna keepout on any layer."
+    ],
+    "via_guidance": [
+      "Signal vias 0.6/0.3 mm (diameter/drill, fab minimum).",
+      "Power/GND vias 0.8/0.4 mm; use at least two in parallel per amp of current.",
+      "No vias inside SMD pads unless the fab offers filled/capped via-in-pad."
+    ],
+    "decoupling_notes": [
+      "C2 within 3 mm of U1 pin 3 (MCP73831T-2ACI/OT)",
+      "C1 within 3 mm of U1 pin 4 (MCP73831T-2ACI/OT)",
+      "C3 within 3 mm of U2 pin 1 (AP2112K-3.3TRG1)",
+      "C4 within 3 mm of U2 pin 5 (AP2112K-3.3TRG1)",
+      "C5, C6 within 5 mm of U3 pin 1 (ESP32-C3-WROOM-02-N4)",
+      "C8 within 3 mm of U4 pin 3 (SHT40-AD1B-R3)"
+    ],
+    "notes": []
+  },
+  "findings": [
+    {
+      "id": "DFM-DRILL:U3",
+      "rule": "DFM-DRILL",
+      "severity": "warning",
+      "category": "DFM",
+      "message": "U3 pad 19 drill 0.2 mm < fab minimum 0.3 mm (thermal vias inside the footprint's ground pad).",
+      "refs": [
+        "U3"
+      ],
+      "nets": [],
+      "suggested_fix": "Use a fab that drills this size, or edit the footprint's thermal vias to the fab minimum.",
+      "source": "internal"
+    },
+    {
+      "id": "DRC-DRILL_OUT_OF_RANGE:footprint",
+      "rule": "DRC-DRILL_OUT_OF_RANGE",
+      "severity": "warning",
+      "category": "DRC",
+      "message": "KiCad DRC drill_out_of_range: 12 item(s). Hole size out of range (board setup constraints min hole 0.3000 mm; actual 0.2000 mm) [PTH pad 19 [GND] of U3] | Hole size out of range (board setup constraints min hole 0.3000 mm; actual 0.2000 mm) [PTH pad 19 [GND] of U3] | Hole size out of range (board setup constraints min hole 0.3000 mm; actual 0.2000 mm) [PTH pad 19 [GND] of U3] | Hole size out of range (board setup constraints min hole 0.3000 mm; actual 0.2000 mm) [PTH pad 19 [GND] of U3] (+8 more) All inside the KiCad library footprint(s) of U3: check that your fab accepts them or adapt the footprint.",
+      "refs": [],
+      "nets": [],
+      "suggested_fix": null,
+      "source": "kicad"
+    },
+    {
+      "id": "DRC-HOLE_CLEARANCE:footprint",
+      "rule": "DRC-HOLE_CLEARANCE",
+      "severity": "warning",
+      "category": "DRC",
+      "message": "KiCad DRC hole_clearance: 4 item(s). Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.1944 mm) [NPTH pad of J1; Pad A1 [GND] of J1 on F.Cu] | Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.1944 mm) [NPTH pad of J1; Pad B12 [GND] of J1 on F.Cu] | Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.1944 mm) [NPTH pad of J1; Pad A12 [GND] of J1 on F.Cu] | Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.1944 mm) [NPTH pad of J1; Pad B1 [GND] of J1 on F.Cu] All inside the KiCad library footprint(s) of J1: check that your fab accepts them or adapt the footprint.",
+      "refs": [],
+      "nets": [],
+      "suggested_fix": null,
+      "source": "kicad"
+    },
+    {
+      "id": "PWR-BATTERY-LIFE:plan",
+      "rule": "PWR-BATTERY-LIFE",
+      "severity": "warning",
+      "category": "power",
+      "message": "Estimated battery life 96 days (average 346.6 uA, duty 0.333%, 80% usable capacity) vs target 90 days. Thin margin.",
+      "refs": [],
+      "nets": [],
+      "suggested_fix": null,
+      "source": "internal"
+    },
+    {
+      "id": "PWR-DROPOUT:+3V3",
+      "rule": "PWR-DROPOUT",
+      "severity": "warning",
+      "category": "power",
+      "message": "U2 drops out below VBAT = 3.55 V; at VBAT minimum (3 V) +3V3 falls to ~2.75 V. Loads need >= 3 V, so the source is only usable down to ~3.25 V.",
+      "refs": [
+        "U2"
+      ],
+      "nets": [
+        "+3V3",
+        "VBAT"
+      ],
+      "suggested_fix": "Accept the reduced usable range or use a buck-boost regulator.",
+      "source": "internal"
+    },
+    {
+      "id": "PWR-SOURCE:VBUS",
+      "rule": "PWR-SOURCE",
+      "severity": "warning",
+      "category": "power",
+      "message": "VBUS: peak demand 503.5 mA exceeds what the usb source can deliver (500 mA).",
+      "refs": [],
+      "nets": [
+        "VBUS"
+      ],
+      "suggested_fix": "Use a stronger source, add bulk capacitance for short pulses, or reduce the peak load.",
+      "source": "internal"
+    },
+    {
+      "id": "DFM-MIXED-ASSEMBLY:plan",
+      "rule": "DFM-MIXED-ASSEMBLY",
+      "severity": "info",
+      "category": "DFM",
+      "message": "1 through-hole part(s) (J1) need a second assembly step (wave/selective/hand soldering).",
+      "refs": [],
+      "nets": [],
+      "suggested_fix": null,
+      "source": "internal"
+    },
+    {
+      "id": "DRC-LIB_FOOTPRINT_ISSUES:warning",
+      "rule": "DRC-LIB_FOOTPRINT_ISSUES",
+      "severity": "info",
+      "category": "DRC",
+      "message": "KiCad DRC lib_footprint_issues: 33 item(s). The current configuration does not include the library 'Connector_USB'. [Footprint J1] | The current configuration does not include the library 'Package_TO_SOT_SMD'. [Footprint D1] | The current configuration does not include the library 'Package_TO_SOT_SMD'. [Footprint U1] | The current configuration does not include the library 'LED_SMD'. [Footprint D2] (+29 more) Expected here: the board was checked without the KiCad footprint library tables.",
+      "refs": [],
+      "nets": [],
+      "suggested_fix": null,
+      "source": "kicad"
+    },
+    {
+      "id": "DRC-SILK_OVERLAP:warning",
+      "rule": "DRC-SILK_OVERLAP",
+      "severity": "info",
+      "category": "DRC",
+      "message": "KiCad DRC silk_overlap: 20 item(s). Silkscreen overlap [Reference 'D1'; Segment on F.Silkscreen] | Silkscreen overlap [Reference 'U1'; Segment on F.Silkscreen] | Silkscreen overlap [Segment on F.Silkscreen; Reference 'U1'] | Silkscreen overlap [Reference 'D1'; Segment on F.Silkscreen] (+16 more) Expected here: silkscreen reference positions come from the library footprints.",
+      "refs": [],
+      "nets": [],
+      "suggested_fix": null,
+      "source": "kicad"
+    },
+    {
+      "id": "DRC-SILK_OVER_COPPER:warning",
+      "rule": "DRC-SILK_OVER_COPPER",
+      "severity": "info",
+      "category": "DRC",
+      "message": "KiCad DRC silk_over_copper: 18 item(s). Silkscreen clipped by solder mask [Reference 'D1'] | Silkscreen clipped by solder mask [Reference 'U1'] | Silkscreen clipped by solder mask [Reference 'D2'] | Silkscreen clipped by solder mask [Reference 'U2'] (+14 more) Expected here: silkscreen reference positions come from the library footprints.",
+      "refs": [],
+      "nets": [],
+      "suggested_fix": null,
+      "source": "kicad"
+    },
+    {
+      "id": "DRC-UNCONNECTED_ITEMS:error",
+      "rule": "DRC-UNCONNECTED_ITEMS",
+      "severity": "info",
+      "category": "DRC",
+      "message": "KiCad DRC unconnected_items: 84 item(s). Missing connection between items [PTH pad S1 [GND] of J1; Pad B1 [GND] of J1 on F.Cu] | Missing connection between items [Pad A1 [GND] of J1 on F.Cu; PTH pad S1 [GND] of J1] | Missing connection between items [Pad 2 [GND] of C6 on F.Cu; Pad 2 [GND] of C7 on F.Cu] | Missing connection between items [Pad 2 [GND] of R13 on F.Cu; Pad 2 [GND] of C9 on F.Cu] (+80 more) Expected here: routing is a manual step; every ratsnest line is reported.",
+      "refs": [],
+      "nets": [],
+      "suggested_fix": null,
+      "source": "kicad"
+    },
+    {
+      "id": "LIB-NO-DATASHEET:plan",
+      "rule": "LIB-NO-DATASHEET",
+      "severity": "info",
+      "category": "library",
+      "message": "No trusted datasheet URL for D2, J2, D3, SW1 (KiCad metadata has none; URLs are never guessed). Look these up from the manufacturer.",
+      "refs": [
+        "D2",
+        "J2",
+        "D3",
+        "SW1"
+      ],
+      "nets": [],
+      "suggested_fix": null,
+      "source": "internal"
+    }
+  ],
+  "check_summary": {
+    "status": "PASS_WITH_WARNINGS",
+    "errors": 0,
+    "warnings": 6,
+    "infos": 6,
+    "kicad_drc_ran": true,
+    "kicad_drc_note": "KiCad DRC ran via kicad-cli-docker: Found 87 violations; Found 84 unconnected items"
+  },
+  "assumptions": [
+    {
+      "text": "Indoor use, 0-50 C",
+      "field": "environment",
+      "rationale": null
+    },
+    {
+      "text": "About 3 s awake per report (connect, measure, publish)",
+      "field": "duty_active_s",
+      "rationale": null
+    },
+    {
+      "text": "LiPo has its own protection circuit (no on-board protector)",
+      "field": "power_sources",
+      "rationale": null
+    },
+    {
+      "text": "2-layer board is sufficient",
+      "field": "layer_count_target",
+      "rationale": null
+    },
+    {
+      "text": "USB is used for charging and native-USB programming",
+      "field": "interfaces",
+      "rationale": null
+    }
+  ],
+  "design_notes": [
+    "S2B-PH-SM4-TB(LF)(SN): pin 1 = battery +, pin 2 = battery -. JST-PH battery lead polarity is NOT standardised between vendors - check before connecting.",
+    "Charge current 500 mA = 0.50C for 1000 mAh.",
+    "AP2112K-3.3TRG1 enable tied to its input: always on.",
+    "Battery sense divider 1M/1M halves VBAT on IO3; leaks 2.1 uA continuously.",
+    "GPIO assignment on ESP32-C3-WROOM-02-N4: I2C_SDA->IO6, I2C_SCL->IO7, ui/led->IO10, ui/switch->IO4, VBAT_SENSE->IO3."
+  ],
+  "stages_run": [
+    "requirements",
+    "architecture",
+    "components",
+    "netlist",
+    "constraints",
+    "placement",
+    "routing",
+    "checks"
+  ],
+  "review_status": "draft",
+  "comments": [],
+  "decisions": []
+}

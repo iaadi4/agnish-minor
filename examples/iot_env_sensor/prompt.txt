@@ -1,0 +1,1 @@
+Battery-powered Wi-Fi temperature and humidity sensor. 1000 mAh LiPo charged over USB-C. Wakes every 15 minutes, measures and reports over Wi-Fi, then deep-sleeps; needs at least 3 months of battery life. Status LED and one user button. Board no larger than 50 x 35 mm.

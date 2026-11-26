@@ -1,0 +1,84 @@
+{
+  "_note": "Hand-authored fixture (not a model recording). See scripts/author_fixtures.py.",
+  "match": [
+    "ble",
+    "coin-cell",
+    "cr2032",
+    "accelerometer",
+    "tag",
+    "swd",
+    "tag-connect"
+  ],
+  "prompt_sha256": "673cd70e8f8a151b2513e9d06505bdb33bf6e15f667eb447dbb8b340e1e8acf7",
+  "responses": [
+    {
+      "parts": [
+        {
+          "role": "CR2032 holder",
+          "block_id": "battery",
+          "mpn": "3034",
+          "quantity": 1,
+          "rationale": "Keystone SMD coin-cell retainer",
+          "confidence": 0.9,
+          "alternates": []
+        },
+        {
+          "role": "BLE MCU module",
+          "block_id": "mcu",
+          "mpn": "MDBT42Q-512KV2",
+          "quantity": 1,
+          "rationale": "nRF52832 module with chip antenna, 2 uA sleep",
+          "confidence": 0.85,
+          "alternates": [
+            "E73-2G4M04S1B",
+            "MDBT50Q-1MV2"
+          ]
+        },
+        {
+          "role": "wake-on-motion accelerometer",
+          "block_id": "sensor",
+          "mpn": "LIS3DHTR",
+          "quantity": 1,
+          "rationale": "low-power accelerometer with interrupt",
+          "confidence": 0.85,
+          "alternates": [
+            "LSM6DSLTR"
+          ]
+        },
+        {
+          "role": "status LED",
+          "block_id": "ui",
+          "mpn": "LTST-C191KGKT",
+          "quantity": 1,
+          "rationale": "green indicator",
+          "confidence": 0.8,
+          "alternates": []
+        },
+        {
+          "role": "user button",
+          "block_id": "ui",
+          "mpn": "PTS810 SJM 250 SMTR LFS",
+          "quantity": 1,
+          "rationale": "SMD tactile switch",
+          "confidence": 0.8,
+          "alternates": []
+        },
+        {
+          "role": "SWD programming footprint",
+          "block_id": "debug",
+          "mpn": "TC2030-IDC-NL",
+          "quantity": 1,
+          "rationale": "zero-cost Tag-Connect footprint",
+          "confidence": 0.9,
+          "alternates": [
+            "FTSH-105-01-L-DV-K"
+          ]
+        }
+      ],
+      "notes": [],
+      "rejected_candidates": [
+        "ESP32-C3-WROOM-02-N4: Wi-Fi peaks impossible on a coin cell"
+      ]
+    }
+  ]
+}

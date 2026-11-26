@@ -1,0 +1,120 @@
+{
+  "_note": "Hand-authored fixture (not a model recording). See scripts/author_fixtures.py.",
+  "match": [
+    "bme280",
+    "barometric"
+  ],
+  "prompt_sha256": "4025ffc59d582ebdf7ddf98ff339c3c12e468b65b03d7596e5554cfa5e298a53",
+  "responses": [
+    {
+      "parts": [
+        {
+          "role": "USB-C receptacle (charging + data)",
+          "block_id": "usb_in",
+          "mpn": "USB4105-GF-A",
+          "quantity": 1,
+          "rationale": "USB 2.0 sink receptacle in the library",
+          "confidence": 0.85,
+          "alternates": [
+            "TYPE-C-31-M-12"
+          ]
+        },
+        {
+          "role": "USB ESD protection",
+          "block_id": "usb_in",
+          "mpn": "USBLC6-2SC6",
+          "quantity": 1,
+          "rationale": "standard 2-line TVS array for D+/D- and VBUS",
+          "confidence": 0.9,
+          "alternates": []
+        },
+        {
+          "role": "LiPo linear charger",
+          "block_id": "charger",
+          "mpn": "MCP73831T-2ACI/OT",
+          "quantity": 1,
+          "rationale": "single-cell 4.2 V charger, 500 mA max, tiny SOT-23-5",
+          "confidence": 0.9,
+          "alternates": [
+            "BQ24074RGTR"
+          ]
+        },
+        {
+          "role": "charge status LED",
+          "block_id": "charger",
+          "mpn": "LTST-C191KRKT",
+          "quantity": 1,
+          "rationale": "red LED driven by the charger STAT pin",
+          "confidence": 0.8,
+          "alternates": []
+        },
+        {
+          "role": "LiPo battery connector",
+          "block_id": "battery",
+          "mpn": "S2B-PH-SM4-TB(LF)(SN)",
+          "quantity": 1,
+          "rationale": "JST-PH is the common LiPo lead",
+          "confidence": 0.85,
+          "alternates": []
+        },
+        {
+          "role": "3.3 V LDO",
+          "block_id": "regulator",
+          "mpn": "AP2112K-3.3TRG1",
+          "quantity": 1,
+          "rationale": "600 mA covers ESP32-C3 Wi-Fi TX peaks; 250 mV dropout",
+          "confidence": 0.8,
+          "alternates": [
+            "AP7361C-33E-13"
+          ]
+        },
+        {
+          "role": "main Wi-Fi MCU",
+          "block_id": "mcu",
+          "mpn": "ESP32-C3-WROOM-02-N4",
+          "quantity": 1,
+          "rationale": "low-cost Wi-Fi/BLE module with native USB and deep sleep",
+          "confidence": 0.85,
+          "alternates": [
+            "ESP32-C6-MINI-1-N4"
+          ]
+        },
+        {
+          "role": "temperature/humidity/pressure sensor",
+          "block_id": "sensor",
+          "mpn": "BME280",
+          "quantity": 1,
+          "rationale": "reviewer asked for barometric pressure; BME280 adds it on the same bus",
+          "confidence": 0.85,
+          "alternates": [
+            "SHT40-AD1B-R3"
+          ]
+        },
+        {
+          "role": "status LED",
+          "block_id": "ui",
+          "mpn": "LTST-C191KGKT",
+          "quantity": 1,
+          "rationale": "green status indicator",
+          "confidence": 0.8,
+          "alternates": []
+        },
+        {
+          "role": "user button",
+          "block_id": "ui",
+          "mpn": "PTS810 SJM 250 SMTR LFS",
+          "quantity": 1,
+          "rationale": "small SMD tactile switch",
+          "confidence": 0.8,
+          "alternates": []
+        }
+      ],
+      "notes": [
+        "Revision: SHT40 replaced by BME280 per reviewer feedback."
+      ],
+      "rejected_candidates": [
+        "MCP1700T-3302E/TT: 250 mA cannot cover Wi-Fi TX peaks"
+      ]
+    }
+  ]
+}

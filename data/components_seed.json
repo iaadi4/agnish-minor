@@ -5836,7 +5836,10 @@
      "number": "4",
      "name": "SPC",
      "type": "input",
-     "functions": []
+     "functions": [
+      "i2c_scl",
+      "spi_sck"
+     ]
     },
     {
      "number": "5",
@@ -6566,17 +6569,13 @@
      "number": "1",
      "name": "A1",
      "type": "passive",
-     "functions": [
-      "i2c_addr"
-     ]
+     "functions": []
     },
     {
      "number": "2",
      "name": "A2",
      "type": "passive",
-     "functions": [
-      "i2c_addr"
-     ]
+     "functions": []
     }
    ],
    "supply_range": null,
@@ -6627,17 +6626,13 @@
      "number": "1",
      "name": "A1",
      "type": "passive",
-     "functions": [
-      "i2c_addr"
-     ]
+     "functions": []
     },
     {
      "number": "2",
      "name": "A2",
      "type": "passive",
-     "functions": [
-      "i2c_addr"
-     ]
+     "functions": []
     }
    ],
    "supply_range": null,
@@ -6690,17 +6685,13 @@
      "number": "1",
      "name": "A1",
      "type": "passive",
-     "functions": [
-      "i2c_addr"
-     ]
+     "functions": []
     },
     {
      "number": "2",
      "name": "A2",
      "type": "passive",
-     "functions": [
-      "i2c_addr"
-     ]
+     "functions": []
     }
    ],
    "supply_range": null,

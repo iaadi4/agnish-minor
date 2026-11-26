@@ -28,3 +28,41 @@ jobs:
         run: uv run pytest --cov=pcbassist --cov-report=term-missing --cov-fail-under=80
       - name: Library integrity
         run: uv run pcbassist library validate
+
+  kicad:
+    # Real KiCad 8: DRC on exported boards and schematic/netlist parity.
+    runs-on: ubuntu-latest
+    container:
+      image: kicad/kicad:8.0.9
+      options: --user root
+    env:
+      UV_PYTHON: /usr/bin/python3
+      PCBASSIST_KICAD_CLI: kicad-cli
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Install
+        run: uv sync --locked
+      - name: KiCad tests
+        run: uv run pytest tests/test_export.py -k real -v
+      - name: Demo (mock LLM, real DRC)
+        run: |
+          for ex in iot_env_sensor ble_coin_tag relay_motor_12v flawed_coin_wifi; do
+            uv run pcbassist generate -f examples/$ex/prompt.txt --out out/demo/$ex --mock-llm
+            test -f out/demo/$ex/v1/drc.json
+          done
+          uv run pcbassist refine out/demo/iot_env_sensor --mock-llm \
+            -f "Replace the SHT40 with a BME280 so we also get barometric pressure."
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t pcbassist .
+      - name: Smoke test
+        run: |
+          mkdir -p out && chmod 777 out
+          docker run --rm -v "$PWD/out:/work/out" pcbassist generate \
+            -f /opt/pcbassist/examples/ble_coin_tag/prompt.txt --out out/ble --mock-llm
+          test -f out/ble/v1/drc.json

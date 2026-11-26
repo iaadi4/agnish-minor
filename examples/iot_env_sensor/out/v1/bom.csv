@@ -1,0 +1,22 @@
+# AI-GENERATED DESIGN PLAN - NOT VERIFIED FOR FABRICATION. This output was produced with the help of a language model and deterministic rule checks. It must be reviewed and signed off by a qualified electronics engineer before any fabrication, assembly or use.
+Refs,Qty,Value,MPN,Manufacturer,Footprint,Description,Datasheet,Verified,Min confidence,Status,Notes
+C1 C2,2,4.7u,GRM188R61A475KE15D,Murata Electronics,Capacitor_SMD:C_0603_1608Metric,"4.7 uF 10 V X5R MLCC, 0603",,yes,0.90,proposed,no trusted datasheet URL
+C3 C4 C7,3,1u,GRM155R61A105KE15D,Murata Electronics,Capacitor_SMD:C_0402_1005Metric,"1 uF 10 V X5R MLCC, 0402",,yes,0.90,proposed,no trusted datasheet URL
+C5,1,10u,GRM188R61A106KE69D,Murata Electronics,Capacitor_SMD:C_0603_1608Metric,"10 uF 10 V X5R MLCC, 0603",,yes,0.90,proposed,no trusted datasheet URL
+C6 C8 C9,3,100n,GRM155R71C104KA88D,Murata Electronics,Capacitor_SMD:C_0402_1005Metric,"100 nF 16 V X7R MLCC, 0402",,yes,0.90,proposed,no trusted datasheet URL
+D1,1,,USBLC6-2SC6,STMicroelectronics,Package_TO_SOT_SMD:SOT-23-6,"Low-capacitance ESD protection for USB 2.0 D+/D- and VBUS, SOT-23-6",https://www.st.com/resource/en/datasheet/usblc6-2.pdf,yes,0.90,proposed,
+D2,1,red,LTST-C191KRKT,Lite-On,LED_SMD:LED_0603_1608Metric,"Red LED, 0603",,yes,0.80,proposed,no trusted datasheet URL
+D3,1,green,LTST-C191KGKT,Lite-On,LED_SMD:LED_0603_1608Metric,"Green LED, 0603",,yes,0.80,proposed,no trusted datasheet URL
+J1,1,,USB4105-GF-A,GCT,Connector_USB:USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal,"USB Type-C receptacle, USB 2.0, 16-pin, SMT top-mount horizontal",https://www.usb.org/sites/default/files/documents/usb_type-c.zip,yes,0.85,proposed,
+J2,1,,S2B-PH-SM4-TB(LF)(SN),JST,Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal,JST PH 2-pin 2.0 mm SMT right-angle header (LiPo battery),,yes,0.85,proposed,no trusted datasheet URL
+R1,1,2k,RC0603FR-072KL,Yageo,Resistor_SMD:R_0603_1608Metric,"2 kOhm 1% 1/10 W thick-film resistor, 0603",,yes,0.90,proposed,no trusted datasheet URL
+R2 R10,2,1k,RC0402FR-071KL,Yageo,Resistor_SMD:R_0402_1005Metric,"1 kOhm 1% 1/16 W thick-film resistor, 0402",,yes,0.90,proposed,no trusted datasheet URL
+R3 R4 R5 R11,4,10k,RC0402FR-0710KL,Yageo,Resistor_SMD:R_0402_1005Metric,"10 kOhm 1% 1/16 W thick-film resistor, 0402",,yes,0.90,proposed,no trusted datasheet URL
+R6 R7,2,5.1k,RC0402FR-075K1L,Yageo,Resistor_SMD:R_0402_1005Metric,"5.1 kOhm 1% 1/16 W thick-film resistor, 0402",,yes,0.90,proposed,no trusted datasheet URL
+R8 R9,2,4.7k,RC0402FR-074K7L,Yageo,Resistor_SMD:R_0402_1005Metric,"4.7 kOhm 1% 1/16 W thick-film resistor, 0402",,yes,0.90,proposed,no trusted datasheet URL
+R12 R13,2,1M,RC0402FR-071ML,Yageo,Resistor_SMD:R_0402_1005Metric,"1 MOhm 1% 1/16 W thick-film resistor, 0402",,yes,0.90,proposed,no trusted datasheet URL
+SW1 SW2,2,,PTS810 SJM 250 SMTR LFS,C&K,Button_Switch_SMD:SW_SPST_PTS810,"SMD tactile switch, 4.2x3.2 mm, 250 gf",,yes,0.80,proposed,no trusted datasheet URL
+U1,1,,MCP73831T-2ACI/OT,Microchip Technology,Package_TO_SOT_SMD:SOT-23-5,"Single-cell Li-ion/LiPo linear charger, 4.20 V, up to 500 mA, SOT-23-5",http://ww1.microchip.com/downloads/en/DeviceDoc/20001984g.pdf,yes,0.90,proposed,
+U2,1,,AP2112K-3.3TRG1,Diodes Incorporated,Package_TO_SOT_SMD:SOT-23-5,"3.3 V 600 mA LDO with enable, SOT-23-5",https://www.diodes.com/assets/Datasheets/AP2112.pdf,yes,0.80,proposed,
+U3,1,,ESP32-C3-WROOM-02-N4,Espressif Systems,RF_Module:ESP32-C3-WROOM-02,"WiFi 4 + BLE 5 module, ESP32-C3 RISC-V 160 MHz, 4 MB flash, PCB antenna",https://www.espressif.com/sites/default/files/documentation/esp32-c3-wroom-02_datasheet_en.pdf,yes,0.85,proposed,
+U4,1,,SHT40-AD1B-R3,Sensirion,Sensor_Humidity:Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad,"Digital temperature + humidity sensor, +/-1.8 %RH, +/-0.2 C, I2C, DFN-4 1.5x1.5",https://sensirion.com/media/documents/33FD6951/624C4357/Datasheet_SHT4x.pdf,yes,0.90,proposed,

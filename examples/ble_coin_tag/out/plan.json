@@ -1,0 +1,2789 @@
+{
+  "schema_version": "1.0",
+  "disclaimer": "AI-GENERATED DESIGN PLAN - NOT VERIFIED FOR FABRICATION. This output was produced with the help of a language model and deterministic rule checks. It must be reviewed and signed off by a qualified electronics engineer before any fabrication, assembly or use.",
+  "version": 1,
+  "parent_version": null,
+  "created_at": "2026-11-26T15:20:30.899046Z",
+  "prompt": "Coin-cell BLE asset tag with an accelerometer for wake-on-motion, a status LED and a button. Programmed over SWD with a Tag-Connect cable. Should run at least a year on a CR2032. As small as practical.",
+  "feedback_history": [],
+  "llm": {
+    "mode": "mock",
+    "model": "mock-llm",
+    "fixture_set": "architecture/ble_coin_tag, components/ble_coin_tag, requirements/ble_coin_tag"
+  },
+  "requirements": {
+    "summary": "CR2032-powered BLE asset tag with wake-on-motion accelerometer.",
+    "functional_goals": [
+      "advertise over BLE",
+      "wake on motion from an accelerometer interrupt",
+      "status LED and one button",
+      "SWD programming through a Tag-Connect footprint"
+    ],
+    "power_sources": [
+      {
+        "kind": "coin_cell",
+        "nominal_v": 3.0,
+        "min_v": 2.0,
+        "max_v": 3.0,
+        "capacity_mah": 220.0,
+        "max_current_ma": 15.0,
+        "rechargeable": false,
+        "notes": "CR2032: about 3 mA continuous, 15 mA pulse"
+      }
+    ],
+    "target_battery_life_days": 365.0,
+    "duty_cycle": "BLE advertising once per second, about 3 ms radio-on per event",
+    "duty_active_s": 0.003,
+    "duty_period_s": 1.0,
+    "voltage_rails": [],
+    "interfaces": [
+      {
+        "kind": "I2C",
+        "purpose": "accelerometer",
+        "count": 1,
+        "external": false
+      },
+      {
+        "kind": "SWD",
+        "purpose": "programming/debug",
+        "count": 1,
+        "external": true
+      }
+    ],
+    "wireless": [
+      {
+        "protocol": "ble",
+        "notes": null,
+        "antenna": "any"
+      }
+    ],
+    "sensors": [
+      {
+        "quantity": "acceleration",
+        "accuracy": null,
+        "notes": "wake-on-motion interrupt"
+      }
+    ],
+    "actuators": [],
+    "user_io": [
+      "status LED",
+      "button"
+    ],
+    "environment": {
+      "temp_min_c": -10.0,
+      "temp_max_c": 50.0,
+      "ip_rating": null,
+      "notes": null
+    },
+    "size": {
+      "max_width_mm": 40.0,
+      "max_height_mm": 30.0,
+      "max_component_height_mm": null
+    },
+    "layer_count_target": 2,
+    "cost_target": null,
+    "assumptions": [
+      {
+        "text": "Advertising interval 1 s with ~3 ms active per event",
+        "field": "duty_active_s",
+        "rationale": null
+      },
+      {
+        "text": "Single-sided assembly with the coin holder on top: 40 x 30 mm. Moving the holder to the bottom side could shrink the board to about 30 x 25 mm.",
+        "field": "size",
+        "rationale": null
+      },
+      {
+        "text": "LED is used only briefly; excluded from the average current",
+        "field": "user_io",
+        "rationale": null
+      },
+      {
+        "text": "Runs directly from the coin cell, no regulator (nRF52 accepts 1.7-3.6 V)",
+        "field": "voltage_rails",
+        "rationale": null
+      }
+    ],
+    "open_questions": [
+      "Advertising payload and interval required by the asset system?"
+    ],
+    "conflicts": [],
+    "out_of_scope": []
+  },
+  "architecture": {
+    "blocks": [
+      {
+        "id": "battery",
+        "kind": "battery",
+        "name": "CR2032 holder",
+        "description": "",
+        "covers": [
+          "power"
+        ]
+      },
+      {
+        "id": "mcu",
+        "kind": "mcu_wireless",
+        "name": "BLE module",
+        "description": "",
+        "covers": [
+          "ble"
+        ]
+      },
+      {
+        "id": "sensor",
+        "kind": "sensor",
+        "name": "Accelerometer",
+        "description": "",
+        "covers": [
+          "acceleration"
+        ]
+      },
+      {
+        "id": "ui",
+        "kind": "user_io",
+        "name": "LED and button",
+        "description": "",
+        "covers": [
+          "status LED",
+          "button"
+        ]
+      },
+      {
+        "id": "debug",
+        "kind": "debug_programming",
+        "name": "Tag-Connect SWD",
+        "description": "",
+        "covers": [
+          "SWD"
+        ]
+      }
+    ],
+    "links": [
+      {
+        "src": "battery",
+        "dst": "mcu",
+        "kind": "power",
+        "label": "VBAT 2.0-3.0 V"
+      },
+      {
+        "src": "battery",
+        "dst": "sensor",
+        "kind": "power",
+        "label": "VBAT"
+      },
+      {
+        "src": "mcu",
+        "dst": "sensor",
+        "kind": "i2c",
+        "label": "I2C + INT"
+      },
+      {
+        "src": "mcu",
+        "dst": "ui",
+        "kind": "gpio",
+        "label": ""
+      },
+      {
+        "src": "debug",
+        "dst": "mcu",
+        "kind": "swd",
+        "label": ""
+      }
+    ],
+    "rationale": "Direct battery supply keeps quiescent current minimal."
+  },
+  "selection": {
+    "parts": [
+      {
+        "role": "CR2032 holder",
+        "block_id": "battery",
+        "mpn": "3034",
+        "quantity": 1,
+        "rationale": "Keystone SMD coin-cell retainer",
+        "confidence": 0.9,
+        "alternates": []
+      },
+      {
+        "role": "BLE MCU module",
+        "block_id": "mcu",
+        "mpn": "MDBT42Q-512KV2",
+        "quantity": 1,
+        "rationale": "nRF52832 module with chip antenna, 2 uA sleep",
+        "confidence": 0.85,
+        "alternates": [
+          "E73-2G4M04S1B",
+          "MDBT50Q-1MV2"
+        ]
+      },
+      {
+        "role": "wake-on-motion accelerometer",
+        "block_id": "sensor",
+        "mpn": "LIS3DHTR",
+        "quantity": 1,
+        "rationale": "low-power accelerometer with interrupt",
+        "confidence": 0.85,
+        "alternates": [
+          "LSM6DSLTR"
+        ]
+      },
+      {
+        "role": "status LED",
+        "block_id": "ui",
+        "mpn": "LTST-C191KGKT",
+        "quantity": 1,
+        "rationale": "green indicator",
+        "confidence": 0.8,
+        "alternates": []
+      },
+      {
+        "role": "user button",
+        "block_id": "ui",
+        "mpn": "PTS810 SJM 250 SMTR LFS",
+        "quantity": 1,
+        "rationale": "SMD tactile switch",
+        "confidence": 0.8,
+        "alternates": []
+      },
+      {
+        "role": "SWD programming footprint",
+        "block_id": "debug",
+        "mpn": "TC2030-IDC-NL",
+        "quantity": 1,
+        "rationale": "zero-cost Tag-Connect footprint",
+        "confidence": 0.9,
+        "alternates": [
+          "FTSH-105-01-L-DV-K"
+        ]
+      }
+    ],
+    "notes": [],
+    "rejected_candidates": [
+      "ESP32-C3-WROOM-02-N4: Wi-Fi peaks impossible on a coin cell"
+    ]
+  },
+  "components": [
+    {
+      "ref_des": "BT1",
+      "role": "CR2032 holder",
+      "mpn": "3034",
+      "category": "battery_holder",
+      "manufacturer": "Keystone Electronics",
+      "description": "CR2032 coin-cell holder, SMT",
+      "package": "BatteryHolder_Keystone_3034_1x20mm",
+      "footprint": "Battery:BatteryHolder_Keystone_3034_1x20mm",
+      "value": null,
+      "key_specs": {
+        "cell": "CR2032"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "+",
+          "type": "passive",
+          "functions": [
+            "positive"
+          ]
+        },
+        {
+          "number": "2",
+          "name": "-",
+          "type": "passive",
+          "functions": [
+            "negative"
+          ]
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:Battery_Cell",
+      "rationale": "Keystone SMD coin-cell retainer",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "battery",
+      "rail": "VBAT",
+      "support_for": null,
+      "support_pin": null,
+      "key": "battery/battery_holder",
+      "origin": "llm",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "U1",
+      "role": "BLE MCU module",
+      "mpn": "MDBT42Q-512KV2",
+      "category": "mcu_wireless",
+      "manufacturer": "Raytac",
+      "description": "BLE 5 module, Nordic nRF52832, 512 KB flash, chip antenna",
+      "package": "Raytac_MDBT42Q",
+      "footprint": "RF_Module:Raytac_MDBT42Q",
+      "value": null,
+      "key_specs": {
+        "cpu": "Cortex-M4F 64 MHz",
+        "flash_kb": 512,
+        "ram_kb": 64,
+        "ble": "5.0",
+        "antenna": "chip",
+        "nfc": true,
+        "module_size_mm": "16x10"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "GND",
+          "type": "power_in",
+          "functions": [
+            "gnd"
+          ]
+        },
+        {
+          "number": "2",
+          "name": "P0.25",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "3",
+          "name": "P0.26",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "4",
+          "name": "P0.27",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "5",
+          "name": "AIN4/P0.28",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "adc"
+          ]
+        },
+        {
+          "number": "6",
+          "name": "AIN5/P0.29",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "adc"
+          ]
+        },
+        {
+          "number": "7",
+          "name": "AIN6/P0.30",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "adc"
+          ]
+        },
+        {
+          "number": "8",
+          "name": "AIN7/P0.31",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "adc"
+          ]
+        },
+        {
+          "number": "9",
+          "name": "DEC4",
+          "type": "power_out",
+          "functions": [
+            "internal_regulator",
+            "power"
+          ]
+        },
+        {
+          "number": "10",
+          "name": "DCC",
+          "type": "power_out",
+          "functions": [
+            "internal_regulator",
+            "power"
+          ]
+        },
+        {
+          "number": "11",
+          "name": "VDD",
+          "type": "power_in",
+          "functions": [
+            "power"
+          ]
+        },
+        {
+          "number": "12",
+          "name": "GND",
+          "type": "passive",
+          "functions": [
+            "gnd"
+          ]
+        },
+        {
+          "number": "13",
+          "name": "P0.00/XL1",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "crystal"
+          ]
+        },
+        {
+          "number": "14",
+          "name": "P0.01/XL2",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "crystal"
+          ]
+        },
+        {
+          "number": "15",
+          "name": "AIN0/P0.02",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "adc"
+          ]
+        },
+        {
+          "number": "16",
+          "name": "AIN1/P0.03",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "adc"
+          ]
+        },
+        {
+          "number": "17",
+          "name": "AIN2/P0.04",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "adc"
+          ]
+        },
+        {
+          "number": "18",
+          "name": "AIN3/P0.05",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "adc"
+          ]
+        },
+        {
+          "number": "19",
+          "name": "P0.06",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "20",
+          "name": "P0.07",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "21",
+          "name": "P0.08",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "22",
+          "name": "NFC1/P0.09",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "nfc"
+          ]
+        },
+        {
+          "number": "23",
+          "name": "NFC2/P0.10",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "nfc"
+          ]
+        },
+        {
+          "number": "24",
+          "name": "GND",
+          "type": "passive",
+          "functions": [
+            "gnd"
+          ]
+        },
+        {
+          "number": "25",
+          "name": "P0.11",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "26",
+          "name": "P0.12",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "27",
+          "name": "P0.13",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "28",
+          "name": "TRACEDATA3/P0.14",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "trace"
+          ]
+        },
+        {
+          "number": "29",
+          "name": "TRACEDATA2/P0.15",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "trace"
+          ]
+        },
+        {
+          "number": "30",
+          "name": "TRACEDATA1/P0.16",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "trace"
+          ]
+        },
+        {
+          "number": "31",
+          "name": "P0.17",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "32",
+          "name": "TRACEDATA0/P0.18",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "trace"
+          ]
+        },
+        {
+          "number": "33",
+          "name": "P0.19",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "34",
+          "name": "TRACECLK/P0.20",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "trace"
+          ]
+        },
+        {
+          "number": "35",
+          "name": "P0.21/~RESET",
+          "type": "bidir",
+          "functions": [
+            "gpio",
+            "reset"
+          ]
+        },
+        {
+          "number": "36",
+          "name": "SWDCLK",
+          "type": "input",
+          "functions": [
+            "swd"
+          ]
+        },
+        {
+          "number": "37",
+          "name": "SWDIO",
+          "type": "bidir",
+          "functions": [
+            "swd"
+          ]
+        },
+        {
+          "number": "38",
+          "name": "P0.22",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "39",
+          "name": "GND",
+          "type": "passive",
+          "functions": [
+            "gnd"
+          ]
+        },
+        {
+          "number": "40",
+          "name": "P0.24",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        },
+        {
+          "number": "41",
+          "name": "P0.23",
+          "type": "bidir",
+          "functions": [
+            "gpio"
+          ]
+        }
+      ],
+      "supply_range": {
+        "min_v": 1.7,
+        "max_v": 3.6
+      },
+      "current": {
+        "typ_ma": 5.5,
+        "max_ma": 15.0,
+        "sleep_ua": 2.0
+      },
+      "alternates": [
+        "E73-2G4M04S1B",
+        "MDBT50Q-1MV2"
+      ],
+      "datasheet_url": "https://www.raytac.com/download/index.php?index_id=27",
+      "kicad_symbol": "RF_Module:MDBT42Q-512K",
+      "rationale": "nRF52832 module with chip antenna, 2 uA sleep",
+      "confidence": 0.85,
+      "verified": true,
+      "block_id": "mcu",
+      "rail": "VBAT",
+      "support_for": null,
+      "support_pin": null,
+      "key": "mcu/mcu_wireless",
+      "origin": "llm",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "U2",
+      "role": "wake-on-motion accelerometer",
+      "mpn": "LIS3DHTR",
+      "category": "sensor_motion",
+      "manufacturer": "STMicroelectronics",
+      "description": "3-axis accelerometer, +/-2/4/8/16 g, I2C/SPI, LGA-16 3x3",
+      "package": "LGA-16_3x3mm_P0.5mm_LayoutBorder3x5y",
+      "footprint": "Package_LGA:LGA-16_3x3mm_P0.5mm_LayoutBorder3x5y",
+      "value": null,
+      "key_specs": {
+        "interface": "I2C/SPI",
+        "i2c_address": "0x18/0x19 (SA0)",
+        "full_scale_g": "2/4/8/16",
+        "i2c_address_assigned": "0x18"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "VDD_IO",
+          "type": "power_in",
+          "functions": [
+            "power"
+          ]
+        },
+        {
+          "number": "2",
+          "name": "NC",
+          "type": "nc",
+          "functions": [
+            "nc"
+          ]
+        },
+        {
+          "number": "3",
+          "name": "NC",
+          "type": "nc",
+          "functions": [
+            "nc"
+          ]
+        },
+        {
+          "number": "4",
+          "name": "SPC",
+          "type": "input",
+          "functions": [
+            "i2c_scl",
+            "spi_sck"
+          ]
+        },
+        {
+          "number": "5",
+          "name": "GND",
+          "type": "power_in",
+          "functions": [
+            "gnd"
+          ]
+        },
+        {
+          "number": "6",
+          "name": "SDI",
+          "type": "input",
+          "functions": [
+            "i2c_sda",
+            "spi_mosi"
+          ]
+        },
+        {
+          "number": "7",
+          "name": "SDO",
+          "type": "output",
+          "functions": [
+            "spi_miso",
+            "i2c_addr"
+          ]
+        },
+        {
+          "number": "8",
+          "name": "CS",
+          "type": "input",
+          "functions": [
+            "spi_cs"
+          ]
+        },
+        {
+          "number": "9",
+          "name": "INT2",
+          "type": "output",
+          "functions": [
+            "interrupt"
+          ]
+        },
+        {
+          "number": "10",
+          "name": "GND",
+          "type": "passive",
+          "functions": [
+            "gnd"
+          ]
+        },
+        {
+          "number": "11",
+          "name": "INT1",
+          "type": "output",
+          "functions": [
+            "interrupt"
+          ]
+        },
+        {
+          "number": "12",
+          "name": "GND",
+          "type": "passive",
+          "functions": [
+            "gnd"
+          ]
+        },
+        {
+          "number": "13",
+          "name": "ADC3",
+          "type": "input",
+          "functions": []
+        },
+        {
+          "number": "14",
+          "name": "VDD",
+          "type": "power_in",
+          "functions": [
+            "power"
+          ]
+        },
+        {
+          "number": "15",
+          "name": "ADC2",
+          "type": "input",
+          "functions": []
+        },
+        {
+          "number": "16",
+          "name": "ADC1",
+          "type": "input",
+          "functions": []
+        }
+      ],
+      "supply_range": {
+        "min_v": 1.71,
+        "max_v": 3.6
+      },
+      "current": {
+        "typ_ma": 0.011,
+        "max_ma": null,
+        "sleep_ua": 0.5
+      },
+      "alternates": [
+        "LSM6DSLTR"
+      ],
+      "datasheet_url": "https://www.st.com/resource/en/datasheet/cd00274221.pdf",
+      "kicad_symbol": "Sensor_Motion:LIS3DH",
+      "rationale": "low-power accelerometer with interrupt",
+      "confidence": 0.85,
+      "verified": true,
+      "block_id": "sensor",
+      "rail": "VBAT",
+      "support_for": null,
+      "support_pin": null,
+      "key": "sensor/sensor_motion",
+      "origin": "llm",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "D1",
+      "role": "status LED",
+      "mpn": "LTST-C191KGKT",
+      "category": "led",
+      "manufacturer": "Lite-On",
+      "description": "Green LED, 0603",
+      "package": "LED_0603_1608Metric",
+      "footprint": "LED_SMD:LED_0603_1608Metric",
+      "value": "green",
+      "key_specs": {
+        "color": "green",
+        "vf_v": 2.0,
+        "if_max_ma": 30
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "functions": [
+            "cathode"
+          ]
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "functions": [
+            "anode"
+          ]
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": 0.0,
+        "max_ma": 1.0,
+        "sleep_ua": 0.0
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:LED",
+      "rationale": "green indicator",
+      "confidence": 0.8,
+      "verified": true,
+      "block_id": "ui",
+      "rail": "VBAT",
+      "support_for": null,
+      "support_pin": null,
+      "key": "ui/led",
+      "origin": "llm",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "SW1",
+      "role": "user button",
+      "mpn": "PTS810 SJM 250 SMTR LFS",
+      "category": "switch",
+      "manufacturer": "C&K",
+      "description": "SMD tactile switch, 4.2x3.2 mm, 250 gf",
+      "package": "SW_SPST_PTS810",
+      "footprint": "Button_Switch_SMD:SW_SPST_PTS810",
+      "value": null,
+      "key_specs": {
+        "actuation_force_gf": 250
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Switch:SW_Push",
+      "rationale": "SMD tactile switch",
+      "confidence": 0.8,
+      "verified": true,
+      "block_id": "ui",
+      "rail": "VBAT",
+      "support_for": null,
+      "support_pin": null,
+      "key": "ui/switch",
+      "origin": "llm",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "J1",
+      "role": "SWD programming footprint",
+      "mpn": "TC2030-IDC-NL",
+      "category": "connector_debug",
+      "manufacturer": "Tag-Connect",
+      "description": "Tag-Connect 6-pin no-legs footprint (cable not populated on board)",
+      "package": "Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical",
+      "footprint": "Connector:Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical",
+      "value": null,
+      "key_specs": {
+        "positions": 6
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "VCC",
+          "type": "power_in",
+          "functions": [
+            "power"
+          ]
+        },
+        {
+          "number": "2",
+          "name": "SWDIO",
+          "type": "bidir",
+          "functions": [
+            "swd"
+          ]
+        },
+        {
+          "number": "3",
+          "name": "~RESET",
+          "type": "open_drain",
+          "functions": [
+            "reset"
+          ]
+        },
+        {
+          "number": "4",
+          "name": "SWCLK",
+          "type": "output",
+          "functions": [
+            "swd"
+          ]
+        },
+        {
+          "number": "5",
+          "name": "GND",
+          "type": "power_in",
+          "functions": [
+            "gnd"
+          ]
+        },
+        {
+          "number": "6",
+          "name": "SWO",
+          "type": "input",
+          "functions": [
+            "swd"
+          ]
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [
+        "FTSH-105-01-L-DV-K"
+      ],
+      "datasheet_url": "https://www.tag-connect.com/wp-content/uploads/bsk-pdf-manager/TC2030-CTX_1.pdf",
+      "kicad_symbol": "Connector:Conn_ARM_SWD_TagConnect_TC2030-NL",
+      "rationale": "zero-cost Tag-Connect footprint",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "debug",
+      "rail": "VBAT",
+      "support_for": null,
+      "support_pin": null,
+      "key": "debug/connector_debug",
+      "origin": "llm",
+      "in_bom": false,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "C1",
+      "role": "Decoupling (4.7u) for BLE MCU module",
+      "mpn": "GRM188R61A475KE15D",
+      "category": "capacitor",
+      "manufacturer": "Murata Electronics",
+      "description": "4.7 uF 10 V X5R MLCC, 0603",
+      "package": "C_0603_1608Metric",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "value": "4.7u",
+      "key_specs": {
+        "capacitance_f": 4.7e-6,
+        "voltage_v": 10,
+        "dielectric": "X5R"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:C",
+      "rationale": "Decoupling on VBAT",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "mcu",
+      "rail": null,
+      "support_for": "U1",
+      "support_pin": "11",
+      "key": "mcu/mcu_wireless/decoupling:VDD:4.7u",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "C2",
+      "role": "Decoupling (100n) for BLE MCU module",
+      "mpn": "GRM155R71C104KA88D",
+      "category": "capacitor",
+      "manufacturer": "Murata Electronics",
+      "description": "100 nF 16 V X7R MLCC, 0402",
+      "package": "C_0402_1005Metric",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "value": "100n",
+      "key_specs": {
+        "capacitance_f": 1e-7,
+        "voltage_v": 16,
+        "dielectric": "X7R"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:C",
+      "rationale": "Decoupling on VBAT",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "mcu",
+      "rail": null,
+      "support_for": "U1",
+      "support_pin": "11",
+      "key": "mcu/mcu_wireless/decoupling:VDD:100n",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "R1",
+      "role": "I2C SDA pull-up (4.7k)",
+      "mpn": "RC0402FR-074K7L",
+      "category": "resistor",
+      "manufacturer": "Yageo",
+      "description": "4.7 kOhm 1% 1/16 W thick-film resistor, 0402",
+      "package": "R_0402_1005Metric",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "value": "4.7k",
+      "key_specs": {
+        "resistance_ohm": 4700,
+        "tolerance": "1%",
+        "power_w": 0.0625
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:R",
+      "rationale": "I2C SDA pull-up",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "mcu",
+      "rail": null,
+      "support_for": "U1",
+      "support_pin": "2",
+      "key": "mcu/mcu_wireless/i2c:P0.25",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "R2",
+      "role": "I2C SCL pull-up (4.7k)",
+      "mpn": "RC0402FR-074K7L",
+      "category": "resistor",
+      "manufacturer": "Yageo",
+      "description": "4.7 kOhm 1% 1/16 W thick-film resistor, 0402",
+      "package": "R_0402_1005Metric",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "value": "4.7k",
+      "key_specs": {
+        "resistance_ohm": 4700,
+        "tolerance": "1%",
+        "power_w": 0.0625
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:R",
+      "rationale": "I2C SCL pull-up",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "mcu",
+      "rail": null,
+      "support_for": "U1",
+      "support_pin": "3",
+      "key": "mcu/mcu_wireless/i2c:P0.26",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "C3",
+      "role": "Decoupling (100n) for wake-on-motion accelerometer",
+      "mpn": "GRM155R71C104KA88D",
+      "category": "capacitor",
+      "manufacturer": "Murata Electronics",
+      "description": "100 nF 16 V X7R MLCC, 0402",
+      "package": "C_0402_1005Metric",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "value": "100n",
+      "key_specs": {
+        "capacitance_f": 1e-7,
+        "voltage_v": 16,
+        "dielectric": "X7R"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:C",
+      "rationale": "Decoupling on VBAT",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "sensor",
+      "rail": null,
+      "support_for": "U2",
+      "support_pin": "1",
+      "key": "sensor/sensor_motion/decoupling:VDD_IO:100n",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "C4",
+      "role": "Decoupling (100n) for wake-on-motion accelerometer",
+      "mpn": "GRM155R71C104KA88D",
+      "category": "capacitor",
+      "manufacturer": "Murata Electronics",
+      "description": "100 nF 16 V X7R MLCC, 0402",
+      "package": "C_0402_1005Metric",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "value": "100n",
+      "key_specs": {
+        "capacitance_f": 1e-7,
+        "voltage_v": 16,
+        "dielectric": "X7R"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:C",
+      "rationale": "Decoupling on VBAT",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "sensor",
+      "rail": null,
+      "support_for": "U2",
+      "support_pin": "14",
+      "key": "sensor/sensor_motion/decoupling:VDD:100n",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "R3",
+      "role": "LED series resistor (1k)",
+      "mpn": "RC0402FR-071KL",
+      "category": "resistor",
+      "manufacturer": "Yageo",
+      "description": "1 kOhm 1% 1/16 W thick-film resistor, 0402",
+      "package": "R_0402_1005Metric",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "value": "1k",
+      "key_specs": {
+        "resistance_ohm": 1000,
+        "tolerance": "1%",
+        "power_w": 0.0625
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:R",
+      "rationale": "LED series resistor",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "ui",
+      "rail": null,
+      "support_for": "D1",
+      "support_pin": "2",
+      "key": "ui/led/led:A",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    },
+    {
+      "ref_des": "R4",
+      "role": "Button pull-up (10k)",
+      "mpn": "RC0402FR-0710KL",
+      "category": "resistor",
+      "manufacturer": "Yageo",
+      "description": "10 kOhm 1% 1/16 W thick-film resistor, 0402",
+      "package": "R_0402_1005Metric",
+      "footprint": "Resistor_SMD:R_0402_1005Metric",
+      "value": "10k",
+      "key_specs": {
+        "resistance_ohm": 10000,
+        "tolerance": "1%",
+        "power_w": 0.0625
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "",
+          "type": "passive",
+          "functions": []
+        }
+      ],
+      "supply_range": null,
+      "current": {
+        "typ_ma": null,
+        "max_ma": null,
+        "sleep_ua": null
+      },
+      "alternates": [],
+      "datasheet_url": null,
+      "kicad_symbol": "Device:R",
+      "rationale": "Button pull-up",
+      "confidence": 0.9,
+      "verified": true,
+      "block_id": "ui",
+      "rail": null,
+      "support_for": "SW1",
+      "support_pin": "1",
+      "key": "ui/switch/button:1",
+      "origin": "synth",
+      "in_bom": true,
+      "status": "proposed",
+      "locked": false
+    }
+  ],
+  "netlist": {
+    "nets": [
+      {
+        "name": "GND",
+        "net_class": "ground",
+        "connections": [
+          {
+            "ref": "BT1",
+            "pin": "2"
+          },
+          {
+            "ref": "C1",
+            "pin": "2"
+          },
+          {
+            "ref": "C2",
+            "pin": "2"
+          },
+          {
+            "ref": "C3",
+            "pin": "2"
+          },
+          {
+            "ref": "C4",
+            "pin": "2"
+          },
+          {
+            "ref": "D1",
+            "pin": "1"
+          },
+          {
+            "ref": "J1",
+            "pin": "5"
+          },
+          {
+            "ref": "SW1",
+            "pin": "2"
+          },
+          {
+            "ref": "U1",
+            "pin": "1"
+          },
+          {
+            "ref": "U1",
+            "pin": "12"
+          },
+          {
+            "ref": "U1",
+            "pin": "24"
+          },
+          {
+            "ref": "U1",
+            "pin": "39"
+          },
+          {
+            "ref": "U2",
+            "pin": "5"
+          },
+          {
+            "ref": "U2",
+            "pin": "7"
+          },
+          {
+            "ref": "U2",
+            "pin": "10"
+          },
+          {
+            "ref": "U2",
+            "pin": "12"
+          }
+        ],
+        "voltage_v": 0.0,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "VBAT",
+        "net_class": "power",
+        "connections": [
+          {
+            "ref": "BT1",
+            "pin": "1"
+          },
+          {
+            "ref": "C1",
+            "pin": "1"
+          },
+          {
+            "ref": "C2",
+            "pin": "1"
+          },
+          {
+            "ref": "C3",
+            "pin": "1"
+          },
+          {
+            "ref": "C4",
+            "pin": "1"
+          },
+          {
+            "ref": "J1",
+            "pin": "1"
+          },
+          {
+            "ref": "R1",
+            "pin": "1"
+          },
+          {
+            "ref": "R2",
+            "pin": "1"
+          },
+          {
+            "ref": "R4",
+            "pin": "1"
+          },
+          {
+            "ref": "U1",
+            "pin": "11"
+          },
+          {
+            "ref": "U2",
+            "pin": "1"
+          },
+          {
+            "ref": "U2",
+            "pin": "8"
+          },
+          {
+            "ref": "U2",
+            "pin": "14"
+          }
+        ],
+        "voltage_v": 3.0,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "BTN1",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "R4",
+            "pin": "2"
+          },
+          {
+            "ref": "SW1",
+            "pin": "1"
+          },
+          {
+            "ref": "U1",
+            "pin": "20"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "I2C_SCL",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "R2",
+            "pin": "2"
+          },
+          {
+            "ref": "U1",
+            "pin": "3"
+          },
+          {
+            "ref": "U2",
+            "pin": "4"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "I2C_SDA",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "R1",
+            "pin": "2"
+          },
+          {
+            "ref": "U1",
+            "pin": "2"
+          },
+          {
+            "ref": "U2",
+            "pin": "6"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "INT_LIS3DHTR",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "U1",
+            "pin": "4"
+          },
+          {
+            "ref": "U2",
+            "pin": "11"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "LED1_A",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "D1",
+            "pin": "2"
+          },
+          {
+            "ref": "R3",
+            "pin": "2"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "LED1_DRV",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "R3",
+            "pin": "1"
+          },
+          {
+            "ref": "U1",
+            "pin": "19"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "MCU_RESET",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "J1",
+            "pin": "3"
+          },
+          {
+            "ref": "U1",
+            "pin": "35"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "SWCLK",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "J1",
+            "pin": "4"
+          },
+          {
+            "ref": "U1",
+            "pin": "36"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "SWDIO",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "J1",
+            "pin": "2"
+          },
+          {
+            "ref": "U1",
+            "pin": "37"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      },
+      {
+        "name": "SWO",
+        "net_class": "signal",
+        "connections": [
+          {
+            "ref": "J1",
+            "pin": "6"
+          },
+          {
+            "ref": "U1",
+            "pin": "32"
+          }
+        ],
+        "voltage_v": null,
+        "notes": null,
+        "status": "proposed",
+        "locked": false
+      }
+    ],
+    "no_connects": [
+      {
+        "ref": "U1",
+        "pin": "5",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "6",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "7",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "8",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "9",
+        "reason": "internal regulator node, LDO mode (see module datasheet)"
+      },
+      {
+        "ref": "U1",
+        "pin": "10",
+        "reason": "internal regulator node, LDO mode (see module datasheet)"
+      },
+      {
+        "ref": "U1",
+        "pin": "13",
+        "reason": "32 kHz crystal not fitted (internal RC oscillator)"
+      },
+      {
+        "ref": "U1",
+        "pin": "14",
+        "reason": "32 kHz crystal not fitted (internal RC oscillator)"
+      },
+      {
+        "ref": "U1",
+        "pin": "15",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "16",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "17",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "18",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "21",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "22",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "23",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "25",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "26",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "27",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "28",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "29",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "30",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "31",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "33",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "34",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "38",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "40",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U1",
+        "pin": "41",
+        "reason": "unused GPIO"
+      },
+      {
+        "ref": "U2",
+        "pin": "2",
+        "reason": "NC per KiCad symbol"
+      },
+      {
+        "ref": "U2",
+        "pin": "3",
+        "reason": "NC per KiCad symbol"
+      },
+      {
+        "ref": "U2",
+        "pin": "9",
+        "reason": "unused interrupt output"
+      },
+      {
+        "ref": "U2",
+        "pin": "13",
+        "reason": "auxiliary ADC input unused"
+      },
+      {
+        "ref": "U2",
+        "pin": "15",
+        "reason": "auxiliary ADC input unused"
+      },
+      {
+        "ref": "U2",
+        "pin": "16",
+        "reason": "auxiliary ADC input unused"
+      }
+    ]
+  },
+  "power_tree": [
+    {
+      "name": "VBAT",
+      "nominal_v": 3.0,
+      "min_v": 2.0,
+      "max_v": 3.0,
+      "max_current_ma": 15.0,
+      "budget_ma": null,
+      "source_ref": "BT1",
+      "source_kind": "battery",
+      "parent_rail": null
+    }
+  ],
+  "constraints": {
+    "electrical": {
+      "rails": [
+        {
+          "name": "VBAT",
+          "nominal_v": 3.0,
+          "min_v": 2.0,
+          "max_v": 3.0,
+          "max_current_ma": 15.0,
+          "budget_ma": 16.01,
+          "source_ref": "BT1",
+          "source_kind": "battery",
+          "parent_rail": null
+        }
+      ],
+      "net_classes": [
+        {
+          "name": "Default",
+          "kind": "signal",
+          "trace_width_mm": 0.2,
+          "clearance_mm": 0.15,
+          "via_diameter_mm": 0.6,
+          "via_drill_mm": 0.3,
+          "nets": [
+            "BTN1",
+            "I2C_SCL",
+            "I2C_SDA",
+            "INT_LIS3DHTR",
+            "LED1_A",
+            "LED1_DRV",
+            "MCU_RESET",
+            "SWCLK",
+            "SWDIO",
+            "SWO"
+          ],
+          "max_current_ma": null,
+          "rationale": "fab minimum 0.15 mm rounded up for yield"
+        },
+        {
+          "name": "Power",
+          "kind": "power",
+          "trace_width_mm": 0.4,
+          "clearance_mm": 0.15,
+          "via_diameter_mm": 0.8,
+          "via_drill_mm": 0.4,
+          "nets": [
+            "VBAT"
+          ],
+          "max_current_ma": 16.0,
+          "rationale": "IPC-2221 external, dT=10C, 1 oz: 16 mA x1.25 margin -> 0.001 mm (min 0.4 mm)"
+        },
+        {
+          "name": "Ground",
+          "kind": "ground",
+          "trace_width_mm": 0.4,
+          "clearance_mm": 0.15,
+          "via_diameter_mm": 0.6,
+          "via_drill_mm": 0.3,
+          "nets": [
+            "GND"
+          ],
+          "max_current_ma": null,
+          "rationale": "return currents; use a pour on B.Cu, short stubs elsewhere"
+        }
+      ],
+      "decoupling": [
+        {
+          "ref": "U1",
+          "pin": "11",
+          "capacitors": [
+            "C1",
+            "C2"
+          ],
+          "max_distance_mm": 5.0
+        },
+        {
+          "ref": "U2",
+          "pin": "1",
+          "capacitors": [
+            "C3"
+          ],
+          "max_distance_mm": 3.0
+        },
+        {
+          "ref": "U2",
+          "pin": "14",
+          "capacitors": [
+            "C4"
+          ],
+          "max_distance_mm": 3.0
+        }
+      ],
+      "impedance": [],
+      "rf_keepouts": [],
+      "trace_width_method": "IPC-2221 external layer, dT=10C, 1 oz Cu: I = 0.048 * dT^0.44 * A^0.725 (A in mil^2)",
+      "notes": [
+        "Trace widths are minimums; wider is fine where space allows.",
+        "Fab profile: generic_2layer - Conservative 2-layer FR-4 rules that low-cost prototype fabs (6/6 mil class) accept."
+      ]
+    },
+    "mechanical": {
+      "outline": {
+        "width_mm": 40.0,
+        "height_mm": 30.0,
+        "corner_radius_mm": 1.0,
+        "thickness_mm": 1.6
+      },
+      "layer_count": 2,
+      "mounting_holes": [],
+      "connectors": [
+        {
+          "ref": "U1",
+          "edge": "top",
+          "offset_mm": null,
+          "reason": "PCB antenna must overhang/face the edge"
+        }
+      ],
+      "keepouts": [],
+      "max_component_height_mm": null,
+      "fab_profile": "generic_2layer"
+    },
+    "status": "proposed",
+    "locked": false
+  },
+  "placement": {
+    "zones": [
+      {
+        "name": "power",
+        "kind": "power",
+        "rect": {
+          "x_mm": 0.6300000000000008,
+          "y_mm": 6.001925,
+          "w_mm": 23.739999999999995,
+          "h_mm": 20.994318
+        },
+        "description": "Power entry, protection, charging and regulation; keep high-current loops short."
+      },
+      {
+        "name": "mcu",
+        "kind": "mcu",
+        "rect": {
+          "x_mm": 25.02,
+          "y_mm": 0.0,
+          "w_mm": 14.529999999999998,
+          "h_mm": 17.1
+        },
+        "description": "MCU and its local decoupling/strapping."
+      },
+      {
+        "name": "sensor",
+        "kind": "sensor",
+        "rect": {
+          "x_mm": 33.09,
+          "y_mm": 23.54,
+          "w_mm": 4.319999999999993,
+          "h_mm": 4.710000000000001
+        },
+        "description": "Sensors away from regulators and the MCU module to limit self-heating."
+      },
+      {
+        "name": "debug",
+        "kind": "debug",
+        "rect": {
+          "x_mm": 25.0,
+          "y_mm": 25.5,
+          "w_mm": 7.0,
+          "h_mm": 4.0
+        },
+        "description": "Programming/debug access near a board edge."
+      },
+      {
+        "name": "general",
+        "kind": "general",
+        "rect": {
+          "x_mm": 19.07,
+          "y_mm": 19.53,
+          "w_mm": 11.280000000000001,
+          "h_mm": 9.2
+        },
+        "description": "User I/O and miscellaneous parts."
+      }
+    ],
+    "hints": [
+      {
+        "ref": "BT1",
+        "zone": "power",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "U1",
+        "zone": "mcu",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [],
+        "edge": "top",
+        "notes": ""
+      },
+      {
+        "ref": "U2",
+        "zone": "sensor",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "D1",
+        "zone": "general",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "SW1",
+        "zone": "general",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "J1",
+        "zone": "debug",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "C1",
+        "zone": "mcu",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U1",
+            "target_pin": "11",
+            "max_distance_mm": 5.0,
+            "reason": "Decoupling (4.7u) for BLE MCU module"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "C2",
+        "zone": "mcu",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U1",
+            "target_pin": "11",
+            "max_distance_mm": 5.0,
+            "reason": "Decoupling (100n) for BLE MCU module"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "R1",
+        "zone": "mcu",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U1",
+            "target_pin": "2",
+            "max_distance_mm": 10.0,
+            "reason": "I2C SDA pull-up (4.7k)"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "R2",
+        "zone": "mcu",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U1",
+            "target_pin": "3",
+            "max_distance_mm": 10.0,
+            "reason": "I2C SCL pull-up (4.7k)"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "C3",
+        "zone": "sensor",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U2",
+            "target_pin": "1",
+            "max_distance_mm": 3.0,
+            "reason": "Decoupling (100n) for wake-on-motion accelerometer"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "C4",
+        "zone": "sensor",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "U2",
+            "target_pin": "14",
+            "max_distance_mm": 3.0,
+            "reason": "Decoupling (100n) for wake-on-motion accelerometer"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "R3",
+        "zone": "general",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "D1",
+            "target_pin": "2",
+            "max_distance_mm": 10.0,
+            "reason": "LED series resistor (1k)"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "R4",
+        "zone": "general",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [
+          {
+            "target_ref": "SW1",
+            "target_pin": "1",
+            "max_distance_mm": 10.0,
+            "reason": "Button pull-up (10k)"
+          }
+        ],
+        "edge": null,
+        "notes": ""
+      }
+    ],
+    "placements": [
+      {
+        "ref": "BT1",
+        "x_mm": 12.5,
+        "y_mm": 16.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "power",
+        "bbox": {
+          "x_mm": 0.6300000000000008,
+          "y_mm": 6.001925,
+          "w_mm": 23.739999999999995,
+          "h_mm": 20.994318
+        }
+      },
+      {
+        "ref": "C1",
+        "x_mm": 26.5,
+        "y_mm": 14.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 25.02,
+          "y_mm": 13.27,
+          "w_mm": 2.960000000000001,
+          "h_mm": 1.4600000000000009
+        }
+      },
+      {
+        "ref": "C2",
+        "x_mm": 27.0,
+        "y_mm": 15.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 26.09,
+          "y_mm": 15.04,
+          "w_mm": 1.8200000000000003,
+          "h_mm": 0.9200000000000017
+        }
+      },
+      {
+        "ref": "C3",
+        "x_mm": 34.0,
+        "y_mm": 24.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "sensor",
+        "bbox": {
+          "x_mm": 33.09,
+          "y_mm": 23.54,
+          "w_mm": 1.8199999999999932,
+          "h_mm": 0.9200000000000017
+        }
+      },
+      {
+        "ref": "C4",
+        "x_mm": 36.5,
+        "y_mm": 24.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "sensor",
+        "bbox": {
+          "x_mm": 35.59,
+          "y_mm": 23.54,
+          "w_mm": 1.8199999999999932,
+          "h_mm": 0.9200000000000017
+        }
+      },
+      {
+        "ref": "D1",
+        "x_mm": 23.0,
+        "y_mm": 28.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "general",
+        "bbox": {
+          "x_mm": 21.52,
+          "y_mm": 27.27,
+          "w_mm": 2.960000000000001,
+          "h_mm": 1.4600000000000009
+        }
+      },
+      {
+        "ref": "J1",
+        "x_mm": 28.5,
+        "y_mm": 27.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "debug",
+        "bbox": {
+          "x_mm": 25.0,
+          "y_mm": 25.5,
+          "w_mm": 7.0,
+          "h_mm": 4.0
+        }
+      },
+      {
+        "ref": "R1",
+        "x_mm": 27.0,
+        "y_mm": 8.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 26.07,
+          "y_mm": 7.53,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9400000000000004
+        }
+      },
+      {
+        "ref": "R2",
+        "x_mm": 27.0,
+        "y_mm": 9.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 26.07,
+          "y_mm": 9.03,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9400000000000013
+        }
+      },
+      {
+        "ref": "R3",
+        "x_mm": 20.0,
+        "y_mm": 28.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "general",
+        "bbox": {
+          "x_mm": 19.07,
+          "y_mm": 27.53,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9399999999999977
+        }
+      },
+      {
+        "ref": "R4",
+        "x_mm": 26.0,
+        "y_mm": 20.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "general",
+        "bbox": {
+          "x_mm": 25.07,
+          "y_mm": 19.53,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9399999999999977
+        }
+      },
+      {
+        "ref": "SW1",
+        "x_mm": 27.5,
+        "y_mm": 23.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "general",
+        "bbox": {
+          "x_mm": 24.65,
+          "y_mm": 21.15,
+          "w_mm": 5.700000000000003,
+          "h_mm": 3.700000000000003
+        }
+      },
+      {
+        "ref": "U1",
+        "x_mm": 34.0,
+        "y_mm": 8.55,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 28.45,
+          "y_mm": 0.0,
+          "w_mm": 11.099999999999998,
+          "h_mm": 17.1
+        }
+      },
+      {
+        "ref": "U2",
+        "x_mm": 35.0,
+        "y_mm": 26.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "sensor",
+        "bbox": {
+          "x_mm": 33.25,
+          "y_mm": 24.75,
+          "w_mm": 3.5,
+          "h_mm": 3.5
+        }
+      }
+    ],
+    "algorithm": "zone shelf-packing with proximity ordering (deterministic)",
+    "notes": [
+      "Coordinates are footprint origins in mm from the board's top-left corner.",
+      "This is a deterministic starting placement; refine it in KiCad.",
+      "Edge connectors are flush with their edge at 0 deg; rotate them so the mating face points off the board."
+    ]
+  },
+  "routing": {
+    "stackup": {
+      "layers": [
+        {
+          "name": "F.Cu",
+          "kind": "copper",
+          "thickness_mm": 0.035,
+          "purpose": "components, signals"
+        },
+        {
+          "name": "Core",
+          "kind": "dielectric",
+          "thickness_mm": 1.53,
+          "purpose": "FR-4"
+        },
+        {
+          "name": "B.Cu",
+          "kind": "copper",
+          "thickness_mm": 0.035,
+          "purpose": "GND pour, few signals"
+        }
+      ],
+      "total_thickness_mm": 1.6,
+      "copper_weight_oz": 1.0
+    },
+    "priorities": [
+      {
+        "order": 1,
+        "target": "VBAT",
+        "reason": "power rails at Power net-class width; star from the source"
+      },
+      {
+        "order": 2,
+        "target": "decoupling",
+        "reason": "decoupling caps: pad -> cap -> via to GND, shortest possible"
+      },
+      {
+        "order": 3,
+        "target": "remaining signals",
+        "reason": "Default net class"
+      }
+    ],
+    "trace_widths_mm": {
+      "Default": 0.2,
+      "Power": 0.4,
+      "Ground": 0.4
+    },
+    "ground_strategy": "2-layer: solid GND pour on B.Cu, kept unbroken under the MCU, USB pair and regulators; GND pour on F.Cu stitched to B.Cu with vias every ~5 mm and around the board edge. Route signals on F.Cu; use B.Cu only for short jumpers so the ground plane is not cut.",
+    "diff_pairs": [],
+    "length_matching": [],
+    "return_path_notes": [
+      "Every signal crossing between zones needs continuous GND underneath it.",
+      "Do not route traces through the antenna keepout on any layer."
+    ],
+    "via_guidance": [
+      "Signal vias 0.6/0.3 mm (diameter/drill, fab minimum).",
+      "Power/GND vias 0.8/0.4 mm; use at least two in parallel per amp of current.",
+      "No vias inside SMD pads unless the fab offers filled/capped via-in-pad."
+    ],
+    "decoupling_notes": [
+      "C1, C2 within 5 mm of U1 pin 11 (MDBT42Q-512KV2)",
+      "C3 within 3 mm of U2 pin 1 (LIS3DHTR)",
+      "C4 within 3 mm of U2 pin 14 (LIS3DHTR)"
+    ],
+    "notes": []
+  },
+  "findings": [
+    {
+      "id": "DRC-ITEMS_NOT_ALLOWED:footprint",
+      "rule": "DRC-ITEMS_NOT_ALLOWED",
+      "severity": "warning",
+      "category": "DRC",
+      "message": "KiCad DRC items_not_allowed: 2 item(s). Items not allowed (keepout area) [Pad 40 [<no net>] of U1 on F.Cu] | Items not allowed (keepout area) [Pad 41 [<no net>] of U1 on F.Cu] All inside the KiCad library footprint(s) of U1: check that your fab accepts them or adapt the footprint.",
+      "refs": [],
+      "nets": [],
+      "suggested_fix": null,
+      "source": "kicad"
+    },
+    {
+      "id": "PWR-BATTERY-LIFE:plan",
+      "rule": "PWR-BATTERY-LIFE",
+      "severity": "warning",
+      "category": "power",
+      "message": "Estimated battery life 385 days (average 19.0 uA, duty 0.3%, 80% usable capacity) vs target 365 days. Thin margin.",
+      "refs": [],
+      "nets": [],
+      "suggested_fix": null,
+      "source": "internal"
+    },
+    {
+      "id": "PWR-SOURCE:VBAT",
+      "rule": "PWR-SOURCE",
+      "severity": "warning",
+      "category": "power",
+      "message": "VBAT: peak demand 16.0 mA exceeds what the battery source can deliver (15 mA).",
+      "refs": [],
+      "nets": [
+        "VBAT"
+      ],
+      "suggested_fix": "Use a stronger source, add bulk capacitance for short pulses, or reduce the peak load.",
+      "source": "internal"
+    },
+    {
+      "id": "DRC-LIB_FOOTPRINT_ISSUES:warning",
+      "rule": "DRC-LIB_FOOTPRINT_ISSUES",
+      "severity": "info",
+      "category": "DRC",
+      "message": "KiCad DRC lib_footprint_issues: 14 item(s). The current configuration does not include the library 'Battery'. [Footprint BT1] | The current configuration does not include the library 'RF_Module'. [Footprint U1] | The current configuration does not include the library 'Package_LGA'. [Footprint U2] | The current configuration does not include the library 'LED_SMD'. [Footprint D1] (+10 more) Expected here: the board was checked without the KiCad footprint library tables.",
+      "refs": [],
+      "nets": [],
+      "suggested_fix": null,
+      "source": "kicad"
+    },
+    {
+      "id": "DRC-SILK_EDGE_CLEARANCE:warning",
+      "rule": "DRC-SILK_EDGE_CLEARANCE",
+      "severity": "info",
+      "category": "DRC",
+      "message": "KiCad DRC silk_edge_clearance: 1 item(s). Silkscreen clipped by board edge [Segment on Edge.Cuts; Reference 'J1'] Expected here: silkscreen near the edge on edge-mounted connectors.",
+      "refs": [],
+      "nets": [],
+      "suggested_fix": null,
+      "source": "kicad"
+    },
+    {
+      "id": "DRC-SILK_OVERLAP:warning",
+      "rule": "DRC-SILK_OVERLAP",
+      "severity": "info",
+      "category": "DRC",
+      "message": "KiCad DRC silk_overlap: 2 item(s). Silkscreen overlap [Segment on F.Silkscreen; Reference 'C2'] | Silkscreen overlap [Segment on F.Silkscreen; Reference 'U2'] Expected here: silkscreen reference positions come from the library footprints.",
+      "refs": [],
+      "nets": [],
+      "suggested_fix": null,
+      "source": "kicad"
+    },
+    {
+      "id": "DRC-SILK_OVER_COPPER:warning",
+      "rule": "DRC-SILK_OVER_COPPER",
+      "severity": "info",
+      "category": "DRC",
+      "message": "KiCad DRC silk_over_copper: 4 item(s). Silkscreen clipped by solder mask [Reference 'U2'] | Silkscreen clipped by solder mask [Reference 'SW1'] | Silkscreen clipped by solder mask [Reference 'C2'] | Silkscreen clipped by solder mask [Reference 'R2'] Expected here: silkscreen reference positions come from the library footprints.",
+      "refs": [],
+      "nets": [],
+      "suggested_fix": null,
+      "source": "kicad"
+    },
+    {
+      "id": "DRC-UNCONNECTED_ITEMS:error",
+      "rule": "DRC-UNCONNECTED_ITEMS",
+      "severity": "info",
+      "category": "DRC",
+      "message": "KiCad DRC unconnected_items: 43 item(s). Missing connection between items [Pad 12 [GND] of U2 on F.Cu; Pad 10 [GND] of U2 on F.Cu] | Missing connection between items [Pad 5 [GND] of U2 on F.Cu; Pad 7 [GND] of U2 on F.Cu] | Missing connection between items [Pad 7 [GND] of U2 on F.Cu; Pad 10 [GND] of U2 on F.Cu] | Missing connection between items [Pad 2 [GND] of C2 on F.Cu; Pad 2 [GND] of C1 on F.Cu] (+39 more) Expected here: routing is a manual step; every ratsnest line is reported.",
+      "refs": [],
+      "nets": [],
+      "suggested_fix": null,
+      "source": "kicad"
+    },
+    {
+      "id": "LIB-NO-DATASHEET:plan",
+      "rule": "LIB-NO-DATASHEET",
+      "severity": "info",
+      "category": "library",
+      "message": "No trusted datasheet URL for BT1, D1, SW1 (KiCad metadata has none; URLs are never guessed). Look these up from the manufacturer.",
+      "refs": [
+        "BT1",
+        "D1",
+        "SW1"
+      ],
+      "nets": [],
+      "suggested_fix": null,
+      "source": "internal"
+    }
+  ],
+  "check_summary": {
+    "status": "PASS_WITH_WARNINGS",
+    "errors": 0,
+    "warnings": 3,
+    "infos": 6,
+    "kicad_drc_ran": true,
+    "kicad_drc_note": "KiCad DRC ran via kicad-cli-docker: Found 23 violations; Found 43 unconnected items"
+  },
+  "assumptions": [
+    {
+      "text": "Advertising interval 1 s with ~3 ms active per event",
+      "field": "duty_active_s",
+      "rationale": null
+    },
+    {
+      "text": "Single-sided assembly with the coin holder on top: 40 x 30 mm. Moving the holder to the bottom side could shrink the board to about 30 x 25 mm.",
+      "field": "size",
+      "rationale": null
+    },
+    {
+      "text": "LED is used only briefly; excluded from the average current",
+      "field": "user_io",
+      "rationale": null
+    },
+    {
+      "text": "Runs directly from the coin cell, no regulator (nRF52 accepts 1.7-3.6 V)",
+      "field": "voltage_rails",
+      "rationale": null
+    }
+  ],
+  "design_notes": [
+    "LIS3DHTR CS tied high to select I2C mode.",
+    "GPIO assignment on MDBT42Q-512KV2: I2C_SDA->P0.25, I2C_SCL->P0.26, sensor/sensor_motion_INT->P0.27, ui/led->P0.06, ui/switch->P0.07."
+  ],
+  "stages_run": [
+    "requirements",
+    "architecture",
+    "components",
+    "netlist",
+    "constraints",
+    "placement",
+    "routing",
+    "checks"
+  ],
+  "review_status": "draft",
+  "comments": [],
+  "decisions": []
+}

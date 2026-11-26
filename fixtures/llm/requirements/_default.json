@@ -1,0 +1,116 @@
+{
+  "_note": "Hand-authored fixture (not a model recording). See scripts/author_fixtures.py.",
+  "match": [],
+  "prompt_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "responses": [
+    {
+      "summary": "Battery-powered Wi-Fi temperature/humidity sensor with USB-C LiPo charging.",
+      "functional_goals": [
+        "measure temperature and relative humidity every 15 minutes",
+        "report readings over Wi-Fi then deep-sleep",
+        "charge a 1000 mAh LiPo from USB-C",
+        "status LED and one user button"
+      ],
+      "power_sources": [
+        {
+          "kind": "lipo_1s",
+          "nominal_v": 3.7,
+          "min_v": 3.0,
+          "max_v": 4.2,
+          "capacity_mah": 1000,
+          "max_current_ma": 1000,
+          "rechargeable": true,
+          "notes": "single cell with built-in protection PCB assumed"
+        },
+        {
+          "kind": "usb_5v",
+          "nominal_v": 5.0,
+          "min_v": 4.75,
+          "max_v": 5.25,
+          "max_current_ma": 500,
+          "rechargeable": false,
+          "notes": "USB 2.0 default power; no PD negotiation"
+        }
+      ],
+      "target_battery_life_days": 90,
+      "duty_cycle": "wake every 15 min, about 3 s awake (sensor read + Wi-Fi report)",
+      "duty_active_s": 3,
+      "duty_period_s": 900,
+      "voltage_rails": [
+        {
+          "name": "+3V3",
+          "nominal_v": 3.3,
+          "tolerance_pct": 3,
+          "purpose": "MCU and sensor"
+        }
+      ],
+      "interfaces": [
+        {
+          "kind": "USB",
+          "purpose": "charging and firmware upload",
+          "external": true
+        },
+        {
+          "kind": "I2C",
+          "purpose": "temperature/humidity sensor"
+        }
+      ],
+      "wireless": [
+        {
+          "protocol": "wifi",
+          "antenna": "pcb"
+        }
+      ],
+      "sensors": [
+        {
+          "quantity": "temperature",
+          "accuracy": "+/-0.5 C"
+        },
+        {
+          "quantity": "humidity",
+          "accuracy": "+/-3 %RH"
+        }
+      ],
+      "user_io": [
+        "status LED",
+        "user button"
+      ],
+      "environment": {
+        "temp_min_c": 0,
+        "temp_max_c": 50,
+        "notes": "indoor"
+      },
+      "size": {
+        "max_width_mm": 50,
+        "max_height_mm": 35
+      },
+      "layer_count_target": 2,
+      "assumptions": [
+        {
+          "text": "Indoor use, 0-50 C",
+          "field": "environment"
+        },
+        {
+          "text": "About 3 s awake per report (connect, measure, publish)",
+          "field": "duty_active_s"
+        },
+        {
+          "text": "LiPo has its own protection circuit (no on-board protector)",
+          "field": "power_sources"
+        },
+        {
+          "text": "2-layer board is sufficient",
+          "field": "layer_count_target"
+        },
+        {
+          "text": "USB is used for charging and native-USB programming",
+          "field": "interfaces"
+        }
+      ],
+      "open_questions": [
+        "Which cloud protocol/backend (MQTT, HTTP)?",
+        "Enclosure and venting for accurate humidity readings?"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+Diff v1 -> v2
++ component C10 GRM155R71C104KA88D (Decoupling (100n) for temperature/humidity/pressure sensor)
+~ U4.mpn: SHT40-AD1B-R3 -> BME280
+~ U4.footprint: Sensor_Humidity:Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad -> Package_LGA:Bosch_LGA-8_2.5x2.5mm_P0.65mm_ClockwisePinNumbering
+~ U4.role: temperature/humidity sensor -> temperature/humidity/pressure sensor
+~ C8.role: Decoupling (100n) for temperature/humidity sensor -> Decoupling (100n) for temperature/humidity/pressure sensor
+~ net +3V3: +C10.1 +U4.2 +U4.6 +U4.8 -U4.3
+~ net GND: +C10.2 +U4.1 +U4.5 +U4.7 -U4.4
+~ net I2C_SCL: +U4.4 -U4.2
+~ net I2C_SDA: +U4.3 -U4.1
+~ rail +3V3.budget_ma: 351.8 -> 352.02
+~ rail VBAT.budget_ma: 351.86 -> 352.08
+~ moved: C8 (2.55 mm)

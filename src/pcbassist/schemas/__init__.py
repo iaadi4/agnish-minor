@@ -36,6 +36,7 @@ from .constraints import (
     NetClassRule,
     RailConstraint,
 )
+from .fab import FabProfile
 from .findings import CheckStatus, CheckSummary, Finding
 from .llm_outputs import ComponentSelection, SelectedPart
 from .netlist import Net, NetConnection, Netlist, NoConnect
@@ -106,6 +107,7 @@ __all__ = [
     "DiffPair",
     "Edge",
     "ElectricalConstraints",
+    "FabProfile",
     "Finding",
     "FindingCategory",
     "FindingSource",

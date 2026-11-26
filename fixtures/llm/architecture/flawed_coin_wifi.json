@@ -1,0 +1,72 @@
+{
+  "_note": "Hand-authored fixture (not a model recording). See scripts/author_fixtures.py.",
+  "match": [
+    "logger",
+    "10",
+    "seconds",
+    "redundancy",
+    "identical",
+    "15",
+    "years"
+  ],
+  "prompt_sha256": "2dd0336747887b32f92ccfde65e0cb68dea23081ab78ba0fff6a721296037b21",
+  "responses": [
+    {
+      "blocks": [
+        {
+          "id": "battery",
+          "kind": "battery",
+          "name": "CR2032 holder"
+        },
+        {
+          "id": "regulator",
+          "kind": "regulation",
+          "name": "3.3 V LDO"
+        },
+        {
+          "id": "mcu",
+          "kind": "mcu_wireless",
+          "name": "Wi-Fi MCU"
+        },
+        {
+          "id": "sensors",
+          "kind": "sensor",
+          "name": "2x humidity sensor"
+        },
+        {
+          "id": "relay",
+          "kind": "actuator_driver",
+          "name": "Relay"
+        }
+      ],
+      "links": [
+        {
+          "src": "battery",
+          "dst": "regulator",
+          "kind": "power"
+        },
+        {
+          "src": "regulator",
+          "dst": "mcu",
+          "kind": "power"
+        },
+        {
+          "src": "regulator",
+          "dst": "relay",
+          "kind": "power"
+        },
+        {
+          "src": "mcu",
+          "dst": "sensors",
+          "kind": "i2c"
+        },
+        {
+          "src": "mcu",
+          "dst": "relay",
+          "kind": "gpio"
+        }
+      ],
+      "rationale": "As requested, although several requirements conflict."
+    }
+  ]
+}

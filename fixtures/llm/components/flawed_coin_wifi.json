@@ -1,0 +1,77 @@
+{
+  "_note": "Hand-authored fixture (not a model recording). See scripts/author_fixtures.py.",
+  "match": [
+    "logger",
+    "10",
+    "seconds",
+    "redundancy",
+    "identical",
+    "15",
+    "years"
+  ],
+  "prompt_sha256": "2dd0336747887b32f92ccfde65e0cb68dea23081ab78ba0fff6a721296037b21",
+  "responses": [
+    {
+      "parts": [
+        {
+          "role": "CR2032 holder",
+          "block_id": "battery",
+          "mpn": "3034",
+          "quantity": 1,
+          "rationale": "requested coin cell",
+          "confidence": 0.6,
+          "alternates": []
+        },
+        {
+          "role": "3.3 V LDO",
+          "block_id": "regulator",
+          "mpn": "MCP1700T-3302E/TT",
+          "quantity": 1,
+          "rationale": "1.6 uA quiescent current",
+          "confidence": 0.5,
+          "alternates": []
+        },
+        {
+          "role": "Wi-Fi MCU",
+          "block_id": "mcu",
+          "mpn": "ESP32-C3-WROOM-02-N4",
+          "quantity": 1,
+          "rationale": "Wi-Fi requested",
+          "confidence": 0.6,
+          "alternates": []
+        },
+        {
+          "role": "humidity sensor",
+          "block_id": "sensors",
+          "mpn": "SHT40-AD1B-R3",
+          "quantity": 2,
+          "rationale": "two identical sensors as requested",
+          "confidence": 0.7,
+          "alternates": []
+        },
+        {
+          "role": "5 V relay",
+          "block_id": "relay",
+          "mpn": "SRD-05VDC-SL-C",
+          "quantity": 1,
+          "rationale": "5 V relay requested",
+          "confidence": 0.6,
+          "alternates": []
+        },
+        {
+          "role": "relay driver transistor",
+          "block_id": "relay",
+          "mpn": "MMBT3904",
+          "quantity": 1,
+          "rationale": "generic NPN; not in the candidate list",
+          "confidence": 0.3,
+          "alternates": []
+        }
+      ],
+      "notes": [
+        "Several requirements conflict; see requirements.conflicts."
+      ],
+      "rejected_candidates": []
+    }
+  ]
+}

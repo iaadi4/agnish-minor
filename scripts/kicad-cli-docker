@@ -1,0 +1,6 @@
+#!/bin/sh
+# kicad-cli from the official KiCad 8 image, for machines without a local KiCad install.
+#   export PCBASSIST_KICAD_CLI=$PWD/scripts/kicad-cli-docker
+# The current directory is mounted, so pass paths relative to it (pcbassist does).
+exec docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp \
+  -v "$PWD:$PWD" -w "$PWD" "${PCBASSIST_KICAD_IMAGE:-kicad/kicad:8.0.9}" kicad-cli "$@"

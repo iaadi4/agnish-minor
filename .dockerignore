@@ -1,0 +1,14 @@
+.git
+.venv
+.cache
+.mypy_cache
+.ruff_cache
+.pytest_cache
+.pytest_kicad
+**/__pycache__
+.coverage
+coverage.xml
+htmlcov
+out
+sessions
+examples/*/out

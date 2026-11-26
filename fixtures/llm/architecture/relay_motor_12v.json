@@ -1,0 +1,147 @@
+{
+  "_note": "Hand-authored fixture (not a model recording). See scripts/author_fixtures.py.",
+  "match": [
+    "12",
+    "relay",
+    "motor",
+    "screw",
+    "terminals",
+    "mounting",
+    "reverse-polarity",
+    "uart"
+  ],
+  "prompt_sha256": "7eb7eedc2fa17a8c814bd9652b5adfea41395f96d86fbb1267ecaf19a7577e89",
+  "responses": [
+    {
+      "blocks": [
+        {
+          "id": "power_in",
+          "kind": "power_input",
+          "name": "12 V input + protection",
+          "covers": [
+            "12 V",
+            "protection"
+          ]
+        },
+        {
+          "id": "buck",
+          "kind": "regulation",
+          "name": "12 V to 5 V buck",
+          "covers": [
+            "+5V"
+          ]
+        },
+        {
+          "id": "ldo",
+          "kind": "regulation",
+          "name": "5 V to 3.3 V LDO",
+          "covers": [
+            "+3V3"
+          ]
+        },
+        {
+          "id": "mcu",
+          "kind": "mcu_wireless",
+          "name": "Wi-Fi MCU",
+          "covers": [
+            "wifi"
+          ]
+        },
+        {
+          "id": "motor",
+          "kind": "actuator_driver",
+          "name": "Motor H-bridge",
+          "covers": [
+            "dc_motor"
+          ]
+        },
+        {
+          "id": "relay",
+          "kind": "actuator_driver",
+          "name": "Relay driver",
+          "covers": [
+            "relay"
+          ]
+        },
+        {
+          "id": "debug",
+          "kind": "debug_programming",
+          "name": "UART header",
+          "covers": [
+            "UART"
+          ]
+        },
+        {
+          "id": "ui",
+          "kind": "user_io",
+          "name": "Status LED",
+          "covers": [
+            "status LED"
+          ]
+        },
+        {
+          "id": "mech",
+          "kind": "other",
+          "name": "Mounting holes",
+          "covers": [
+            "M3 holes"
+          ]
+        }
+      ],
+      "links": [
+        {
+          "src": "power_in",
+          "dst": "buck",
+          "kind": "power",
+          "label": "VIN 12 V"
+        },
+        {
+          "src": "power_in",
+          "dst": "motor",
+          "kind": "power",
+          "label": "VIN 12 V"
+        },
+        {
+          "src": "buck",
+          "dst": "ldo",
+          "kind": "power",
+          "label": "+5V"
+        },
+        {
+          "src": "buck",
+          "dst": "relay",
+          "kind": "power",
+          "label": "+5V"
+        },
+        {
+          "src": "ldo",
+          "dst": "mcu",
+          "kind": "power",
+          "label": "+3V3"
+        },
+        {
+          "src": "mcu",
+          "dst": "motor",
+          "kind": "gpio",
+          "label": "IN1/IN2"
+        },
+        {
+          "src": "mcu",
+          "dst": "relay",
+          "kind": "gpio"
+        },
+        {
+          "src": "debug",
+          "dst": "mcu",
+          "kind": "uart"
+        },
+        {
+          "src": "mcu",
+          "dst": "ui",
+          "kind": "gpio"
+        }
+      ],
+      "rationale": "Buck avoids dissipating 7 V across a linear regulator; LDO cleans the 3.3 V."
+    }
+  ]
+}

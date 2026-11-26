@@ -1,0 +1,97 @@
+{
+  "_note": "Hand-authored fixture (not a model recording). See scripts/author_fixtures.py.",
+  "match": [
+    "ble",
+    "coin-cell",
+    "cr2032",
+    "accelerometer",
+    "tag",
+    "swd",
+    "tag-connect"
+  ],
+  "prompt_sha256": "673cd70e8f8a151b2513e9d06505bdb33bf6e15f667eb447dbb8b340e1e8acf7",
+  "responses": [
+    {
+      "summary": "CR2032-powered BLE asset tag with wake-on-motion accelerometer.",
+      "functional_goals": [
+        "advertise over BLE",
+        "wake on motion from an accelerometer interrupt",
+        "status LED and one button",
+        "SWD programming through a Tag-Connect footprint"
+      ],
+      "power_sources": [
+        {
+          "kind": "coin_cell",
+          "nominal_v": 3.0,
+          "min_v": 2.0,
+          "max_v": 3.0,
+          "capacity_mah": 220,
+          "max_current_ma": 15,
+          "rechargeable": false,
+          "notes": "CR2032: about 3 mA continuous, 15 mA pulse"
+        }
+      ],
+      "target_battery_life_days": 365,
+      "duty_cycle": "BLE advertising once per second, about 3 ms radio-on per event",
+      "duty_active_s": 0.003,
+      "duty_period_s": 1.0,
+      "interfaces": [
+        {
+          "kind": "I2C",
+          "purpose": "accelerometer"
+        },
+        {
+          "kind": "SWD",
+          "purpose": "programming/debug",
+          "external": true
+        }
+      ],
+      "wireless": [
+        {
+          "protocol": "ble",
+          "antenna": "any"
+        }
+      ],
+      "sensors": [
+        {
+          "quantity": "acceleration",
+          "notes": "wake-on-motion interrupt"
+        }
+      ],
+      "user_io": [
+        "status LED",
+        "button"
+      ],
+      "environment": {
+        "temp_min_c": -10,
+        "temp_max_c": 50
+      },
+      "size": {
+        "max_width_mm": 40,
+        "max_height_mm": 30
+      },
+      "layer_count_target": 2,
+      "assumptions": [
+        {
+          "text": "Advertising interval 1 s with ~3 ms active per event",
+          "field": "duty_active_s"
+        },
+        {
+          "text": "Single-sided assembly with the coin holder on top: 40 x 30 mm. Moving the holder to the bottom side could shrink the board to about 30 x 25 mm.",
+          "field": "size"
+        },
+        {
+          "text": "LED is used only briefly; excluded from the average current",
+          "field": "user_io"
+        },
+        {
+          "text": "Runs directly from the coin cell, no regulator (nRF52 accepts 1.7-3.6 V)",
+          "field": "voltage_rails"
+        }
+      ],
+      "open_questions": [
+        "Advertising payload and interval required by the asset system?"
+      ]
+    }
+  ]
+}

@@ -88,6 +88,7 @@ class Component(Model):
     ref_des: RefDes
     role: str = Field(description="What it does in this design, e.g. 'main MCU', 'I2C pull-up SDA'")
     mpn: str
+    category: str | None = Field(default=None, description="Library category, e.g. 'ldo'")
     manufacturer: str | None = None
     description: str = ""
     package: str | None = None
@@ -99,6 +100,7 @@ class Component(Model):
     current: CurrentProfile = Field(default_factory=CurrentProfile)
     alternates: list[str] = Field(default_factory=list)
     datasheet_url: str | None = None
+    kicad_symbol: str | None = Field(default=None, description="KiCad 'Lib:Symbol' of the part")
     rationale: str = ""
     confidence: Confidence = 0.5
     verified: bool = Field(
@@ -108,6 +110,20 @@ class Component(Model):
         default=None, description="Architecture block this part belongs to"
     )
     rail: str | None = Field(default=None, description="Supply rail name the part is powered from")
+    support_for: str | None = Field(
+        default=None, description="ref_des of the part this support component serves"
+    )
+    support_pin: str | None = Field(
+        default=None, description="Pin of `support_for` it serves (decoupling, pull-up ...)"
+    )
+    key: str | None = Field(
+        default=None, description="Stable synthesis key, used to keep ref_des across revisions"
+    )
+    origin: str = Field(
+        default="llm",
+        pattern=r"^(llm|synth|human)$",
+        description="Who added it: LLM selection, deterministic synthesizer, or a reviewer",
+    )
     in_bom: bool = True
     status: ItemStatus = ItemStatus.PROPOSED
     locked: bool = False

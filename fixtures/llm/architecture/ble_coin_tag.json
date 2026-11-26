@@ -1,0 +1,91 @@
+{
+  "_note": "Hand-authored fixture (not a model recording). See scripts/author_fixtures.py.",
+  "match": [
+    "ble",
+    "coin-cell",
+    "cr2032",
+    "accelerometer",
+    "tag",
+    "swd",
+    "tag-connect"
+  ],
+  "prompt_sha256": "673cd70e8f8a151b2513e9d06505bdb33bf6e15f667eb447dbb8b340e1e8acf7",
+  "responses": [
+    {
+      "blocks": [
+        {
+          "id": "battery",
+          "kind": "battery",
+          "name": "CR2032 holder",
+          "covers": [
+            "power"
+          ]
+        },
+        {
+          "id": "mcu",
+          "kind": "mcu_wireless",
+          "name": "BLE module",
+          "covers": [
+            "ble"
+          ]
+        },
+        {
+          "id": "sensor",
+          "kind": "sensor",
+          "name": "Accelerometer",
+          "covers": [
+            "acceleration"
+          ]
+        },
+        {
+          "id": "ui",
+          "kind": "user_io",
+          "name": "LED and button",
+          "covers": [
+            "status LED",
+            "button"
+          ]
+        },
+        {
+          "id": "debug",
+          "kind": "debug_programming",
+          "name": "Tag-Connect SWD",
+          "covers": [
+            "SWD"
+          ]
+        }
+      ],
+      "links": [
+        {
+          "src": "battery",
+          "dst": "mcu",
+          "kind": "power",
+          "label": "VBAT 2.0-3.0 V"
+        },
+        {
+          "src": "battery",
+          "dst": "sensor",
+          "kind": "power",
+          "label": "VBAT"
+        },
+        {
+          "src": "mcu",
+          "dst": "sensor",
+          "kind": "i2c",
+          "label": "I2C + INT"
+        },
+        {
+          "src": "mcu",
+          "dst": "ui",
+          "kind": "gpio"
+        },
+        {
+          "src": "debug",
+          "dst": "mcu",
+          "kind": "swd"
+        }
+      ],
+      "rationale": "Direct battery supply keeps quiescent current minimal."
+    }
+  ]
+}

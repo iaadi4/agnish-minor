@@ -1,0 +1,174 @@
+{
+  "_note": "Hand-authored fixture (not a model recording). See scripts/author_fixtures.py.",
+  "match": [
+    "12",
+    "relay",
+    "motor",
+    "screw",
+    "terminals",
+    "mounting",
+    "reverse-polarity",
+    "uart"
+  ],
+  "prompt_sha256": "7eb7eedc2fa17a8c814bd9652b5adfea41395f96d86fbb1267ecaf19a7577e89",
+  "responses": [
+    {
+      "parts": [
+        {
+          "role": "12 V barrel jack",
+          "block_id": "power_in",
+          "mpn": "PJ-063AH",
+          "quantity": 1,
+          "rationale": "common 2.1 mm DC jack",
+          "confidence": 0.85,
+          "alternates": []
+        },
+        {
+          "role": "input resettable fuse",
+          "block_id": "power_in",
+          "mpn": "MF-MSMF110-2",
+          "quantity": 1,
+          "rationale": "1.1 A hold PTC above the ~0.75 A load",
+          "confidence": 0.8,
+          "alternates": []
+        },
+        {
+          "role": "reverse-polarity series diode",
+          "block_id": "power_in",
+          "mpn": "SS14",
+          "quantity": 1,
+          "rationale": "1 A Schottky in series with VIN",
+          "confidence": 0.75,
+          "alternates": []
+        },
+        {
+          "role": "input surge TVS",
+          "block_id": "power_in",
+          "mpn": "SMAJ15A",
+          "quantity": 1,
+          "rationale": "15 V standoff above the 13 V max input",
+          "confidence": 0.8,
+          "alternates": []
+        },
+        {
+          "role": "12 V to 5 V buck",
+          "block_id": "buck",
+          "mpn": "LM2596S-5.0/NOPB",
+          "quantity": 1,
+          "rationale": "fixed 5 V, 3 A, simple asynchronous buck",
+          "confidence": 0.75,
+          "alternates": [
+            "TPS563200DDCR"
+          ]
+        },
+        {
+          "role": "5 V to 3.3 V LDO",
+          "block_id": "ldo",
+          "mpn": "AP2112K-3.3TRG1",
+          "quantity": 1,
+          "rationale": "600 mA LDO from 5 V",
+          "confidence": 0.8,
+          "alternates": []
+        },
+        {
+          "role": "main Wi-Fi MCU",
+          "block_id": "mcu",
+          "mpn": "ESP32-WROOM-32E-N4",
+          "quantity": 1,
+          "rationale": "Wi-Fi module with plenty of GPIO",
+          "confidence": 0.8,
+          "alternates": [
+            "ESP32-C3-WROOM-02-N4"
+          ]
+        },
+        {
+          "role": "DC motor H-bridge",
+          "block_id": "motor",
+          "mpn": "DRV8871DDAR",
+          "quantity": 1,
+          "rationale": "3.6 A peak H-bridge with current limit, 6.5-45 V",
+          "confidence": 0.8,
+          "alternates": []
+        },
+        {
+          "role": "motor output terminal",
+          "block_id": "motor",
+          "mpn": "1935161",
+          "quantity": 1,
+          "rationale": "2-way 5.08 mm screw terminal",
+          "confidence": 0.85,
+          "alternates": []
+        },
+        {
+          "role": "5 V relay",
+          "block_id": "relay",
+          "mpn": "SRD-05VDC-SL-C",
+          "quantity": 1,
+          "rationale": "common SPDT 5 V relay",
+          "confidence": 0.8,
+          "alternates": [
+            "G5LE-1-DC12"
+          ]
+        },
+        {
+          "role": "relay coil driver",
+          "block_id": "relay",
+          "mpn": "AO3400A",
+          "quantity": 1,
+          "rationale": "logic-level N-MOSFET",
+          "confidence": 0.85,
+          "alternates": []
+        },
+        {
+          "role": "relay flyback diode",
+          "block_id": "relay",
+          "mpn": "1N4148W-7-F",
+          "quantity": 1,
+          "rationale": "clamps coil turn-off spike",
+          "confidence": 0.85,
+          "alternates": []
+        },
+        {
+          "role": "relay contacts terminal",
+          "block_id": "relay",
+          "mpn": "1935174",
+          "quantity": 1,
+          "rationale": "3-way terminal for COM/NO/NC",
+          "confidence": 0.85,
+          "alternates": []
+        },
+        {
+          "role": "UART programming header",
+          "block_id": "debug",
+          "mpn": "61300411121",
+          "quantity": 1,
+          "rationale": "4-pin 2.54 mm header for a USB-UART adapter",
+          "confidence": 0.8,
+          "alternates": []
+        },
+        {
+          "role": "status LED",
+          "block_id": "ui",
+          "mpn": "LTST-C191KGKT",
+          "quantity": 1,
+          "rationale": "green indicator",
+          "confidence": 0.8,
+          "alternates": []
+        },
+        {
+          "role": "M3 mounting hole",
+          "block_id": "mech",
+          "mpn": "MOUNTING-HOLE-M3",
+          "quantity": 4,
+          "rationale": "four corner holes",
+          "confidence": 0.9,
+          "alternates": []
+        }
+      ],
+      "notes": [],
+      "rejected_candidates": [
+        "L7805CV: dissipates ~3 W from 12 V"
+      ]
+    }
+  ]
+}

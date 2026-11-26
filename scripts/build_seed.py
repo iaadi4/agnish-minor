@@ -60,7 +60,7 @@ NAME_TAGS: list[tuple[str, list[str]]] = [
     (r"^(SDA|SDA/SDI|SDI/SDA)$", ["i2c_sda"]),
     (r"^(SCL|SCL/SCK|SCK/SCL)$", ["i2c_scl"]),
     (r"^SDI$", ["i2c_sda", "spi_mosi"]),
-    (r"^SCK$", ["i2c_scl", "spi_sck"]),
+    (r"^(SCK|SPC)$", ["i2c_scl", "spi_sck"]),
     (r"^SDO$", ["spi_miso", "i2c_addr"]),
     (r"^(SA0|ADDR|ADD0|A0|A1|A2)$", ["i2c_addr"]),
     (r"^(CS|CSB|~CS|NCS)$", ["spi_cs"]),
@@ -268,6 +268,9 @@ def infer_tags(name: str, ptype: str) -> list[str]:
     for pat, t in NAME_TAGS:
         if any(re.match(pat, c, flags=re.IGNORECASE) for c in candidates):
             tags += [x for x in t if x not in tags]
+    if ptype == "passive" and "i2c_addr" in tags:
+        # 'A1'/'A2' on passive two-terminal parts (TVS diodes) are terminals, not addresses.
+        tags.remove("i2c_addr")
     if ptype in ("power_in", "power_out") and "gnd" not in tags:
         tags.append("power")
     return tags
