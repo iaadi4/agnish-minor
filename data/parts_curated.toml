@@ -1,0 +1,1387 @@
+# Curated component library source.
+#
+# This file holds what a human curator vouches for: MPN, manufacturer, category, operating
+# limits, currents and key specs. Pin tables, datasheet URLs and default footprints are NOT
+# typed here; `scripts/build_seed.py` pulls them from the official KiCad symbol and
+# footprint libraries and writes `data/components_seed.json`.
+#
+# Conventions
+#   supply            = [min_v, max_v] recommended operating supply on the part's main
+#                       power pin(s). Omitted for passives/connectors.
+#   current_typ_ma    = typical active current; current_max_ma = worst-case peak the rail
+#                       must deliver (e.g. WiFi TX burst); sleep_ua = lowest documented
+#                       retention/sleep current.
+#   data_confidence   = "high" (well-known datasheet figures) | "medium" (verify before use)
+#   kicad_symbol      = "Lib:Symbol" in the KiCad symbol library, or "generic" to derive
+#                       pins from the footprint pads (connectors, mechanical parts).
+#   pin_tags          = extra function tags by pin *name* (strapping, usb_dp, ...)
+#   pin_names         = rename generic pins by pin *number* (connectors only)
+
+# ---------------------------------------------------------------------------
+# MCUs / wireless modules
+# ---------------------------------------------------------------------------
+
+[[part]]
+mpn = "ESP32-C3-WROOM-02-N4"
+manufacturer = "Espressif Systems"
+category = "mcu_wireless"
+description = "WiFi 4 + BLE 5 module, ESP32-C3 RISC-V 160 MHz, 4 MB flash, PCB antenna"
+kicad_symbol = "RF_Module:ESP32-C3-WROOM-02"
+supply = [3.0, 3.6]
+current_typ_ma = 85
+current_max_ma = 350
+sleep_ua = 5
+tags = ["wifi", "ble", "esp32", "risc-v", "usb-serial-jtag", "pcb-antenna", "low-cost"]
+specs = { cpu = "RISC-V 160 MHz", flash_mb = 4, wifi = "802.11 b/g/n 2.4 GHz", ble = "5.0", antenna = "PCB trace", gpio = 15, native_usb = true, module_size_mm = "18x20" }
+data_confidence = "high"
+notes = "Antenna must sit at board edge with copper keepout under/around it per Espressif HW design guide. EN needs RC delay (10k pull-up + 1uF). GPIO2/8 must be high and GPIO9 high for SPI boot."
+[part.pin_tags]
+IO2 = ["strapping"]
+IO8 = ["strapping"]
+IO9 = ["strapping", "boot"]
+IO18 = ["usb_dm"]
+IO19 = ["usb_dp"]
+EN = ["enable", "reset"]
+"IO20/RXD" = ["uart_rx", "gpio"]
+"IO21/TXD" = ["uart_tx", "gpio"]
+
+[[part]]
+mpn = "ESP32-S3-WROOM-1-N8"
+manufacturer = "Espressif Systems"
+category = "mcu_wireless"
+description = "WiFi 4 + BLE 5 module, dual-core ESP32-S3 240 MHz, 8 MB flash, PCB antenna"
+kicad_symbol = "RF_Module:ESP32-S3-WROOM-1"
+supply = [3.0, 3.6]
+current_typ_ma = 95
+current_max_ma = 355
+sleep_ua = 8
+tags = ["wifi", "ble", "esp32", "dual-core", "native-usb", "pcb-antenna", "ai-accel"]
+specs = { cpu = "Xtensa LX7 dual-core 240 MHz", flash_mb = 8, wifi = "802.11 b/g/n 2.4 GHz", ble = "5.0", antenna = "PCB trace", gpio = 36, native_usb = true, module_size_mm = "18x25.5" }
+data_confidence = "high"
+notes = "Strapping: GPIO0 (boot), GPIO3, GPIO45, GPIO46. Native USB on GPIO19 (D-) / GPIO20 (D+). EN RC delay required."
+[part.pin_tags]
+IO0 = ["strapping", "boot"]
+IO3 = ["strapping"]
+IO45 = ["strapping"]
+IO46 = ["strapping"]
+EN = ["enable", "reset"]
+RXD0 = ["uart_rx"]
+TXD0 = ["uart_tx"]
+
+[[part]]
+mpn = "ESP32-WROOM-32E-N4"
+manufacturer = "Espressif Systems"
+category = "mcu_wireless"
+description = "WiFi 4 + BT Classic/BLE 4.2 module, dual-core ESP32 240 MHz, 4 MB flash, PCB antenna"
+kicad_symbol = "RF_Module:ESP32-WROOM-32E"
+supply = [3.0, 3.6]
+current_typ_ma = 100
+current_max_ma = 380
+sleep_ua = 10
+tags = ["wifi", "ble", "bluetooth-classic", "esp32", "dual-core", "pcb-antenna"]
+specs = { cpu = "Xtensa LX6 dual-core 240 MHz", flash_mb = 4, wifi = "802.11 b/g/n 2.4 GHz", ble = "4.2", antenna = "PCB trace", native_usb = false, module_size_mm = "18x25.5" }
+data_confidence = "high"
+notes = "No native USB: needs USB-UART bridge + auto-reset (EN/IO0) transistors for programming. GPIO34-39 are input-only without internal pulls. Strapping: IO0, IO2, IO5, IO12 (sets flash voltage - keep low), IO15."
+[part.pin_tags]
+IO0 = ["strapping", "boot"]
+IO2 = ["strapping"]
+IO5 = ["strapping"]
+IO12 = ["strapping"]
+IO15 = ["strapping"]
+SENSOR_VP = ["input_only"]
+SENSOR_VN = ["input_only"]
+IO34 = ["input_only"]
+IO35 = ["input_only"]
+EN = ["enable", "reset"]
+"RXD0/IO3" = ["uart_rx", "gpio"]
+"TXD0/IO1" = ["uart_tx", "gpio"]
+
+[[part]]
+mpn = "ESP32-S3-MINI-1-N8"
+manufacturer = "Espressif Systems"
+category = "mcu_wireless"
+description = "Compact WiFi 4 + BLE 5 module, ESP32-S3, 8 MB flash, PCB antenna"
+kicad_symbol = "RF_Module:ESP32-S3-MINI-1"
+supply = [3.0, 3.6]
+current_typ_ma = 95
+current_max_ma = 355
+sleep_ua = 8
+tags = ["wifi", "ble", "esp32", "native-usb", "pcb-antenna", "compact"]
+specs = { cpu = "Xtensa LX7 dual-core 240 MHz", flash_mb = 8, wifi = "802.11 b/g/n 2.4 GHz", ble = "5.0", antenna = "PCB trace", native_usb = true, module_size_mm = "15.4x20.5" }
+data_confidence = "high"
+notes = "Same strapping and USB pins as ESP32-S3 (GPIO0/3/45/46; USB GPIO19/20). LGA module - check assembly capability."
+[part.pin_tags]
+IO0 = ["strapping", "boot"]
+IO3 = ["strapping"]
+IO45 = ["strapping"]
+IO46 = ["strapping"]
+EN = ["enable", "reset"]
+
+[[part]]
+mpn = "ESP32-C6-MINI-1-N4"
+manufacturer = "Espressif Systems"
+category = "mcu_wireless"
+description = "WiFi 6 + BLE 5 + 802.15.4 (Thread/Zigbee) module, ESP32-C6, 4 MB flash"
+kicad_symbol = "RF_Module:ESP32-C6-MINI-1"
+supply = [3.0, 3.6]
+current_typ_ma = 80
+current_max_ma = 360
+sleep_ua = 7
+tags = ["wifi", "wifi6", "ble", "thread", "zigbee", "esp32", "native-usb", "pcb-antenna"]
+specs = { cpu = "RISC-V 160 MHz + LP core", flash_mb = 4, wifi = "802.11 ax 2.4 GHz", ble = "5.0", ieee802154 = true, native_usb = true }
+data_confidence = "medium"
+notes = "Verify strapping pins and current figures against the current ESP32-C6-MINI-1 datasheet revision. USB on GPIO12 (D-) / GPIO13 (D+)."
+[part.pin_tags]
+IO8 = ["strapping"]
+IO9 = ["strapping", "boot"]
+IO15 = ["strapping"]
+IO12 = ["usb_dm"]
+IO13 = ["usb_dp"]
+EN = ["enable", "reset"]
+
+[[part]]
+mpn = "MDBT42Q-512KV2"
+manufacturer = "Raytac"
+category = "mcu_wireless"
+description = "BLE 5 module, Nordic nRF52832, 512 KB flash, chip antenna"
+kicad_symbol = "RF_Module:MDBT42Q-512K"
+supply = [1.7, 3.6]
+current_typ_ma = 5.5
+current_max_ma = 15
+sleep_ua = 2
+tags = ["ble", "nrf52", "nrf52832", "low-power", "chip-antenna", "coin-cell"]
+specs = { cpu = "Cortex-M4F 64 MHz", flash_kb = 512, ram_kb = 64, ble = "5.0", antenna = "chip", nfc = true, module_size_mm = "16x10" }
+data_confidence = "medium"
+notes = "Runs directly from a CR2032 (1.7-3.6 V). Program via SWD. Peak currents assume on-module DC/DC enabled. P0.21 is nRESET. NFC pins P0.09/P0.10 default to NFC until UICR is changed."
+
+[[part]]
+mpn = "MDBT50Q-1MV2"
+manufacturer = "Raytac"
+category = "mcu_wireless"
+description = "BLE 5 / Thread / Zigbee module, Nordic nRF52840, 1 MB flash, native USB, chip antenna"
+kicad_symbol = "RF_Module:MDBT50Q-1MV2"
+supply = [1.7, 3.6]
+current_typ_ma = 5
+current_max_ma = 18
+sleep_ua = 2
+tags = ["ble", "nrf52", "nrf52840", "thread", "zigbee", "native-usb", "low-power", "chip-antenna"]
+specs = { cpu = "Cortex-M4F 64 MHz", flash_kb = 1024, ram_kb = 256, ble = "5.0", antenna = "chip", native_usb = true }
+data_confidence = "medium"
+notes = "VDDH input (2.5-5.5 V) allows direct Li-ion supply; VDD range 1.7-3.6 V. Verify current figures for the chosen TX power."
+
+[[part]]
+mpn = "E73-2G4M04S1B"
+manufacturer = "Ebyte"
+category = "mcu_wireless"
+description = "Low-cost BLE module, Nordic nRF52832, PCB antenna"
+kicad_symbol = "RF_Module:E73-2G4M04S-52832"
+supply = [1.8, 3.6]
+current_typ_ma = 5.5
+current_max_ma = 15
+sleep_ua = 2
+tags = ["ble", "nrf52", "nrf52832", "low-power", "pcb-antenna", "low-cost"]
+specs = { cpu = "Cortex-M4F 64 MHz", flash_kb = 512, ble = "5.0", antenna = "PCB trace" }
+data_confidence = "medium"
+notes = "Vendor supply range quoted as 1.8-3.6 V. Verify pinout revision on the Ebyte datasheet before layout."
+
+# ---------------------------------------------------------------------------
+# Battery management
+# ---------------------------------------------------------------------------
+
+[[part]]
+mpn = "MCP73831T-2ACI/OT"
+manufacturer = "Microchip Technology"
+category = "charger"
+description = "Single-cell Li-ion/LiPo linear charger, 4.20 V, up to 500 mA, SOT-23-5"
+kicad_symbol = "Battery_Management:MCP73831-2-OT"
+supply = [3.75, 6.0]
+current_typ_ma = 0.5
+tags = ["li-ion", "lipo", "linear-charger", "usb-charging"]
+specs = { charge_voltage_v = 4.2, max_charge_ma = 500, prog_formula = "I_REG(mA) = 1000 / R_PROG(kOhm)", stat_output = "tri-state", thermal_regulation = true }
+data_confidence = "high"
+notes = "R_PROG 2k -> 500 mA, 10k -> 100 mA. 4.7 uF on VDD and VBAT. STAT can drive an LED to VDD/GND."
+
+[[part]]
+mpn = "BQ24074RGTR"
+manufacturer = "Texas Instruments"
+category = "charger"
+description = "1.5 A single-cell Li-ion charger with power-path (dynamic power management), VQFN-16"
+kicad_symbol = "Battery_Management:BQ24074RGT"
+supply = [4.35, 6.4]
+current_typ_ma = 1.5
+tags = ["li-ion", "power-path", "linear-charger", "usb-charging"]
+specs = { charge_voltage_v = 4.2, max_charge_ma = 1500, power_path = true, input_ovp_v = 6.6 }
+data_confidence = "medium"
+notes = "Use when the load must run from USB while the battery charges. Exposed pad must be soldered to GND."
+
+[[part]]
+mpn = "BQ27441DRZR-G1A"
+manufacturer = "Texas Instruments"
+category = "fuel_gauge"
+description = "Single-cell Li-ion fuel gauge (Impedance Track), I2C, integrated sense, SON-12"
+kicad_symbol = "Battery_Management:BQ27441DRZR-G1A"
+supply = [2.45, 4.5]
+current_typ_ma = 0.093
+sleep_ua = 9
+tags = ["fuel-gauge", "i2c", "li-ion"]
+specs = { interface = "I2C", i2c_address = "0x55", sense_resistor = "external 10 mOhm" }
+data_confidence = "medium"
+notes = "Needs a 10 mOhm sense resistor in the battery negative path. Configure design capacity over I2C."
+
+# ---------------------------------------------------------------------------
+# Linear regulators
+# ---------------------------------------------------------------------------
+
+[[part]]
+mpn = "AP2112K-3.3TRG1"
+manufacturer = "Diodes Incorporated"
+category = "ldo"
+description = "3.3 V 600 mA LDO with enable, SOT-23-5"
+kicad_symbol = "Regulator_Linear:AP2112K-3.3"
+supply = [2.5, 6.0]
+current_typ_ma = 0.055
+tags = ["ldo", "3v3", "enable", "general-purpose"]
+specs = { vout_v = 3.3, iout_max_ma = 600, dropout_mv = 250, iq_ua = 55, enable = true }
+data_confidence = "high"
+notes = "Dropout 250 mV at 600 mA: from a Li-ion cell, regulation is lost below ~3.55 V input at full load."
+
+[[part]]
+mpn = "MCP1700T-3302E/TT"
+manufacturer = "Microchip Technology"
+category = "ldo"
+description = "3.3 V 250 mA ultra-low-Iq (1.6 uA) LDO, SOT-23-3"
+kicad_symbol = "Regulator_Linear:MCP1700x-330xxTT"
+supply = [2.3, 6.0]
+current_typ_ma = 0.0016
+tags = ["ldo", "3v3", "ultra-low-iq", "battery"]
+specs = { vout_v = 3.3, iout_max_ma = 250, dropout_mv = 178, iq_ua = 1.6, enable = false }
+data_confidence = "high"
+notes = "250 mA is not enough for WiFi TX peaks (~350 mA) - suitable for BLE/sensor loads only."
+
+[[part]]
+mpn = "LP5907MFX-3.3/NOPB"
+manufacturer = "Texas Instruments"
+category = "ldo"
+description = "3.3 V 250 mA low-noise LDO with enable, SOT-23-5"
+kicad_symbol = "Regulator_Linear:LP5907MFX-3.3"
+supply = [2.2, 5.5]
+current_typ_ma = 0.012
+tags = ["ldo", "3v3", "low-noise", "enable"]
+specs = { vout_v = 3.3, iout_max_ma = 250, dropout_mv = 120, iq_ua = 12, enable = true }
+data_confidence = "high"
+
+[[part]]
+mpn = "AP7361C-33E-13"
+manufacturer = "Diodes Incorporated"
+category = "ldo"
+description = "3.3 V 1 A LDO with enable, SOT-223"
+kicad_symbol = "Regulator_Linear:AP7361C-33E"
+supply = [2.2, 6.0]
+current_typ_ma = 0.06
+tags = ["ldo", "3v3", "1a", "enable"]
+specs = { vout_v = 3.3, iout_max_ma = 1000, dropout_mv = 360, enable = true }
+data_confidence = "medium"
+notes = "Verify dropout and Iq against datasheet revision; check package variant suffix."
+
+[[part]]
+mpn = "AMS1117-3.3"
+manufacturer = "Advanced Monolithic Systems"
+category = "ldo"
+description = "3.3 V 1 A LDO, SOT-223"
+kicad_symbol = "Regulator_Linear:AMS1117-3.3"
+supply = [4.75, 15.0]
+current_typ_ma = 5
+tags = ["ldo", "3v3", "1a", "5v-input"]
+specs = { vout_v = 3.3, iout_max_ma = 1000, dropout_mv = 1300, iq_ma = 5, enable = false }
+data_confidence = "high"
+notes = "High dropout (1.1-1.3 V) and 5 mA Iq: fine from 5 V, wrong choice for battery designs. Needs 22 uF tantalum/ceramic per datasheet stability notes."
+
+[[part]]
+mpn = "L7805CV"
+manufacturer = "STMicroelectronics"
+category = "ldo"
+description = "5 V 1.5 A linear regulator, TO-220"
+kicad_symbol = "Regulator_Linear:L7805"
+footprint = "Package_TO_SOT_THT:TO-220-3_Vertical"
+supply = [7.0, 35.0]
+current_typ_ma = 5
+tags = ["linear", "5v", "1.5a", "tht", "12v-input"]
+specs = { vout_v = 5.0, iout_max_ma = 1500, dropout_mv = 2000, iq_ma = 5 }
+data_confidence = "high"
+notes = "From 12 V at 500 mA it dissipates 3.5 W: needs a heatsink. Prefer a buck converter above ~200 mA."
+
+# ---------------------------------------------------------------------------
+# Switching regulators
+# ---------------------------------------------------------------------------
+
+[[part]]
+mpn = "TPS563200DDCR"
+manufacturer = "Texas Instruments"
+category = "buck"
+description = "4.5-17 V input, 3 A synchronous buck converter, SOT-23-6 (TSOT)"
+kicad_symbol = "Regulator_Switching:TPS563200"
+supply = [4.5, 17.0]
+tags = ["buck", "3a", "12v-input", "synchronous"]
+specs = { iout_max_ma = 3000, vout_range_v = "0.76-7", fsw_khz = 650, vref_v = 0.768 }
+data_confidence = "high"
+notes = "Needs bootstrap cap (0.1 uF BST-SW), 2.2-4.7 uH inductor, feedback divider. Keep SW node small."
+
+[[part]]
+mpn = "LM2596S-5.0/NOPB"
+manufacturer = "Texas Instruments"
+category = "buck"
+description = "Fixed 5 V 3 A step-down regulator, up to 40 V input, TO-263-5"
+kicad_symbol = "Regulator_Switching:LM2596S-5"
+supply = [7.0, 40.0]
+current_typ_ma = 5
+tags = ["buck", "5v", "3a", "12v-input", "24v-input", "asynchronous"]
+specs = { vout_v = 5.0, iout_max_ma = 3000, fsw_khz = 150 }
+data_confidence = "high"
+notes = "Asynchronous: needs a Schottky catch diode (3 A+) and ~33 uH inductor. Large but forgiving."
+
+[[part]]
+mpn = "MT3608"
+manufacturer = "Aerosemi"
+category = "boost"
+description = "2-24 V input boost converter, 4 A switch, up to 28 V output, SOT-23-6"
+kicad_symbol = "Regulator_Switching:MT3608"
+supply = [2.0, 24.0]
+tags = ["boost", "5v-from-li-ion", "asynchronous"]
+specs = { switch_current_a = 4, vout_max_v = 28, fsw_khz = 1200, vref_v = 0.6 }
+data_confidence = "medium"
+notes = "Asynchronous: needs Schottky diode. Not truly off when EN low (input passes to output through the diode)."
+
+[[part]]
+mpn = "MCP1640T-I/CHY"
+manufacturer = "Microchip Technology"
+category = "boost"
+description = "Synchronous boost converter, 0.65 V start-up, 2.0-5.5 V output, SOT-23-6"
+kicad_symbol = "Regulator_Switching:MCP1640x-xCHY"
+supply = [0.65, 5.5]
+current_typ_ma = 0.019
+tags = ["boost", "synchronous", "single-cell-alkaline", "low-iq"]
+specs = { vout_range_v = "2.0-5.5", fsw_khz = 500, vref_v = 1.21, true_disconnect = true }
+data_confidence = "medium"
+notes = "Output current depends strongly on Vin; check efficiency curves for the target load."
+
+[[part]]
+mpn = "TPS61200DRCR"
+manufacturer = "Texas Instruments"
+category = "boost"
+description = "Low-input-voltage synchronous boost (0.3-5.5 V in), 1.8-5.5 V out, VSON-10"
+kicad_symbol = "Regulator_Switching:TPS61200DRC"
+supply = [0.3, 5.5]
+current_typ_ma = 0.05
+tags = ["boost", "synchronous", "low-voltage-input", "solar"]
+specs = { vout_range_v = "1.8-5.5", fsw_khz = 1400 }
+data_confidence = "medium"
+
+# ---------------------------------------------------------------------------
+# Sensors
+# ---------------------------------------------------------------------------
+
+[[part]]
+mpn = "SHT40-AD1B-R3"
+manufacturer = "Sensirion"
+category = "sensor_env"
+description = "Digital temperature + humidity sensor, +/-1.8 %RH, +/-0.2 C, I2C, DFN-4 1.5x1.5"
+kicad_symbol = "Sensor_Humidity:SHT4x"
+supply = [1.08, 3.6]
+current_typ_ma = 0.32
+current_max_ma = 0.5
+sleep_ua = 0.08
+tags = ["temperature", "humidity", "i2c", "low-power"]
+specs = { interface = "I2C", i2c_address = "0x44", rh_accuracy = "+/-1.8 %RH", t_accuracy = "+/-0.2 C" }
+data_confidence = "high"
+notes = "Keep away from regulators/MCU; add a slot or cut-out to thermally isolate on small boards."
+
+[[part]]
+mpn = "SHTC3"
+manufacturer = "Sensirion"
+category = "sensor_env"
+description = "Digital temperature + humidity sensor, I2C, DFN-4 2x2"
+kicad_symbol = "Sensor_Humidity:SHTC3"
+supply = [1.62, 3.6]
+current_typ_ma = 0.43
+sleep_ua = 0.3
+tags = ["temperature", "humidity", "i2c", "low-power"]
+specs = { interface = "I2C", i2c_address = "0x70", rh_accuracy = "+/-2 %RH", t_accuracy = "+/-0.2 C" }
+data_confidence = "high"
+
+[[part]]
+mpn = "BME280"
+manufacturer = "Bosch Sensortec"
+category = "sensor_env"
+description = "Combined humidity, pressure and temperature sensor, I2C/SPI, LGA-8 2.5x2.5"
+kicad_symbol = "Sensor:BME280"
+supply = [1.71, 3.6]
+current_typ_ma = 0.0036
+current_max_ma = 0.72
+sleep_ua = 0.1
+tags = ["temperature", "humidity", "pressure", "i2c", "spi", "low-power"]
+specs = { interface = "I2C/SPI", i2c_address = "0x76/0x77 (SDO)", pressure_range_hpa = "300-1100" }
+data_confidence = "high"
+notes = "CSB high selects I2C. SDO selects the I2C address - must not float."
+
+
+[[part]]
+mpn = "SI7021-A20-GM1R"
+manufacturer = "Silicon Labs"
+category = "sensor_env"
+description = "Humidity + temperature sensor, I2C, DFN-6 3x3"
+kicad_symbol = "Sensor_Humidity:Si7021-A20"
+supply = [1.9, 3.6]
+current_typ_ma = 0.15
+sleep_ua = 0.06
+tags = ["temperature", "humidity", "i2c"]
+specs = { interface = "I2C", i2c_address = "0x40", rh_accuracy = "+/-3 %RH", t_accuracy = "+/-0.4 C" }
+data_confidence = "medium"
+
+[[part]]
+mpn = "BMP280"
+manufacturer = "Bosch Sensortec"
+category = "sensor_env"
+description = "Barometric pressure + temperature sensor, I2C/SPI, LGA-8 2.0x2.5"
+kicad_symbol = "Sensor_Pressure:BMP280"
+supply = [1.71, 3.6]
+current_typ_ma = 0.0027
+current_max_ma = 0.72
+sleep_ua = 0.1
+tags = ["pressure", "temperature", "i2c", "spi", "low-power"]
+specs = { interface = "I2C/SPI", i2c_address = "0x76/0x77 (SDO)", pressure_range_hpa = "300-1100" }
+data_confidence = "high"
+
+[[part]]
+mpn = "LIS3DHTR"
+manufacturer = "STMicroelectronics"
+category = "sensor_motion"
+description = "3-axis accelerometer, +/-2/4/8/16 g, I2C/SPI, LGA-16 3x3"
+kicad_symbol = "Sensor_Motion:LIS3DH"
+supply = [1.71, 3.6]
+current_typ_ma = 0.011
+sleep_ua = 0.5
+tags = ["accelerometer", "imu", "i2c", "spi", "low-power", "wake-on-motion"]
+specs = { interface = "I2C/SPI", i2c_address = "0x18/0x19 (SA0)", full_scale_g = "2/4/8/16" }
+data_confidence = "high"
+
+[[part]]
+mpn = "LSM6DSLTR"
+manufacturer = "STMicroelectronics"
+category = "sensor_motion"
+description = "6-axis IMU (accelerometer + gyroscope), I2C/SPI, LGA-14 2.5x3"
+kicad_symbol = "Sensor_Motion:LSM6DSL"
+supply = [1.71, 3.6]
+current_typ_ma = 0.65
+sleep_ua = 3
+tags = ["imu", "accelerometer", "gyroscope", "i2c", "spi"]
+specs = { interface = "I2C/SPI", i2c_address = "0x6A/0x6B (SA0)" }
+data_confidence = "medium"
+
+[[part]]
+mpn = "TMP117AIDRVR"
+manufacturer = "Texas Instruments"
+category = "sensor_temp"
+description = "+/-0.1 C high-accuracy digital temperature sensor, I2C, WSON-6"
+kicad_symbol = "Sensor_Temperature:TMP117xxDRV"
+supply = [1.7, 5.5]
+current_typ_ma = 0.0035
+sleep_ua = 0.15
+tags = ["temperature", "i2c", "high-accuracy", "low-power"]
+specs = { interface = "I2C", i2c_address = "0x48-0x4B (ADD0)", t_accuracy = "+/-0.1 C" }
+data_confidence = "high"
+
+[[part]]
+mpn = "MCP9808-E/MS"
+manufacturer = "Microchip Technology"
+category = "sensor_temp"
+description = "+/-0.25 C digital temperature sensor, I2C, MSOP-8"
+kicad_symbol = "Sensor_Temperature:MCP9808_MSOP"
+supply = [2.7, 5.5]
+current_typ_ma = 0.2
+sleep_ua = 0.1
+tags = ["temperature", "i2c", "5v-tolerant"]
+specs = { interface = "I2C", i2c_address = "0x18-0x1F (A0-A2)", t_accuracy = "+/-0.25 C typ" }
+data_confidence = "high"
+
+[[part]]
+mpn = "LTR-303ALS-01"
+manufacturer = "Lite-On"
+category = "sensor_light"
+description = "Ambient light sensor, I2C, ChipLED-6 2x2"
+kicad_symbol = "Sensor_Optical:LTR-303ALS-01"
+supply = [2.4, 3.6]
+tags = ["light", "ambient-light", "i2c"]
+specs = { interface = "I2C", i2c_address = "0x29" }
+data_confidence = "medium"
+notes = "Active/standby currents not curated - read from datasheet before power budgeting."
+
+# ---------------------------------------------------------------------------
+# Protection
+# ---------------------------------------------------------------------------
+
+[[part]]
+mpn = "USBLC6-2SC6"
+manufacturer = "STMicroelectronics"
+category = "esd"
+description = "Low-capacitance ESD protection for USB 2.0 D+/D- and VBUS, SOT-23-6"
+kicad_symbol = "Power_Protection:USBLC6-2SC6"
+supply = [0.0, 5.5]
+tags = ["esd", "usb", "tvs-array"]
+specs = { channels = 2, iec61000_4_2 = "+/-15 kV air", vrwm_v = 5 }
+data_confidence = "high"
+notes = "Place as close to the USB connector as possible, before any series components."
+
+[[part]]
+mpn = "ESD9B5.0ST5G"
+manufacturer = "onsemi"
+category = "esd"
+description = "Bidirectional 5 V ESD protection diode, SOD-923"
+kicad_symbol = "Diode:ESD9B5.0ST5G"
+tags = ["esd", "bidirectional", "gpio", "button"]
+specs = { vrwm_v = 5.0, bidirectional = true }
+data_confidence = "high"
+
+[[part]]
+mpn = "SMAJ15A"
+manufacturer = "Littelfuse"
+category = "tvs"
+description = "400 W unidirectional TVS, 15 V standoff, SMA"
+kicad_symbol = "Diode:SMAJ15A"
+tags = ["tvs", "12v-rail", "surge", "unidirectional"]
+specs = { vrwm_v = 15.0, vbr_min_v = 16.7, vc_max_v = 24.4, ppk_w = 400 }
+data_confidence = "high"
+
+[[part]]
+mpn = "SMAJ5.0A"
+manufacturer = "Littelfuse"
+category = "tvs"
+description = "400 W unidirectional TVS, 5 V standoff, SMA"
+kicad_symbol = "Diode:SMAJ5.0A"
+tags = ["tvs", "5v-rail", "surge", "unidirectional"]
+specs = { vrwm_v = 5.0, vbr_min_v = 6.4, vc_max_v = 9.2, ppk_w = 400 }
+data_confidence = "high"
+
+[[part]]
+mpn = "MF-PSMF050X-2"
+manufacturer = "Bourns"
+category = "fuse"
+description = "PTC resettable fuse, 0.5 A hold, 0805"
+kicad_symbol = "Device:Polyfuse"
+footprint = "Fuse:Fuse_0805_2012Metric"
+ref_prefix = "F"
+tags = ["ptc", "resettable", "usb-input"]
+specs = { hold_a = 0.5 }
+data_confidence = "medium"
+notes = "Verify trip current and max voltage rating in the Bourns MF-PSMF datasheet."
+
+[[part]]
+mpn = "MF-MSMF110-2"
+manufacturer = "Bourns"
+category = "fuse"
+description = "PTC resettable fuse, 1.1 A hold, 1812"
+kicad_symbol = "Device:Polyfuse"
+footprint = "Fuse:Fuse_1812_4532Metric"
+ref_prefix = "F"
+tags = ["ptc", "resettable", "12v-input"]
+specs = { hold_a = 1.1 }
+data_confidence = "medium"
+notes = "Verify trip current and max voltage rating (must exceed the 12 V rail) in the datasheet."
+
+# ---------------------------------------------------------------------------
+# Discretes
+# ---------------------------------------------------------------------------
+
+[[part]]
+mpn = "SS14"
+manufacturer = "onsemi"
+category = "diode"
+description = "1 A 40 V Schottky rectifier, SMA"
+kicad_symbol = "Diode:SS14"
+tags = ["schottky", "reverse-polarity", "oring", "catch-diode"]
+specs = { vrrm_v = 40, if_a = 1.0, vf_v = 0.5 }
+data_confidence = "high"
+
+[[part]]
+mpn = "1N4148W-7-F"
+manufacturer = "Diodes Incorporated"
+category = "diode"
+description = "75 V 300 mA small-signal switching diode, SOD-123"
+kicad_symbol = "Diode:1N4148W"
+tags = ["signal-diode", "flyback-small"]
+specs = { vrrm_v = 75, if_ma = 300 }
+data_confidence = "high"
+
+[[part]]
+mpn = "1N4007"
+manufacturer = "onsemi"
+category = "diode"
+description = "1 A 1000 V general-purpose rectifier, DO-41 through-hole"
+kicad_symbol = "Diode:1N4007"
+tags = ["rectifier", "flyback", "relay", "tht"]
+specs = { vrrm_v = 1000, if_a = 1.0 }
+data_confidence = "high"
+
+[[part]]
+mpn = "AO3400A"
+manufacturer = "Alpha & Omega Semiconductor"
+category = "mosfet"
+description = "N-channel 30 V 5.7 A logic-level MOSFET, SOT-23"
+kicad_symbol = "Transistor_FET:AO3400A"
+tags = ["n-mosfet", "logic-level", "low-side-switch", "relay-driver", "led-driver"]
+specs = { vds_v = 30, id_a = 5.7, rds_on_mohm_4v5 = 32, vgs_th_max_v = 1.45 }
+data_confidence = "high"
+
+[[part]]
+mpn = "AO3401A"
+manufacturer = "Alpha & Omega Semiconductor"
+category = "mosfet"
+description = "P-channel -30 V -4 A MOSFET, SOT-23"
+kicad_symbol = "Transistor_FET:AO3401A"
+tags = ["p-mosfet", "reverse-polarity", "high-side-switch", "load-switch"]
+specs = { vds_v = -30, id_a = -4.0, rds_on_mohm_4v5 = 60 }
+data_confidence = "high"
+
+[[part]]
+mpn = "2N7002"
+manufacturer = "onsemi"
+category = "mosfet"
+description = "N-channel 60 V 115 mA small-signal MOSFET, SOT-23"
+kicad_symbol = "Transistor_FET:2N7002"
+tags = ["n-mosfet", "level-shift", "auto-reset", "small-signal"]
+specs = { vds_v = 60, id_ma = 115 }
+data_confidence = "high"
+
+[[part]]
+mpn = "IRLML6402TRPBF"
+manufacturer = "Infineon"
+category = "mosfet"
+description = "P-channel -20 V -3.7 A MOSFET, SOT-23"
+kicad_symbol = "Transistor_FET:IRLML6402"
+tags = ["p-mosfet", "reverse-polarity", "load-switch", "power-path"]
+specs = { vds_v = -20, id_a = -3.7, rds_on_mohm_4v5 = 65 }
+data_confidence = "high"
+
+# ---------------------------------------------------------------------------
+# Drivers / isolation / relays
+# ---------------------------------------------------------------------------
+
+[[part]]
+mpn = "DRV8833PWPR"
+manufacturer = "Texas Instruments"
+category = "motor_driver"
+description = "Dual H-bridge motor driver, 2.7-10.8 V, 1.5 A RMS per bridge, HTSSOP-16"
+kicad_symbol = "Driver_Motor:DRV8833PWP"
+supply = [2.7, 10.8]
+sleep_ua = 1.6
+tags = ["h-bridge", "dc-motor", "stepper", "battery-motor"]
+specs = { bridges = 2, iout_rms_a = 1.5, vm_max_v = 10.8 }
+data_confidence = "high"
+notes = "10.8 V max VM: NOT suitable for a 12 V motor rail."
+
+[[part]]
+mpn = "DRV8871DDAR"
+manufacturer = "Texas Instruments"
+category = "motor_driver"
+description = "Brushed DC motor H-bridge, 6.5-45 V, 3.6 A peak, current regulation, HSOP-8"
+kicad_symbol = "Driver_Motor:DRV8871DDA"
+supply = [6.5, 45.0]
+tags = ["h-bridge", "dc-motor", "12v", "24v", "current-limit"]
+specs = { bridges = 1, ipeak_a = 3.6, vm_max_v = 45, current_regulation = "ILIM resistor" }
+data_confidence = "high"
+notes = "Exposed pad is GND and the main heat path - use a thermal via array. Bulk capacitance on VM required."
+
+[[part]]
+mpn = "ULN2003ADR"
+manufacturer = "Texas Instruments"
+category = "transistor_array"
+description = "7-channel 50 V 500 mA Darlington array with flyback diodes, SOIC-16"
+kicad_symbol = "Transistor_Array:ULN2003A"
+footprint = "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm"
+tags = ["relay-driver", "darlington", "low-side", "flyback-integrated"]
+specs = { channels = 7, vce_max_v = 50, ic_max_ma = 500 }
+data_confidence = "high"
+notes = "COM pin must connect to the relay/inductive supply rail to enable the internal clamp diodes."
+
+[[part]]
+mpn = "PC817X1NSZ1B"
+manufacturer = "Sharp"
+category = "optocoupler"
+description = "Phototransistor optocoupler, 5 kVrms isolation, DIP-4"
+kicad_symbol = "Isolator:PC817"
+tags = ["isolation", "optocoupler", "digital-input"]
+specs = { isolation_vrms = 5000, ctr_percent = "50-600" }
+data_confidence = "high"
+
+[[part]]
+mpn = "SRD-05VDC-SL-C"
+manufacturer = "Songle"
+category = "relay"
+description = "SPDT power relay, 5 V coil (~71 mA), 10 A contacts, through-hole"
+kicad_symbol = "Relay:SANYOU_SRD_Form_C"
+supply = [3.75, 5.5]
+current_typ_ma = 71
+current_max_ma = 72
+tags = ["relay", "spdt", "5v-coil", "mains-capable", "tht"]
+specs = { coil_v = 5, coil_resistance_ohm = 70, contact_rating = "10 A 250 VAC / 10 A 30 VDC" }
+data_confidence = "medium"
+notes = "Coil needs a flyback diode. Mains use requires creepage/clearance slots - not checked by this tool's DFM rules."
+
+[[part]]
+mpn = "G5LE-1-DC12"
+manufacturer = "Omron Electronics"
+category = "relay"
+description = "SPDT power relay, 12 V coil (~33 mA), through-hole"
+kicad_symbol = "Relay:G5LE-1"
+supply = [9.0, 13.2]
+current_typ_ma = 33.3
+current_max_ma = 34
+tags = ["relay", "spdt", "12v-coil", "tht"]
+specs = { coil_v = 12, coil_resistance_ohm = 360 }
+data_confidence = "medium"
+notes = "Contact ratings depend on variant - read the Omron G5LE datasheet."
+
+# ---------------------------------------------------------------------------
+# Interface / power switching / timekeeping
+# ---------------------------------------------------------------------------
+
+[[part]]
+mpn = "CH340C"
+manufacturer = "WCH"
+category = "usb_uart"
+description = "USB 2.0 full-speed to UART bridge with internal oscillator, SOIC-16"
+kicad_symbol = "Interface_USB:CH340C"
+supply = [3.3, 5.0]
+tags = ["usb-uart", "programming", "auto-reset"]
+specs = { usb = "2.0 FS", crystal_required = false }
+data_confidence = "medium"
+notes = "At 3.3 V tie V3 to VCC; at 5 V decouple V3 with 100 nF. Currents not curated."
+
+[[part]]
+mpn = "CP2102N-A02-GQFN24R"
+manufacturer = "Silicon Labs"
+category = "usb_uart"
+description = "USB 2.0 to UART bridge, QFN-24 4x4"
+kicad_symbol = "Interface_USB:CP2102N-Axx-xQFN24"
+supply = [3.0, 3.6]
+tags = ["usb-uart", "programming"]
+specs = { usb = "2.0 FS", crystal_required = false, regulator_input_v = "3.0-5.25" }
+data_confidence = "medium"
+
+[[part]]
+mpn = "TPS22917DBVR"
+manufacturer = "Texas Instruments"
+category = "load_switch"
+description = "1-5.5 V 2 A ultra-low-leakage load switch, SOT-23-6"
+kicad_symbol = "Power_Management:TPS22917DBV"
+supply = [1.0, 5.5]
+sleep_ua = 0.5
+tags = ["load-switch", "sensor-power-gating", "low-leakage"]
+specs = { iout_max_a = 2, ron_mohm = 80 }
+data_confidence = "medium"
+
+[[part]]
+mpn = "RV-3028-C7"
+manufacturer = "Micro Crystal"
+category = "rtc"
+description = "Extreme-low-power RTC (45 nA), I2C, integrated 32.768 kHz crystal"
+kicad_symbol = "Timer_RTC:RV-3028-C7"
+supply = [1.1, 5.5]
+current_typ_ma = 0.000045
+sleep_ua = 0.045
+tags = ["rtc", "i2c", "ultra-low-power"]
+specs = { interface = "I2C", i2c_address = "0x52" }
+data_confidence = "high"
+
+[[part]]
+mpn = "PCF8563T/5,518"
+manufacturer = "NXP Semiconductors"
+category = "rtc"
+description = "Low-power RTC/calendar, I2C, SO-8, external 32.768 kHz crystal"
+kicad_symbol = "Timer_RTC:PCF8563T"
+supply = [1.0, 5.5]
+sleep_ua = 0.25
+tags = ["rtc", "i2c"]
+specs = { interface = "I2C", i2c_address = "0x51" }
+data_confidence = "high"
+
+# ---------------------------------------------------------------------------
+# Passives (resistors: Yageo RC series; capacitors: Murata GRM series)
+# ---------------------------------------------------------------------------
+
+[[part]]
+mpn = "RC0402FR-0710KL"
+manufacturer = "Yageo"
+category = "resistor"
+description = "10 kOhm 1% 1/16 W thick-film resistor, 0402"
+kicad_symbol = "Device:R"
+footprint = "Resistor_SMD:R_0402_1005Metric"
+value = "10k"
+tags = ["pull-up", "pull-down", "en-rc"]
+specs = { resistance_ohm = 10000, tolerance = "1%", power_w = 0.0625 }
+data_confidence = "high"
+
+[[part]]
+mpn = "RC0402FR-074K7L"
+manufacturer = "Yageo"
+category = "resistor"
+description = "4.7 kOhm 1% 1/16 W thick-film resistor, 0402"
+kicad_symbol = "Device:R"
+footprint = "Resistor_SMD:R_0402_1005Metric"
+value = "4.7k"
+tags = ["i2c-pull-up"]
+specs = { resistance_ohm = 4700, tolerance = "1%", power_w = 0.0625 }
+data_confidence = "high"
+
+[[part]]
+mpn = "RC0402FR-075K1L"
+manufacturer = "Yageo"
+category = "resistor"
+description = "5.1 kOhm 1% 1/16 W thick-film resistor, 0402"
+kicad_symbol = "Device:R"
+footprint = "Resistor_SMD:R_0402_1005Metric"
+value = "5.1k"
+tags = ["usb-c-cc"]
+specs = { resistance_ohm = 5100, tolerance = "1%", power_w = 0.0625 }
+data_confidence = "high"
+
+[[part]]
+mpn = "RC0402FR-071KL"
+manufacturer = "Yageo"
+category = "resistor"
+description = "1 kOhm 1% 1/16 W thick-film resistor, 0402"
+kicad_symbol = "Device:R"
+footprint = "Resistor_SMD:R_0402_1005Metric"
+value = "1k"
+tags = ["led", "gate", "series"]
+specs = { resistance_ohm = 1000, tolerance = "1%", power_w = 0.0625 }
+data_confidence = "high"
+
+[[part]]
+mpn = "RC0402FR-07100KL"
+manufacturer = "Yageo"
+category = "resistor"
+description = "100 kOhm 1% 1/16 W thick-film resistor, 0402"
+kicad_symbol = "Device:R"
+footprint = "Resistor_SMD:R_0402_1005Metric"
+value = "100k"
+tags = ["gate-pull-down", "divider", "battery-sense"]
+specs = { resistance_ohm = 100000, tolerance = "1%", power_w = 0.0625 }
+data_confidence = "high"
+
+[[part]]
+mpn = "RC0402FR-071ML"
+manufacturer = "Yageo"
+category = "resistor"
+description = "1 MOhm 1% 1/16 W thick-film resistor, 0402"
+kicad_symbol = "Device:R"
+footprint = "Resistor_SMD:R_0402_1005Metric"
+value = "1M"
+tags = ["divider", "battery-sense", "low-leakage"]
+specs = { resistance_ohm = 1000000, tolerance = "1%", power_w = 0.0625 }
+data_confidence = "high"
+
+[[part]]
+mpn = "RC0402FR-07330RL"
+manufacturer = "Yageo"
+category = "resistor"
+description = "330 Ohm 1% 1/16 W thick-film resistor, 0402"
+kicad_symbol = "Device:R"
+footprint = "Resistor_SMD:R_0402_1005Metric"
+value = "330"
+tags = ["led"]
+specs = { resistance_ohm = 330, tolerance = "1%", power_w = 0.0625 }
+data_confidence = "high"
+
+[[part]]
+mpn = "RC0402JR-070RL"
+manufacturer = "Yageo"
+category = "resistor"
+description = "0 Ohm jumper, 0402"
+kicad_symbol = "Device:R"
+footprint = "Resistor_SMD:R_0402_1005Metric"
+value = "0"
+tags = ["jumper", "option"]
+specs = { resistance_ohm = 0, power_w = 0.0625 }
+data_confidence = "high"
+
+[[part]]
+mpn = "RC0603FR-072KL"
+manufacturer = "Yageo"
+category = "resistor"
+description = "2 kOhm 1% 1/10 W thick-film resistor, 0603"
+kicad_symbol = "Device:R"
+footprint = "Resistor_SMD:R_0603_1608Metric"
+value = "2k"
+tags = ["charger-prog"]
+specs = { resistance_ohm = 2000, tolerance = "1%", power_w = 0.1 }
+data_confidence = "high"
+
+[[part]]
+mpn = "RC0603FR-0710KL"
+manufacturer = "Yageo"
+category = "resistor"
+description = "10 kOhm 1% 1/10 W thick-film resistor, 0603"
+kicad_symbol = "Device:R"
+footprint = "Resistor_SMD:R_0603_1608Metric"
+value = "10k"
+tags = ["pull-up", "charger-prog"]
+specs = { resistance_ohm = 10000, tolerance = "1%", power_w = 0.1 }
+data_confidence = "high"
+
+[[part]]
+mpn = "RC0603FR-07100KL"
+manufacturer = "Yageo"
+category = "resistor"
+description = "100 kOhm 1% 1/10 W thick-film resistor, 0603"
+kicad_symbol = "Device:R"
+footprint = "Resistor_SMD:R_0603_1608Metric"
+value = "100k"
+tags = ["divider", "feedback"]
+specs = { resistance_ohm = 100000, tolerance = "1%", power_w = 0.1 }
+data_confidence = "high"
+
+[[part]]
+mpn = "GRM155R71C104KA88D"
+manufacturer = "Murata Electronics"
+category = "capacitor"
+description = "100 nF 16 V X7R MLCC, 0402"
+kicad_symbol = "Device:C"
+footprint = "Capacitor_SMD:C_0402_1005Metric"
+value = "100n"
+tags = ["decoupling", "bootstrap"]
+specs = { capacitance_f = 1e-7, voltage_v = 16, dielectric = "X7R" }
+data_confidence = "high"
+
+[[part]]
+mpn = "GRM155R71H103KA88D"
+manufacturer = "Murata Electronics"
+category = "capacitor"
+description = "10 nF 50 V X7R MLCC, 0402"
+kicad_symbol = "Device:C"
+footprint = "Capacitor_SMD:C_0402_1005Metric"
+value = "10n"
+tags = ["decoupling", "filter"]
+specs = { capacitance_f = 1e-8, voltage_v = 50, dielectric = "X7R" }
+data_confidence = "high"
+
+[[part]]
+mpn = "GRM155R61A105KE15D"
+manufacturer = "Murata Electronics"
+category = "capacitor"
+description = "1 uF 10 V X5R MLCC, 0402"
+kicad_symbol = "Device:C"
+footprint = "Capacitor_SMD:C_0402_1005Metric"
+value = "1u"
+tags = ["decoupling", "en-rc", "ldo"]
+specs = { capacitance_f = 1e-6, voltage_v = 10, dielectric = "X5R" }
+data_confidence = "high"
+
+[[part]]
+mpn = "GRM1555C1H120JA01D"
+manufacturer = "Murata Electronics"
+category = "capacitor"
+description = "12 pF 50 V C0G MLCC, 0402"
+kicad_symbol = "Device:C"
+footprint = "Capacitor_SMD:C_0402_1005Metric"
+value = "12p"
+tags = ["crystal-load", "rf"]
+specs = { capacitance_f = 1.2e-11, voltage_v = 50, dielectric = "C0G" }
+data_confidence = "high"
+
+[[part]]
+mpn = "GRM188R61A475KE15D"
+manufacturer = "Murata Electronics"
+category = "capacitor"
+description = "4.7 uF 10 V X5R MLCC, 0603"
+kicad_symbol = "Device:C"
+footprint = "Capacitor_SMD:C_0603_1608Metric"
+value = "4.7u"
+tags = ["bulk", "charger", "ldo"]
+specs = { capacitance_f = 4.7e-6, voltage_v = 10, dielectric = "X5R" }
+data_confidence = "high"
+
+[[part]]
+mpn = "GRM188R61A106KE69D"
+manufacturer = "Murata Electronics"
+category = "capacitor"
+description = "10 uF 10 V X5R MLCC, 0603"
+kicad_symbol = "Device:C"
+footprint = "Capacitor_SMD:C_0603_1608Metric"
+value = "10u"
+tags = ["bulk", "ldo", "module-supply"]
+specs = { capacitance_f = 1e-5, voltage_v = 10, dielectric = "X5R" }
+data_confidence = "high"
+
+[[part]]
+mpn = "GRM188R71H104KA93D"
+manufacturer = "Murata Electronics"
+category = "capacitor"
+description = "100 nF 50 V X7R MLCC, 0603"
+kicad_symbol = "Device:C"
+footprint = "Capacitor_SMD:C_0603_1608Metric"
+value = "100n"
+tags = ["decoupling", "12v-rail", "bootstrap"]
+specs = { capacitance_f = 1e-7, voltage_v = 50, dielectric = "X7R" }
+data_confidence = "high"
+
+[[part]]
+mpn = "GRM21BR61C226ME44L"
+manufacturer = "Murata Electronics"
+category = "capacitor"
+description = "22 uF 16 V X5R MLCC, 0805"
+kicad_symbol = "Device:C"
+footprint = "Capacitor_SMD:C_0805_2012Metric"
+value = "22u"
+tags = ["bulk", "buck-output", "ldo"]
+specs = { capacitance_f = 2.2e-5, voltage_v = 16, dielectric = "X5R" }
+data_confidence = "high"
+
+[[part]]
+mpn = "GRM21BR61E106KA73L"
+manufacturer = "Murata Electronics"
+category = "capacitor"
+description = "10 uF 25 V X5R MLCC, 0805"
+kicad_symbol = "Device:C"
+footprint = "Capacitor_SMD:C_0805_2012Metric"
+value = "10u"
+tags = ["bulk", "12v-rail", "buck-input"]
+specs = { capacitance_f = 1e-5, voltage_v = 25, dielectric = "X5R" }
+data_confidence = "high"
+
+[[part]]
+mpn = "XAL4030-222MEB"
+manufacturer = "Coilcraft"
+category = "inductor"
+description = "2.2 uH shielded power inductor, 4x4x3 mm"
+kicad_symbol = "Device:L"
+footprint = "Inductor_SMD:L_Coilcraft_XAL4030-XXX"
+value = "2.2u"
+tags = ["buck", "power-inductor", "shielded"]
+specs = { inductance_h = 2.2e-6 }
+data_confidence = "medium"
+notes = "Check Isat >= 1.3x peak inductor current for the chosen converter."
+
+[[part]]
+mpn = "SRN4018-4R7M"
+manufacturer = "Bourns"
+category = "inductor"
+description = "4.7 uH semi-shielded power inductor, 4x4x1.8 mm"
+kicad_symbol = "Device:L"
+footprint = "Inductor_SMD:L_Bourns-SRN4018"
+value = "4.7u"
+tags = ["boost", "power-inductor"]
+specs = { inductance_h = 4.7e-6 }
+data_confidence = "medium"
+notes = "Check Isat against converter switch current."
+
+[[part]]
+mpn = "SRN8040TA-330M"
+manufacturer = "Bourns"
+category = "inductor"
+description = "33 uH semi-shielded power inductor, 8x8x4 mm"
+kicad_symbol = "Device:L"
+footprint = "Inductor_SMD:L_Bourns_SRN8040TA"
+value = "33u"
+tags = ["buck", "lm2596", "power-inductor"]
+specs = { inductance_h = 3.3e-5 }
+data_confidence = "medium"
+notes = "Check Isat and DCR for 3 A operation."
+
+[[part]]
+mpn = "BLM18PG221SN1D"
+manufacturer = "Murata Electronics"
+category = "ferrite"
+description = "Ferrite bead 220 Ohm @ 100 MHz, 1.4 A, 0603"
+kicad_symbol = "Device:FerriteBead"
+footprint = "Inductor_SMD:L_0603_1608Metric"
+ref_prefix = "FB"
+value = "220R@100MHz"
+tags = ["ferrite", "emi", "analog-supply"]
+specs = { impedance_ohm_100mhz = 220, current_a = 1.4 }
+data_confidence = "high"
+
+[[part]]
+mpn = "ABS07-32.768KHZ-T"
+manufacturer = "Abracon"
+category = "crystal"
+description = "32.768 kHz tuning-fork crystal, 3.2x1.5 mm"
+kicad_symbol = "Device:Crystal"
+footprint = "Crystal:Crystal_SMD_3215-2Pin_3.2x1.5mm"
+value = "32.768k"
+tags = ["rtc", "lfxo", "32khz"]
+specs = { frequency_hz = 32768, load_capacitance_pf = 12.5 }
+data_confidence = "medium"
+notes = "Confirm load capacitance of the exact suffix and compute load caps from it."
+
+[[part]]
+mpn = "ABM8-16.000MHZ-B2-T"
+manufacturer = "Abracon"
+category = "crystal"
+description = "16 MHz crystal, 3.2x2.5 mm 4-pad"
+kicad_symbol = "Device:Crystal_GND24"
+footprint = "Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm"
+value = "16M"
+tags = ["hfxo", "mcu-clock"]
+specs = { frequency_hz = 16000000 }
+data_confidence = "medium"
+notes = "Load capacitance depends on suffix - read datasheet before choosing load caps."
+pin_tags = { G = ["gnd"] }
+
+[[part]]
+mpn = "LTST-C191KRKT"
+manufacturer = "Lite-On"
+category = "led"
+description = "Red LED, 0603"
+kicad_symbol = "Device:LED"
+footprint = "LED_SMD:LED_0603_1608Metric"
+value = "red"
+tags = ["indicator", "status", "charge-indicator"]
+specs = { color = "red", vf_v = 2.0, if_max_ma = 30 }
+data_confidence = "medium"
+
+[[part]]
+mpn = "LTST-C191KGKT"
+manufacturer = "Lite-On"
+category = "led"
+description = "Green LED, 0603"
+kicad_symbol = "Device:LED"
+footprint = "LED_SMD:LED_0603_1608Metric"
+value = "green"
+tags = ["indicator", "status", "power-indicator"]
+specs = { color = "green", vf_v = 2.0, if_max_ma = 30 }
+data_confidence = "medium"
+
+[[part]]
+mpn = "PTS810 SJM 250 SMTR LFS"
+manufacturer = "C&K"
+category = "switch"
+description = "SMD tactile switch, 4.2x3.2 mm, 250 gf"
+kicad_symbol = "Switch:SW_Push"
+footprint = "Button_Switch_SMD:SW_SPST_PTS810"
+tags = ["button", "user-button", "reset", "boot"]
+specs = { actuation_force_gf = 250 }
+data_confidence = "high"
+
+# ---------------------------------------------------------------------------
+# Connectors / mechanical
+# ---------------------------------------------------------------------------
+
+[[part]]
+mpn = "USB4105-GF-A"
+pin_map = { SH = "S1" }
+manufacturer = "GCT"
+category = "connector_usb"
+description = "USB Type-C receptacle, USB 2.0, 16-pin, SMT top-mount horizontal"
+kicad_symbol = "Connector:USB_C_Receptacle_USB2.0_16P"
+footprint = "Connector_USB:USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal"
+ref_prefix = "J"
+tags = ["usb-c", "usb2", "power-input", "sink"]
+specs = { usb = "2.0", vbus_max_v = 20, current_rating_a = 3 }
+data_confidence = "high"
+notes = "As a sink: 5.1k pull-down on each CC pin (separately). Place at board edge."
+
+[[part]]
+mpn = "TYPE-C-31-M-12"
+pin_map = { SH = "S1" }
+manufacturer = "HRO Electronics"
+category = "connector_usb"
+description = "USB Type-C receptacle, USB 2.0, 16-pin, SMT (low-cost alternate)"
+kicad_symbol = "Connector:USB_C_Receptacle_USB2.0_16P"
+footprint = "Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12"
+ref_prefix = "J"
+tags = ["usb-c", "usb2", "power-input", "sink", "low-cost"]
+specs = { usb = "2.0" }
+data_confidence = "medium"
+
+[[part]]
+mpn = "10118194-0001LF"
+pin_map = { SH = "6" }
+manufacturer = "Amphenol ICC"
+category = "connector_usb"
+description = "USB Micro-B receptacle, SMT horizontal"
+kicad_symbol = "Connector:USB_B_Micro"
+footprint = "Connector_USB:USB_Micro-B_Amphenol_10118194_Horizontal"
+ref_prefix = "J"
+tags = ["usb-micro-b", "usb2", "power-input", "legacy"]
+specs = { usb = "2.0" }
+data_confidence = "high"
+
+[[part]]
+mpn = "S2B-PH-SM4-TB(LF)(SN)"
+manufacturer = "JST"
+category = "connector_battery"
+description = "JST PH 2-pin 2.0 mm SMT right-angle header (LiPo battery)"
+kicad_symbol = "generic"
+footprint = "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal"
+ref_prefix = "J"
+tags = ["battery", "lipo", "jst-ph", "2-pin"]
+specs = { pitch_mm = 2.0, current_rating_a = 2 }
+data_confidence = "high"
+notes = "JST PH battery polarity is NOT standardised between vendors - verify the cell's lead order."
+
+[[part]]
+mpn = "B2B-PH-K-S(LF)(SN)"
+manufacturer = "JST"
+category = "connector_battery"
+description = "JST PH 2-pin 2.0 mm through-hole vertical header"
+kicad_symbol = "generic"
+footprint = "Connector_JST:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical"
+ref_prefix = "J"
+tags = ["battery", "lipo", "jst-ph", "2-pin", "tht"]
+specs = { pitch_mm = 2.0, current_rating_a = 2 }
+data_confidence = "high"
+notes = "JST PH battery polarity is NOT standardised between vendors - verify the cell's lead order."
+
+[[part]]
+mpn = "SM04B-SRSS-TB(LF)(SN)"
+manufacturer = "JST"
+category = "connector_header"
+description = "JST SH 4-pin 1.0 mm SMT header (Qwiic/STEMMA QT I2C)"
+kicad_symbol = "generic"
+footprint = "Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal"
+ref_prefix = "J"
+tags = ["i2c", "qwiic", "stemma-qt", "expansion"]
+specs = { pitch_mm = 1.0 }
+data_confidence = "high"
+[part.pin_names]
+"1" = "GND"
+"2" = "3V3"
+"3" = "SDA"
+"4" = "SCL"
+
+[[part]]
+mpn = "61300411121"
+manufacturer = "Wurth Elektronik"
+category = "connector_header"
+description = "1x04 2.54 mm pin header, vertical, through-hole"
+kicad_symbol = "generic"
+footprint = "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical"
+ref_prefix = "J"
+tags = ["header", "uart", "debug", "4-pin"]
+specs = { pitch_mm = 2.54, positions = 4 }
+data_confidence = "high"
+
+[[part]]
+mpn = "61300611121"
+manufacturer = "Wurth Elektronik"
+category = "connector_header"
+description = "1x06 2.54 mm pin header, vertical, through-hole"
+kicad_symbol = "generic"
+footprint = "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical"
+ref_prefix = "J"
+tags = ["header", "gpio", "expansion", "6-pin"]
+specs = { pitch_mm = 2.54, positions = 6 }
+data_confidence = "high"
+
+[[part]]
+mpn = "FTSH-105-01-L-DV-K"
+manufacturer = "Samtec"
+category = "connector_debug"
+description = "2x05 1.27 mm SMT header with key (ARM Cortex SWD 10-pin)"
+kicad_symbol = "Connector:Conn_ARM_JTAG_SWD_10"
+footprint = "Connector_PinHeader_1.27mm:PinHeader_2x05_P1.27mm_Vertical_SMD"
+ref_prefix = "J"
+tags = ["swd", "debug", "programming", "arm"]
+specs = { pitch_mm = 1.27, positions = 10 }
+data_confidence = "high"
+
+[[part]]
+mpn = "TC2030-IDC-NL"
+manufacturer = "Tag-Connect"
+category = "connector_debug"
+description = "Tag-Connect 6-pin no-legs footprint (cable not populated on board)"
+kicad_symbol = "Connector:Conn_ARM_SWD_TagConnect_TC2030-NL"
+footprint = "Connector:Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical"
+ref_prefix = "J"
+in_bom = false
+tags = ["swd", "debug", "programming", "footprint-only", "zero-cost"]
+specs = { positions = 6 }
+data_confidence = "high"
+
+[[part]]
+mpn = "1935161"
+manufacturer = "Phoenix Contact"
+category = "connector_terminal"
+description = "2-position 5.08 mm screw terminal block (MKDS 1,5/2-5,08)"
+kicad_symbol = "generic"
+footprint = "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal"
+ref_prefix = "J"
+tags = ["screw-terminal", "power-input", "motor-output", "relay-contacts", "high-current"]
+specs = { pitch_mm = 5.08, positions = 2 }
+data_confidence = "medium"
+notes = "Check rated current/voltage in the Phoenix datasheet for the load."
+
+[[part]]
+mpn = "1935174"
+manufacturer = "Phoenix Contact"
+category = "connector_terminal"
+description = "3-position 5.08 mm screw terminal block (MKDS 1,5/3-5,08)"
+kicad_symbol = "generic"
+footprint = "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-3-5.08_1x03_P5.08mm_Horizontal"
+ref_prefix = "J"
+tags = ["screw-terminal", "relay-contacts", "com-no-nc"]
+specs = { pitch_mm = 5.08, positions = 3 }
+data_confidence = "medium"
+
+[[part]]
+mpn = "PJ-063AH"
+manufacturer = "CUI Devices"
+category = "connector_power"
+description = "DC barrel jack, through-hole horizontal"
+kicad_symbol = "Connector:Barrel_Jack_MountingPin"
+footprint = "Connector_BarrelJack:BarrelJack_CUI_PJ-063AH_Horizontal"
+ref_prefix = "J"
+tags = ["dc-jack", "barrel", "power-input", "12v-input"]
+specs = {}
+data_confidence = "medium"
+notes = "Pin diameter and current rating not curated - check datasheet against mating plug."
+
+[[part]]
+mpn = "U.FL-R-SMT-1(10)"
+manufacturer = "Hirose Electric"
+category = "connector_rf"
+description = "U.FL coaxial receptacle, SMT"
+kicad_symbol = "Connector:Conn_Coaxial"
+footprint = "Connector_Coaxial:U.FL_Hirose_U.FL-R-SMT-1_Vertical"
+ref_prefix = "J"
+tags = ["rf", "u.fl", "external-antenna"]
+specs = { impedance_ohm = 50 }
+data_confidence = "high"
+
+[[part]]
+mpn = "3034"
+manufacturer = "Keystone Electronics"
+category = "battery_holder"
+description = "CR2032 coin-cell holder, SMT"
+kicad_symbol = "Device:Battery_Cell"
+footprint = "Battery:BatteryHolder_Keystone_3034_1x20mm"
+ref_prefix = "BT"
+tags = ["coin-cell", "cr2032", "battery"]
+specs = { cell = "CR2032" }
+data_confidence = "high"
+
+[[part]]
+mpn = "MOUNTING-HOLE-M3"
+manufacturer = "n/a"
+category = "mechanical"
+description = "M3 mounting hole, 3.2 mm, non-plated (footprint only)"
+kicad_symbol = "generic"
+footprint = "MountingHole:MountingHole_3.2mm_M3"
+ref_prefix = "H"
+in_bom = false
+tags = ["mounting", "mechanical"]
+specs = { drill_mm = 3.2 }
+data_confidence = "high"
+
+[[part]]
+mpn = "TESTPOINT-PAD-1MM"
+manufacturer = "n/a"
+category = "test_point"
+description = "1.0 mm round SMD test pad (footprint only)"
+kicad_symbol = "generic"
+footprint = "TestPoint:TestPoint_Pad_D1.0mm"
+ref_prefix = "TP"
+in_bom = false
+tags = ["test-point", "debug"]
+specs = {}
+data_confidence = "high"
