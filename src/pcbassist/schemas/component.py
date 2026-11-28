@@ -104,7 +104,15 @@ class Component(Model):
     rationale: str = ""
     confidence: Confidence = 0.5
     verified: bool = Field(
-        default=False, description="True only if the part was resolved from the component library"
+        default=False,
+        description="True only if the part (pins and ratings) came from the curated library",
+    )
+    pins_verified: bool = Field(
+        default=False,
+        description="True if the pin table came from a KiCad symbol (ratings may be unverified)",
+    )
+    data_source: str | None = Field(
+        default=None, description="library | kicad | synth: where pins and ratings came from"
     )
     block_id: str | None = Field(
         default=None, description="Architecture block this part belongs to"
@@ -130,6 +138,11 @@ class Component(Model):
 
     def pin(self, number: str) -> Pin | None:
         return next((p for p in self.pins if p.number == number), None)
+
+    @property
+    def pins_known(self) -> bool:
+        """The pin table is real (curated library or KiCad symbol), so ERC can check it."""
+        return self.verified or self.pins_verified
 
     def pins_named(self, name: str) -> list[Pin]:
         return [p for p in self.pins if p.name == name]

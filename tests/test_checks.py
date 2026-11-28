@@ -65,7 +65,8 @@ def test_flawed_example_fails_for_the_right_reasons(plans: dict[str, DesignPlan]
         "DFM-UNPLACED",
     }
     assert expected <= errors, expected - errors
-    assert "LIB-UNVERIFIED" in _rules(plan.findings, Severity.WARNING)
+    # the relay-driver transistor is outside the curated library: wired from its KiCad symbol
+    assert "LIB-KICAD-ONLY" in _rules(plan.findings, Severity.WARNING)
     # findings are sorted errors first
     sev = [f.severity for f in plan.findings]
     assert sev == sorted(sev, key=lambda s: ["error", "warning", "info"].index(s.value))

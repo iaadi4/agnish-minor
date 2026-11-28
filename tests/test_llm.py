@@ -329,3 +329,80 @@ def test_recording_client_writes_fixtures(tmp_path: Path) -> None:
     doc = json.loads((tmp_path / "rec" / "stage" / "demo.json").read_text())
     assert len(doc["responses"]) == 2 and doc["prompt_sha256"] == fixture_hash("u")
     assert "Recorded" in doc["_note"]
+
+
+class _Stream:
+    def __init__(self, resp: Any, sink: dict[str, Any], kwargs: dict[str, Any]) -> None:
+        self.resp = resp
+        sink.update(kwargs)
+
+    def __enter__(self) -> _Stream:
+        return self
+
+    def __exit__(self, *a: object) -> None:
+        return None
+
+    def get_final_message(self) -> Any:
+        return self.resp
+
+
+def test_live_client_tool_turn(monkeypatch: pytest.MonkeyPatch) -> None:
+    from pcbassist.llm.anthropic_client import AnthropicClient
+    from pcbassist.llm.base import ToolRequest, ToolSpec
+
+    sent: dict[str, Any] = {}
+    tool_use = SimpleNamespace(
+        type="tool_use", id="tu_1", name="symbol_pins", input={"lib_id": "X:Y"}
+    )
+    resp = SimpleNamespace(
+        content=[SimpleNamespace(type="text", text="looking up"), tool_use],
+        model="claude-sonnet-5-5",
+        stop_reason="tool_use",
+        usage=SimpleNamespace(input_tokens=7, output_tokens=3, cache_read_input_tokens=5),
+    )
+    msgs = SimpleNamespace(stream=lambda **kw: _Stream(resp, sent, kw))
+    client = AnthropicClient(client=SimpleNamespace(beta=SimpleNamespace(messages=msgs)))
+    turn = client.complete_tools(
+        ToolRequest(
+            stage="parts",
+            system="sys",
+            messages=({"role": "user", "content": "go"},),
+            tools=(ToolSpec("symbol_pins", "pins", {"type": "object"}),),
+        )
+    )
+    assert turn.calls[0].name == "symbol_pins" and turn.calls[0].input == {"lib_id": "X:Y"}
+    assert turn.content is resp.content and turn.text == "looking up"
+    assert turn.usage["cache_read_input_tokens"] == 5
+    assert sent["tools"][0]["input_schema"] == {"type": "object"}
+    assert sent["cache_control"] == {"type": "ephemeral"} and sent["fallbacks"] == "default"
+
+
+def test_recording_client_records_tool_turns(tmp_path: Path) -> None:
+    from pcbassist.llm.base import ToolCall, ToolRequest, ToolTurn
+    from pcbassist.llm.recording import RecordingClient
+
+    class Inner:
+        mode = "live"
+        model_name = "m"
+
+        def __init__(self) -> None:
+            self.n = 0
+
+        def complete_tools(self, request: ToolRequest) -> ToolTurn:
+            self.n += 1
+            call = (
+                ToolCall("a", "search_symbols", {"query": "x"})
+                if self.n == 1
+                else ToolCall("b", "submit", {"json": "{}"})
+            )
+            return ToolTurn(text="", calls=(call,), content=[], model="m")
+
+    rec = RecordingClient(Inner(), tmp_path, "ex")  # type: ignore[arg-type]
+    req = ToolRequest(stage="parts", system="", messages=(), tools=(), fixture_key="k")
+    rec.complete_tools(req)
+    rec.complete_tools(req)
+    doc = json.loads((tmp_path / "parts" / "ex.json").read_text())
+    assert doc["responses"] == [
+        {"tool_calls": [{"name": "search_symbols", "input": {"query": "x"}}]},
+        "{}",
+    ]

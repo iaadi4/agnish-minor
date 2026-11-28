@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+# Copy the stock KiCad symbol + footprint libraries out of the official Docker image.
+#   scripts/fetch-kicad-libs [version]      -> ~/.cache/pcbassist/kicad/<version>/{symbols,footprints}
+# pcbassist then embeds the real footprint files (silkscreen, fab layers, zones) in exported
+# boards; without them it rebuilds pads + courtyard from the bundled index.
+set -eu
+VER="${1:-8.0.9}"
+DEST="${XDG_CACHE_HOME:-$HOME/.cache}/pcbassist/kicad/$VER"
+mkdir -p "$DEST"
+CID=$(docker create "kicad/kicad:$VER")
+trap 'docker rm "$CID" >/dev/null' EXIT
+docker cp "$CID:/usr/share/kicad/symbols" "$DEST/"
+docker cp "$CID:/usr/share/kicad/footprints" "$DEST/"
+echo "KiCad $VER libraries in $DEST"

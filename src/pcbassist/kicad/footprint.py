@@ -1,4 +1,4 @@
-"""Geometry of vendored KiCad footprints (``data/kicad/footprints/<Lib>.pretty``).
+"""Geometry of KiCad footprints (vendored, local KiCad install, or the bundled index).
 
 Only what placement, DFM and export need: the courtyard bounding box relative to the
 footprint origin, the pads (number, position, size, type) and the parsed S-expression.
@@ -268,17 +268,107 @@ def parse_footprint(text: str, name: str, path: Path) -> FootprintGeom:
 
 @cache
 def load_footprint(name: str) -> FootprintGeom | None:
-    """Geometry of a vendored footprint, or None if it is not vendored."""
+    """Geometry of a footprint: vendored file, local KiCad file, else the bundled index."""
     path = footprint_path(name)
-    if not path.exists():
-        return None
-    return parse_footprint(path.read_text(), name, path)
+    if path.exists():
+        return parse_footprint(path.read_text(), name, path)
+    from .fpindex import default_footprint_index, local_footprint_file
+
+    local = local_footprint_file(name)
+    if local is not None:
+        return parse_footprint(local.read_text(), name, local)
+    return default_footprint_index().geom(name)
+
+
+def footprint_source(name: str) -> str:
+    """Where :func:`load_footprint_sexpr` gets ``name`` from: vendored | local | index | none."""
+    if footprint_path(name).exists():
+        return "vendored"
+    from .fpindex import default_footprint_index, local_footprint_file
+
+    if local_footprint_file(name) is not None:
+        return "local"
+    return "index" if name in default_footprint_index() else "none"
 
 
 @cache
 def load_footprint_sexpr(name: str) -> SExpr | None:
     path = footprint_path(name)
-    return parse(path.read_text()) if path.exists() else None
+    if path.exists():
+        return parse(path.read_text())
+    from .fpindex import local_footprint_file
+
+    local = local_footprint_file(name)
+    if local is not None:
+        return parse(local.read_text())
+    geom = load_footprint(name)
+    return synthesize_footprint(geom) if geom is not None else None
+
+
+_PAD_LAYERS = {
+    "smd": ["F.Cu", "F.Paste", "F.Mask"],
+    "connect": ["F.Cu", "F.Mask"],
+    "thru_hole": ["*.Cu", "*.Mask"],
+    "np_thru_hole": ["*.Cu", "*.Mask"],
+}
+
+
+def synthesize_footprint(geom: FootprintGeom) -> SExpr:
+    """A minimal KiCad 8 footprint (pads + courtyard + reference) rebuilt from geometry."""
+    from .sexpr import Symbol as S
+
+    _, y0, _, y1 = geom.courtyard
+    fp: list[SExpr] = [
+        S("footprint"),
+        geom.name.split(":", 1)[1],
+        [S("layer"), "F.Cu"],
+        [S("descr"), "Rebuilt by pcbassist from the KiCad footprint index (pads and courtyard)"],
+        [S("attr"), S("smd") if geom.smd else S("through_hole")],
+        [
+            S("property"),
+            "Reference",
+            "REF**",
+            [S("at"), 0, round(y0 - 1.0, 3), 0],
+            [S("layer"), "F.SilkS"],
+            [S("effects"), [S("font"), [S("size"), 1, 1], [S("thickness"), 0.15]]],
+        ],
+        [
+            S("property"),
+            "Value",
+            geom.name.split(":", 1)[1],
+            [S("at"), 0, round(y1 + 1.0, 3), 0],
+            [S("layer"), "F.Fab"],
+            [S("effects"), [S("font"), [S("size"), 1, 1], [S("thickness"), 0.15]]],
+        ],
+    ]
+    for rx0, ry0, rx1, ry1 in geom.rects:
+        fp.append(
+            [
+                S("fp_rect"),
+                [S("start"), rx0, ry0],
+                [S("end"), rx1, ry1],
+                [S("stroke"), [S("width"), 0.05], [S("type"), S("solid")]],
+                [S("fill"), S("none")],
+                [S("layer"), "F.CrtYd"],
+            ]
+        )
+    for p in geom.pads:
+        shape = p.shape if p.shape in ("rect", "circle", "oval", "roundrect") else "rect"
+        pad: list[SExpr] = [
+            S("pad"),
+            p.number,
+            S(p.kind),
+            S(shape),
+            [S("at"), p.x, p.y, p.rot] if p.rot else [S("at"), p.x, p.y],
+            [S("size"), p.w, p.h],
+        ]
+        if p.drill is not None and p.kind in ("thru_hole", "np_thru_hole"):
+            pad.append([S("drill"), p.drill])
+        pad.append([S("layers"), *_PAD_LAYERS.get(p.kind, ["F.Cu", "F.Mask"])])
+        if shape == "roundrect":
+            pad.append([S("roundrect_rratio"), 0.25])
+        fp.append(pad)
+    return fp
 
 
 def rotate(x: float, y: float, deg: float) -> tuple[float, float]:

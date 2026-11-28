@@ -6,6 +6,7 @@ mutating a netlist. Rule ids are stable; finding ids are ``<rule>:<subject>``.
 
 from __future__ import annotations
 
+import re
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -40,6 +41,10 @@ IC_CATEGORIES = {
     "usb_uart",
     "load_switch",
     "rtc",
+    "amplifier",
+    "memory",
+    "interface",
+    "ic",
 }
 
 
@@ -139,7 +144,7 @@ def rule_unconnected(ctx: Ctx) -> list[Finding]:
     """Every pin of a verified part must be on a net or be an explicit no-connect."""
     out = []
     for c in ctx.plan.components:
-        if not c.verified:
+        if not c.pins_known:
             continue
         missing = [
             p
@@ -297,7 +302,7 @@ def rule_power_undriven(ctx: Ctx) -> list[Finding]:
 def rule_ground_pins(ctx: Ctx) -> list[Finding]:
     out = []
     for c in ctx.plan.components:
-        if not c.verified:
+        if not c.pins_known:
             continue
         for p in c.pins:
             if "gnd" not in p.functions:
@@ -320,7 +325,7 @@ def rule_ground_pins(ctx: Ctx) -> list[Finding]:
 def rule_supply_range(ctx: Ctx) -> list[Finding]:
     out = []
     for c in ctx.plan.components:
-        if not c.verified or c.supply_range is None or c.category in ("esd",):
+        if c.supply_range is None or c.category in ("esd",):
             continue
         nets = {
             n
@@ -390,7 +395,7 @@ def _caps_between(ctx: Ctx, net: str) -> list[Component]:
 def rule_decoupling(ctx: Ctx) -> list[Finding]:
     out = []
     for c in ctx.plan.components:
-        if not c.verified or c.category not in IC_CATEGORIES:
+        if not c.pins_known or c.category not in IC_CATEGORIES:
             continue
         for p in c.pins:
             if p.type != PinType.POWER_IN or "gnd" in p.functions:
@@ -501,10 +506,30 @@ def rule_i2c(ctx: Ctx) -> list[Finding]:
     return out
 
 
+def parse_ohms(value: str | None) -> float | None:
+    """'5.1k' / '5k1' / '4K7' / '10 kOhm' / '100R' / '1M' -> ohms."""
+    if not value:
+        return None
+    v = value.strip().replace("Ω", "").replace("ohm", "").replace("Ohm", "").replace(" ", "")
+    m = re.fullmatch(r"(\d+)([RkKmM])(\d+)", v)
+    if m:
+        v = f"{m.group(1)}.{m.group(3)}{m.group(2)}"
+    m = re.fullmatch(r"(\d+(?:\.\d+)?)([RkKmM]?)", v)
+    if not m:
+        return None
+    mult = {"": 1.0, "R": 1.0, "k": 1e3, "K": 1e3, "m": 1e6, "M": 1e6}[m.group(2)]
+    return float(m.group(1)) * mult
+
+
+def _is_cc_pulldown(value: str | None) -> bool:
+    ohms = parse_ohms(value)
+    return ohms is not None and 4590 <= ohms <= 5610  # Rd = 5.1 kOhm +-10 %
+
+
 def rule_usb(ctx: Ctx) -> list[Finding]:
     out = []
     for c in ctx.plan.components:
-        if c.category != "connector_usb" or not c.verified:
+        if c.category != "connector_usb" or not c.pins_known:
             continue
         data = [
             ctx.net_of(c.ref_des, p.number)
@@ -536,7 +561,7 @@ def rule_usb(ctx: Ctx) -> list[Finding]:
                     if comp.category == "resistor":
                         others = [ctx.net_of(comp.ref_des, q.number) for q in comp.pins]
                         if any(o and ctx.is_ground(o) for o in others):
-                            ok = comp.value in ("5.1k", "5k1")
+                            ok = _is_cc_pulldown(comp.value)
             if not ok:
                 out.append(
                     F(
@@ -576,7 +601,7 @@ def rule_floating_inputs(ctx: Ctx) -> list[Finding]:
 def rule_inductive_loads(ctx: Ctx) -> list[Finding]:
     out = []
     for c in ctx.plan.components:
-        if c.category != "relay" or not c.verified:
+        if c.category != "relay" or not c.pins_known:
             continue
         coil_nets = set()
         for p in c.pins:
@@ -585,7 +610,7 @@ def rule_inductive_loads(ctx: Ctx) -> list[Finding]:
                 coil_nets.add(n)
         clamped = False
         for d in ctx.plan.components:
-            if d.category != "diode" or not d.verified:
+            if d.category != "diode" or not d.pins_known:
                 continue
             dn = {ctx.net_of(d.ref_des, p.number) for p in d.pins}
             if len(coil_nets & dn) == 2:
@@ -607,7 +632,7 @@ def rule_inductive_loads(ctx: Ctx) -> list[Finding]:
 def rule_led_resistor(ctx: Ctx) -> list[Finding]:
     out = []
     for c in ctx.plan.components:
-        if c.category != "led" or not c.verified:
+        if c.category != "led" or not c.pins_known:
             continue
         nets = [n for p in c.pins if (n := ctx.net_of(c.ref_des, p.number))]
         # the series resistor must sit on the LED's own (non-rail, non-ground) net
@@ -670,7 +695,7 @@ def rule_unverified(ctx: Ctx) -> list[Finding]:
             refs=[c.ref_des],
         )
         for c in ctx.plan.components
-        if not c.verified
+        if not c.pins_known
     ]
 
 

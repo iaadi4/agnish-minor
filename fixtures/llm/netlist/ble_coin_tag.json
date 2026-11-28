@@ -1,0 +1,290 @@
+{
+ "_note": "Derived fixture (not a model recording): the synthesizer's design for this example in the shape the model submits. See scripts/derive_intent_fixtures.py.",
+ "match": [
+  "ble",
+  "coin-cell",
+  "cr2032",
+  "accelerometer",
+  "tag",
+  "swd",
+  "tag-connect"
+ ],
+ "prompt_sha256": "673cd70e8f8a151b2513e9d06505bdb33bf6e15f667eb447dbb8b340e1e8acf7",
+ "responses": [
+  {
+   "nets": [
+    {
+     "name": "GND",
+     "pins": [
+      "BT1.2",
+      "C1.2",
+      "C2.2",
+      "C3.2",
+      "C4.2",
+      "D1.1",
+      "J1.5",
+      "SW1.2",
+      "U1.1",
+      "U1.12",
+      "U1.24",
+      "U1.39",
+      "U2.5",
+      "U2.7",
+      "U2.10",
+      "U2.12"
+     ],
+     "kind": "ground"
+    },
+    {
+     "name": "VBAT",
+     "pins": [
+      "BT1.1",
+      "C1.1",
+      "C2.1",
+      "C3.1",
+      "C4.1",
+      "J1.1",
+      "R1.1",
+      "R2.1",
+      "R4.1",
+      "U1.11",
+      "U2.1",
+      "U2.8",
+      "U2.14"
+     ],
+     "kind": "power",
+     "voltage_v": 3.0
+    },
+    {
+     "name": "BTN1",
+     "pins": [
+      "R4.2",
+      "SW1.1",
+      "U1.20"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "I2C_SCL",
+     "pins": [
+      "R2.2",
+      "U1.3",
+      "U2.4"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "I2C_SDA",
+     "pins": [
+      "R1.2",
+      "U1.2",
+      "U2.6"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "INT_LIS3DHTR",
+     "pins": [
+      "U1.4",
+      "U2.11"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "LED1_A",
+     "pins": [
+      "D1.2",
+      "R3.2"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "LED1_DRV",
+     "pins": [
+      "R3.1",
+      "U1.19"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "MCU_RESET",
+     "pins": [
+      "J1.3",
+      "U1.35"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "SWCLK",
+     "pins": [
+      "J1.4",
+      "U1.36"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "SWDIO",
+     "pins": [
+      "J1.2",
+      "U1.37"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "SWO",
+     "pins": [
+      "J1.6",
+      "U1.32"
+     ],
+     "kind": "signal"
+    }
+   ],
+   "no_connect": [
+    {
+     "pin": "U1.5",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.6",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.7",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.8",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.9",
+     "reason": "internal regulator node, LDO mode (see module datasheet)"
+    },
+    {
+     "pin": "U1.10",
+     "reason": "internal regulator node, LDO mode (see module datasheet)"
+    },
+    {
+     "pin": "U1.13",
+     "reason": "32 kHz crystal not fitted (internal RC oscillator)"
+    },
+    {
+     "pin": "U1.14",
+     "reason": "32 kHz crystal not fitted (internal RC oscillator)"
+    },
+    {
+     "pin": "U1.15",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.16",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.17",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.18",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.21",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.22",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.23",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.25",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.26",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.27",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.28",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.29",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.30",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.31",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.33",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.34",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.38",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.40",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U1.41",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U2.2",
+     "reason": "NC per KiCad symbol"
+    },
+    {
+     "pin": "U2.3",
+     "reason": "NC per KiCad symbol"
+    },
+    {
+     "pin": "U2.9",
+     "reason": "unused interrupt output"
+    },
+    {
+     "pin": "U2.13",
+     "reason": "auxiliary ADC input unused"
+    },
+    {
+     "pin": "U2.15",
+     "reason": "auxiliary ADC input unused"
+    },
+    {
+     "pin": "U2.16",
+     "reason": "auxiliary ADC input unused"
+    }
+   ],
+   "rails": [
+    {
+     "net": "VBAT",
+     "voltage_v": 3.0,
+     "source_ref": "BT1",
+     "source_kind": "battery",
+     "parent_net": null,
+     "max_current_ma": 15.0,
+     "min_v": 2.0,
+     "max_v": 3.0
+    }
+   ]
+  }
+ ]
+}

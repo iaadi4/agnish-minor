@@ -32,7 +32,7 @@ def test_netlist_roundtrips_plan_connectivity(plans: dict[str, DesignPlan], name
     for n in plan.netlist.nets:
         assert nets[n.name] == {(c.ref, c.pin) for c in n.connections}
     comps = {value(child(c, "ref")) for c in children(child(tree, "components"), "comp")}
-    assert comps == {c.ref_des for c in plan.components if c.verified}
+    assert comps == {c.ref_des for c in plan.components if c.pins_known}
     assert DISCLAIMER in write_netlist(plan)
 
 
@@ -94,7 +94,7 @@ def test_schematic_labels_match_netlist(plans: dict[str, DesignPlan], name: str)
     syms = children(tree, "symbol")
     assert {
         next(str(p[2]) for p in children(s, "property") if p[1] == "Reference") for s in syms
-    } == {c.ref_des for c in plan.components if c.verified and c.pins}
+    } == {c.ref_des for c in plan.components if c.pins_known and c.pins}
     labels = [str(lb[1]) for lb in children(tree, "label")]
     ncs = children(tree, "no_connect")
     assert plan.netlist is not None
@@ -207,7 +207,7 @@ KICAD = (
 
 
 @pytest.mark.skipif(KICAD is None, reason="kicad-cli not configured (set PCBASSIST_KICAD_CLI)")
-@pytest.mark.parametrize("name", ["iot_env_sensor", "relay_motor_12v"])
+@pytest.mark.parametrize("name", ["iot_env_sensor", "relay_motor_12v", "motor_current_monitor"])
 def test_real_kicad_drc_and_schematic(
     plan_copy, tmp_path: Path, name: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:  # type: ignore[no-untyped-def]

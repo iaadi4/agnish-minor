@@ -273,7 +273,7 @@ def courtyard_area(components: list[Component]) -> float:
 
 def _outline(plan: DesignPlan, fab: FabProfile) -> tuple[BoardOutline, Finding | None]:
     req = plan.requirements
-    area = courtyard_area([c for c in plan.components if c.verified])
+    area = courtyard_area([c for c in plan.components if c.pins_known])
     if req is not None and req.size.max_width_mm and req.size.max_height_mm:
         w, h = req.size.max_width_mm, req.size.max_height_mm
         note = None

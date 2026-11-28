@@ -1,0 +1,148 @@
+{
+ "_note": "Derived fixture (not a model recording): the synthesizer's design for this example in the shape the model submits. See scripts/derive_intent_fixtures.py.",
+ "match": [
+  "ble",
+  "coin-cell",
+  "cr2032",
+  "accelerometer",
+  "tag",
+  "swd",
+  "tag-connect"
+ ],
+ "prompt_sha256": "673cd70e8f8a151b2513e9d06505bdb33bf6e15f667eb447dbb8b340e1e8acf7",
+ "responses": [
+  {
+   "parts": [
+    {
+     "ref": "BT1",
+     "value": "3034",
+     "block_id": "battery",
+     "role": "CR2032 holder",
+     "mpn": "3034",
+     "rationale": "Keystone SMD coin-cell retainer"
+    },
+    {
+     "ref": "U1",
+     "value": "MDBT42Q-512KV2",
+     "block_id": "mcu",
+     "role": "BLE MCU module",
+     "mpn": "MDBT42Q-512KV2",
+     "rationale": "nRF52832 module with chip antenna, 2 uA sleep"
+    },
+    {
+     "ref": "U2",
+     "value": "LIS3DHTR",
+     "block_id": "sensor",
+     "role": "wake-on-motion accelerometer",
+     "mpn": "LIS3DHTR",
+     "rationale": "low-power accelerometer with interrupt"
+    },
+    {
+     "ref": "D1",
+     "value": "green",
+     "block_id": "ui",
+     "role": "status LED",
+     "mpn": "LTST-C191KGKT",
+     "rationale": "green indicator",
+     "ratings": {
+      "typ_ma": 0.0,
+      "max_ma": 1.0,
+      "sleep_ua": 0.0
+     }
+    },
+    {
+     "ref": "SW1",
+     "value": "PTS810 SJM 250 SMTR LFS",
+     "block_id": "ui",
+     "role": "user button",
+     "mpn": "PTS810 SJM 250 SMTR LFS",
+     "rationale": "SMD tactile switch"
+    },
+    {
+     "ref": "J1",
+     "value": "TC2030-IDC-NL",
+     "block_id": "debug",
+     "role": "SWD programming footprint",
+     "mpn": "TC2030-IDC-NL",
+     "rationale": "zero-cost Tag-Connect footprint"
+    },
+    {
+     "ref": "C1",
+     "value": "4.7u",
+     "block_id": "mcu",
+     "role": "Decoupling (4.7u) for BLE MCU module",
+     "mpn": "GRM188R61A475KE15D",
+     "support_for": "U1",
+     "rationale": "Decoupling on VBAT"
+    },
+    {
+     "ref": "C2",
+     "value": "100n",
+     "block_id": "mcu",
+     "role": "Decoupling (100n) for BLE MCU module",
+     "mpn": "GRM155R71C104KA88D",
+     "support_for": "U1",
+     "rationale": "Decoupling on VBAT"
+    },
+    {
+     "ref": "R1",
+     "value": "4.7k",
+     "block_id": "mcu",
+     "role": "I2C SDA pull-up (4.7k)",
+     "mpn": "RC0402FR-074K7L",
+     "support_for": "U1",
+     "rationale": "I2C SDA pull-up"
+    },
+    {
+     "ref": "R2",
+     "value": "4.7k",
+     "block_id": "mcu",
+     "role": "I2C SCL pull-up (4.7k)",
+     "mpn": "RC0402FR-074K7L",
+     "support_for": "U1",
+     "rationale": "I2C SCL pull-up"
+    },
+    {
+     "ref": "C3",
+     "value": "100n",
+     "block_id": "sensor",
+     "role": "Decoupling (100n) for wake-on-motion accelerometer",
+     "mpn": "GRM155R71C104KA88D",
+     "support_for": "U2",
+     "rationale": "Decoupling on VBAT"
+    },
+    {
+     "ref": "C4",
+     "value": "100n",
+     "block_id": "sensor",
+     "role": "Decoupling (100n) for wake-on-motion accelerometer",
+     "mpn": "GRM155R71C104KA88D",
+     "support_for": "U2",
+     "rationale": "Decoupling on VBAT"
+    },
+    {
+     "ref": "R3",
+     "value": "1k",
+     "block_id": "ui",
+     "role": "LED series resistor (1k)",
+     "mpn": "RC0402FR-071KL",
+     "support_for": "D1",
+     "rationale": "LED series resistor"
+    },
+    {
+     "ref": "R4",
+     "value": "10k",
+     "block_id": "ui",
+     "role": "Button pull-up (10k)",
+     "mpn": "RC0402FR-0710KL",
+     "support_for": "SW1",
+     "rationale": "Button pull-up"
+    }
+   ],
+   "notes": [
+    "LIS3DHTR CS tied high to select I2C mode.",
+    "GPIO assignment on MDBT42Q-512KV2: I2C_SDA->P0.25, I2C_SCL->P0.26, sensor/sensor_motion_INT->P0.27, ui/led->P0.06, ui/switch->P0.07."
+   ]
+  }
+ ]
+}

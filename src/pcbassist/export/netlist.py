@@ -22,7 +22,7 @@ def build_netlist(plan: DesignPlan, date: str = "") -> SExpr:
     S = Symbol
     comps: list[SExpr] = [S("components")]
     for c in plan.components:
-        if not c.verified:
+        if not c.pins_known:
             continue
         lib, _, part = (c.kicad_symbol or "pcbassist:" + c.mpn).partition(":")
         fields: list[SExpr] = [

@@ -1,12 +1,12 @@
 # AI-GENERATED DESIGN PLAN - NOT VERIFIED FOR FABRICATION. This output was produced with the help of a language model and deterministic rule checks. It must be reviewed and signed off by a qualified electronics engineer before any fabrication, assembly or use.
 Refs,Qty,Value,MPN,Manufacturer,Footprint,Description,Datasheet,Verified,Min confidence,Status,Notes
-BT1,1,,3034,Keystone Electronics,Battery:BatteryHolder_Keystone_3034_1x20mm,"CR2032 coin-cell holder, SMT",,yes,0.90,proposed,no trusted datasheet URL
+BT1,1,3034,3034,Keystone Electronics,Battery:BatteryHolder_Keystone_3034_1x20mm,"CR2032 coin-cell holder, SMT",,yes,0.90,proposed,no trusted datasheet URL
 C1,1,4.7u,GRM188R61A475KE15D,Murata Electronics,Capacitor_SMD:C_0603_1608Metric,"4.7 uF 10 V X5R MLCC, 0603",,yes,0.90,proposed,no trusted datasheet URL
 C2 C3 C4,3,100n,GRM155R71C104KA88D,Murata Electronics,Capacitor_SMD:C_0402_1005Metric,"100 nF 16 V X7R MLCC, 0402",,yes,0.90,proposed,no trusted datasheet URL
-D1,1,green,LTST-C191KGKT,Lite-On,LED_SMD:LED_0603_1608Metric,"Green LED, 0603",,yes,0.80,proposed,no trusted datasheet URL
+D1,1,green,LTST-C191KGKT,Lite-On,LED_SMD:LED_0603_1608Metric,"Green LED, 0603",,yes,0.90,proposed,no trusted datasheet URL
 R1 R2,2,4.7k,RC0402FR-074K7L,Yageo,Resistor_SMD:R_0402_1005Metric,"4.7 kOhm 1% 1/16 W thick-film resistor, 0402",,yes,0.90,proposed,no trusted datasheet URL
 R3,1,1k,RC0402FR-071KL,Yageo,Resistor_SMD:R_0402_1005Metric,"1 kOhm 1% 1/16 W thick-film resistor, 0402",,yes,0.90,proposed,no trusted datasheet URL
 R4,1,10k,RC0402FR-0710KL,Yageo,Resistor_SMD:R_0402_1005Metric,"10 kOhm 1% 1/16 W thick-film resistor, 0402",,yes,0.90,proposed,no trusted datasheet URL
-SW1,1,,PTS810 SJM 250 SMTR LFS,C&K,Button_Switch_SMD:SW_SPST_PTS810,"SMD tactile switch, 4.2x3.2 mm, 250 gf",,yes,0.80,proposed,no trusted datasheet URL
-U1,1,,MDBT42Q-512KV2,Raytac,RF_Module:Raytac_MDBT42Q,"BLE 5 module, Nordic nRF52832, 512 KB flash, chip antenna",https://www.raytac.com/download/index.php?index_id=27,yes,0.85,proposed,
-U2,1,,LIS3DHTR,STMicroelectronics,Package_LGA:LGA-16_3x3mm_P0.5mm_LayoutBorder3x5y,"3-axis accelerometer, +/-2/4/8/16 g, I2C/SPI, LGA-16 3x3",https://www.st.com/resource/en/datasheet/cd00274221.pdf,yes,0.85,proposed,
+SW1,1,PTS810 SJM 250 SMTR LFS,PTS810 SJM 250 SMTR LFS,C&K,Button_Switch_SMD:SW_SPST_PTS810,"SMD tactile switch, 4.2x3.2 mm, 250 gf",,yes,0.90,proposed,no trusted datasheet URL
+U1,1,MDBT42Q-512KV2,MDBT42Q-512KV2,Raytac,RF_Module:Raytac_MDBT42Q,"BLE 5 module, Nordic nRF52832, 512 KB flash, chip antenna",https://www.raytac.com/download/index.php?index_id=27,yes,0.90,proposed,
+U2,1,LIS3DHTR,LIS3DHTR,STMicroelectronics,Package_LGA:LGA-16_3x3mm_P0.5mm_LayoutBorder3x5y,"3-axis accelerometer, +/-2/4/8/16 g, I2C/SPI, LGA-16 3x3",https://www.st.com/resource/en/datasheet/cd00274221.pdf,yes,0.90,proposed,

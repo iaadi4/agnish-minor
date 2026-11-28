@@ -142,7 +142,7 @@ def write_report(plan: DesignPlan, files: list[str] | None = None) -> str:
                     c.mpn,
                     c.value or "",
                     (c.footprint or "").split(":")[-1],
-                    "yes" if c.verified else "**NO**",
+                    "yes" if c.verified else ("pins only" if c.pins_known else "**NO**"),
                     f"{c.confidence:.2f}",
                     c.status.value,
                     c.rationale,

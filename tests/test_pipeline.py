@@ -7,7 +7,7 @@ import pytest
 from conftest import EXAMPLES, example_prompt
 from pcbassist.library import ComponentLibrary
 from pcbassist.llm import MockLLMClient
-from pcbassist.pipeline import Selected, run_pipeline, synthesize
+from pcbassist.pipeline import PipelineOptions, Selected, generate_plan, run_pipeline, synthesize
 from pcbassist.pipeline.engine import fixture_key
 from pcbassist.pipeline.stages import (
     BLOCK_CATEGORIES,
@@ -55,7 +55,7 @@ def test_every_pin_accounted_exactly_once(plans: dict[str, DesignPlan], name: st
     for nc in plan.netlist.no_connects:
         seen[(nc.ref, nc.pin)] += 1
     for comp in plan.components:
-        if not comp.verified:
+        if not comp.pins_known:
             assert not any(k[0] == comp.ref_des for k in seen), "unverified part in netlist"
             continue
         for p in comp.pins:
@@ -150,12 +150,27 @@ def test_relay_motor_power_chain(plans: dict[str, DesignPlan]) -> None:
 
 def test_flawed_design_excludes_unverified_part(plans: dict[str, DesignPlan]) -> None:
     plan = plans["flawed_coin_wifi"]
+    # intent engine: a part outside the curated library is wired from its KiCad symbol
     bad = next(c for c in plan.components if c.mpn == "MMBT3904")
-    assert not bad.verified and bad.confidence <= 0.3 and not bad.pins
-    assert any(f.rule == "LIB-UNVERIFIED" for f in plan.findings)
+    assert not bad.verified and bad.pins_verified and bad.data_source == "kicad"
+    assert bad.kicad_symbol == "Transistor_BJT:MMBT3904" and len(bad.pins) == 3
+    assert any(f.rule == "LIB-KICAD-ONLY" and f.refs == [bad.ref_des] for f in plan.findings)
     sht = [c for c in plan.components if c.mpn == "SHT40-AD1B-R3"]
     assert [c.key_specs["i2c_address_assigned"] for c in sht] == ["0x44", "0x44"]
     assert sum(1 for f in plan.findings if f.rule == "REQ-CONFLICT") == 3
+
+
+def test_synth_engine_excludes_unverified_part(library: ComponentLibrary) -> None:
+    plan = generate_plan(
+        example_prompt("flawed_coin_wifi"),
+        client=MockLLMClient(),
+        lib=library,
+        options=PipelineOptions(engine="synth"),
+    )
+    assert plan.engine == "synth" and plan.manifest is None
+    bad = next(c for c in plan.components if c.mpn == "MMBT3904")
+    assert not bad.verified and bad.confidence <= 0.3 and not bad.pins
+    assert any(f.rule == "LIB-UNVERIFIED" for f in plan.findings)
 
 
 def test_second_instance_gets_alternate_address(library: ComponentLibrary) -> None:
@@ -316,10 +331,13 @@ def test_component_prompt_contains_candidates(library: ComponentLibrary) -> None
         client=client,
         lib=library,
     )
-    comp_call = next(c for c in client.calls if c.stage == "components")
-    text = comp_call.messages[0].content
+    parts_call = next(c for c in client.tool_calls if c.stage == "parts")
+    text = str(parts_call.messages[0]["content"])
     assert "SHT40-AD1B-R3" in text and "## block `sensor`" in text
-    assert "Do NOT choose resistors" in comp_call.system
+    assert "Stage: PARTS" in parts_call.system and "support passives" in parts_call.system
+    assert {t.name for t in parts_call.tools} >= {"search_symbols", "symbol_pins", "submit"}
+    net_call = next(c for c in client.tool_calls if c.stage == "netlist")
+    assert "Pin dossier" in str(net_call.messages[0]["content"])
 
 
 def test_unknown_start_stage(library: ComponentLibrary) -> None:

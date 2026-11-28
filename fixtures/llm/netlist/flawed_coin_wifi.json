@@ -1,0 +1,252 @@
+{
+ "_note": "Derived fixture (not a model recording): the synthesizer's design for this example in the shape the model submits. See scripts/derive_intent_fixtures.py.",
+ "match": [
+  "logger",
+  "10",
+  "seconds",
+  "redundancy",
+  "identical",
+  "15",
+  "years"
+ ],
+ "prompt_sha256": "2dd0336747887b32f92ccfde65e0cb68dea23081ab78ba0fff6a721296037b21",
+ "responses": [
+  {
+   "nets": [
+    {
+     "name": "GND",
+     "pins": [
+      "BT1.2",
+      "C1.2",
+      "C2.2",
+      "C3.2",
+      "C4.2",
+      "C5.2",
+      "C6.2",
+      "C7.2",
+      "Q1.2",
+      "R7.2",
+      "SW1.2",
+      "SW2.2",
+      "U1.1",
+      "U2.9",
+      "U2.19",
+      "U3.4",
+      "U4.4"
+     ],
+     "kind": "ground"
+    },
+    {
+     "name": "+3V3",
+     "pins": [
+      "C2.1",
+      "C3.1",
+      "C4.1",
+      "C6.1",
+      "C7.1",
+      "D1.1",
+      "K1.2",
+      "R1.1",
+      "R2.1",
+      "R3.1",
+      "R4.1",
+      "R5.1",
+      "U1.2",
+      "U2.1",
+      "U3.3",
+      "U4.3"
+     ],
+     "kind": "power",
+     "voltage_v": 3.3
+    },
+    {
+     "name": "VBAT",
+     "pins": [
+      "BT1.1",
+      "C1.1",
+      "U1.3"
+     ],
+     "kind": "power",
+     "voltage_v": 3.0
+    },
+    {
+     "name": "I2C_SCL",
+     "pins": [
+      "R5.2",
+      "U2.6",
+      "U3.2",
+      "U4.2"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "I2C_SDA",
+     "pins": [
+      "R4.2",
+      "U2.5",
+      "U3.1",
+      "U4.1"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "MCU_BOOT",
+     "pins": [
+      "SW1.1",
+      "U2.8"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "MCU_EN",
+     "pins": [
+      "C5.1",
+      "R1.2",
+      "SW2.1",
+      "U2.2"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "RELAY1_COIL",
+     "pins": [
+      "D1.2",
+      "K1.5",
+      "Q1.3"
+     ],
+     "kind": "power",
+     "voltage_v": null
+    },
+    {
+     "name": "RELAY1_COM",
+     "pins": [
+      "K1.1"
+     ],
+     "kind": "power",
+     "voltage_v": null
+    },
+    {
+     "name": "RELAY1_DRV",
+     "pins": [
+      "R6.1",
+      "U2.10"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "RELAY1_GATE",
+     "pins": [
+      "Q1.1",
+      "R6.2",
+      "R7.1"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "RELAY1_K3",
+     "pins": [
+      "K1.3"
+     ],
+     "kind": "power",
+     "voltage_v": null
+    },
+    {
+     "name": "RELAY1_K4",
+     "pins": [
+      "K1.4"
+     ],
+     "kind": "power",
+     "voltage_v": null
+    },
+    {
+     "name": "STRAP_IO2",
+     "pins": [
+      "R2.2",
+      "U2.16"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "STRAP_IO8",
+     "pins": [
+      "R3.2",
+      "U2.7"
+     ],
+     "kind": "signal"
+    }
+   ],
+   "no_connect": [
+    {
+     "pin": "U2.3",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U2.4",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U2.11",
+     "reason": "UART0 console pin not brought out"
+    },
+    {
+     "pin": "U2.12",
+     "reason": "UART0 console pin not brought out"
+    },
+    {
+     "pin": "U2.13",
+     "reason": "native USB unused"
+    },
+    {
+     "pin": "U2.14",
+     "reason": "native USB unused"
+    },
+    {
+     "pin": "U2.15",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U2.17",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U2.18",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U5.1",
+     "reason": "left unwired: the synthesizer only wires curated parts (this example keeps the gap on purpose)"
+    },
+    {
+     "pin": "U5.2",
+     "reason": "left unwired: the synthesizer only wires curated parts (this example keeps the gap on purpose)"
+    },
+    {
+     "pin": "U5.3",
+     "reason": "left unwired: the synthesizer only wires curated parts (this example keeps the gap on purpose)"
+    }
+   ],
+   "rails": [
+    {
+     "net": "VBAT",
+     "voltage_v": 3.0,
+     "source_ref": "BT1",
+     "source_kind": "battery",
+     "parent_net": null,
+     "max_current_ma": 15.0,
+     "min_v": 2.0,
+     "max_v": 3.0
+    },
+    {
+     "net": "+3V3",
+     "voltage_v": 3.3,
+     "source_ref": "U1",
+     "source_kind": "ldo",
+     "parent_net": "VBAT",
+     "max_current_ma": 250.0,
+     "min_v": 3.201,
+     "max_v": 3.399
+    }
+   ]
+  }
+ ]
+}

@@ -15,7 +15,7 @@ from typing import Any, Literal
 
 import anthropic
 
-from .base import LLMError, LLMRefusal, LLMRequest, LLMResponse
+from .base import LLMError, LLMRefusal, LLMRequest, LLMResponse, ToolCall, ToolRequest, ToolTurn
 
 DEFAULT_MODEL = "claude-sonnet-5-5"
 FALLBACK_BETA = "server-side-fallback-2026-07-01"
@@ -47,52 +47,59 @@ class AnthropicClient:
     def mode(self) -> Literal["live", "mock"]:
         return "live"
 
-    def complete(self, request: LLMRequest) -> LLMResponse:
-        kwargs: dict[str, Any] = {
-            "model": self._model,
-            "max_tokens": request.max_tokens,
-            "system": request.system,
-            "messages": [{"role": m.role, "content": m.content} for m in request.messages],
-        }
-        if self._effort:
-            kwargs["output_config"] = {"effort": self._effort}
-        if self._fallbacks:
-            kwargs["betas"] = [FALLBACK_BETA]
-            kwargs["fallbacks"] = "default"
+    def _send(self, kwargs: dict[str, Any], stage: str, *, stream: bool = False) -> Any:
+        """One Messages API call with the SDK errors mapped to :class:`LLMError`."""
         try:
-            resp = self._client.beta.messages.create(**kwargs)
+            if stream:
+                with self._client.beta.messages.stream(**kwargs) as s:
+                    return s.get_final_message()
+            return self._client.beta.messages.create(**kwargs)
         except anthropic.AuthenticationError as e:
             raise LLMError(
                 "Anthropic authentication failed - set ANTHROPIC_API_KEY or run with --mock-llm.",
-                stage=request.stage,
+                stage=stage,
             ) from e
         except anthropic.NotFoundError as e:
             raise LLMError(
-                f"Model '{self._model}' not found - check PCBASSIST_MODEL.", stage=request.stage
+                f"Model '{self._model}' not found - check PCBASSIST_MODEL.", stage=stage
             ) from e
         except anthropic.BadRequestError as e:
-            raise LLMError(
-                f"Anthropic API rejected the request: {e.message}", stage=request.stage
-            ) from e
+            raise LLMError(f"Anthropic API rejected the request: {e.message}", stage=stage) from e
         except anthropic.RateLimitError as e:
             raise LLMError(
                 "Rate limited by the Anthropic API after retries; try again later.",
                 retryable=True,
-                stage=request.stage,
+                stage=stage,
             ) from e
         except anthropic.APIStatusError as e:
             raise LLMError(
                 f"Anthropic API error {e.status_code}: {e.message}",
                 retryable=e.status_code >= 500,
-                stage=request.stage,
+                stage=stage,
             ) from e
         except anthropic.APIConnectionError as e:
             raise LLMError(
                 "Could not reach the Anthropic API (network error or timeout).",
                 retryable=True,
-                stage=request.stage,
+                stage=stage,
             ) from e
 
+    def _base_kwargs(self) -> dict[str, Any]:
+        kwargs: dict[str, Any] = {"model": self._model}
+        if self._effort:
+            kwargs["output_config"] = {"effort": self._effort}
+        if self._fallbacks:
+            kwargs["betas"] = [FALLBACK_BETA]
+            kwargs["fallbacks"] = "default"
+        return kwargs
+
+    def complete(self, request: LLMRequest) -> LLMResponse:
+        kwargs = self._base_kwargs() | {
+            "max_tokens": request.max_tokens,
+            "system": request.system,
+            "messages": [{"role": m.role, "content": m.content} for m in request.messages],
+        }
+        resp = self._send(kwargs, request.stage)
         if resp.stop_reason == "refusal":
             details = getattr(resp, "stop_details", None)
             cat = getattr(details, "category", None) if details else None
@@ -100,6 +107,54 @@ class AnthropicClient:
                 f"The model declined this request (category: {cat}).", stage=request.stage
             )
 
+        text, usage, meta = self._digest(resp)
+        return LLMResponse(
+            text=text,
+            model=str(resp.model or self._model),
+            stop_reason=resp.stop_reason,
+            request_id=getattr(resp, "_request_id", None),
+            usage=usage,
+            meta=meta,
+        )
+
+    def complete_tools(self, request: ToolRequest) -> ToolTurn:
+        """One assistant turn with client tools (streamed: tool stages use large outputs)."""
+        kwargs = self._base_kwargs() | {
+            "max_tokens": request.max_tokens,
+            "system": request.system,
+            "messages": list(request.messages),
+            # automatic prompt caching: the system prompt and history repeat every turn
+            "cache_control": {"type": "ephemeral"},
+            "tools": [
+                {"name": t.name, "description": t.description, "input_schema": t.input_schema}
+                for t in request.tools
+            ],
+        }
+        resp = self._send(kwargs, request.stage, stream=True)
+        if resp.stop_reason == "refusal":
+            details = getattr(resp, "stop_details", None)
+            cat = getattr(details, "category", None) if details else None
+            raise LLMRefusal(
+                f"The model declined this request (category: {cat}).", stage=request.stage
+            )
+        text, usage, meta = self._digest(resp)
+        calls = tuple(
+            ToolCall(id=b.id, name=b.name, input=dict(b.input) if isinstance(b.input, dict) else {})
+            for b in resp.content
+            if getattr(b, "type", "") == "tool_use"
+        )
+        return ToolTurn(
+            text=text,
+            calls=calls,
+            content=resp.content,
+            model=str(resp.model or self._model),
+            stop_reason=resp.stop_reason,
+            request_id=getattr(resp, "_request_id", None),
+            usage=usage,
+            meta=meta,
+        )
+
+    def _digest(self, resp: Any) -> tuple[str, dict[str, int], dict[str, str]]:
         text = "".join(
             getattr(b, "text", "") for b in resp.content if getattr(b, "type", "") == "text"
         )
@@ -112,11 +167,4 @@ class AnthropicClient:
         meta: dict[str, str] = {}
         if resp.model and resp.model != self._model:
             meta["served_by"] = str(resp.model)
-        return LLMResponse(
-            text=text,
-            model=str(resp.model or self._model),
-            stop_reason=resp.stop_reason,
-            request_id=getattr(resp, "_request_id", None),
-            usage=usage,
-            meta=meta,
-        )
+        return text, usage, meta

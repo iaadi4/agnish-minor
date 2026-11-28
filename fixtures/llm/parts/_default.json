@@ -1,0 +1,320 @@
+{
+ "_note": "Derived fixture (not a model recording): the synthesizer's design for this example in the shape the model submits. See scripts/derive_intent_fixtures.py.",
+ "match": [],
+ "prompt_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ "responses": [
+  {
+   "parts": [
+    {
+     "ref": "J1",
+     "value": "USB4105-GF-A",
+     "block_id": "usb_in",
+     "role": "USB-C receptacle (charging + data)",
+     "mpn": "USB4105-GF-A",
+     "rationale": "USB 2.0 sink receptacle in the library"
+    },
+    {
+     "ref": "D1",
+     "value": "USBLC6-2SC6",
+     "block_id": "usb_in",
+     "role": "USB ESD protection",
+     "mpn": "USBLC6-2SC6",
+     "rationale": "standard 2-line TVS array for D+/D- and VBUS"
+    },
+    {
+     "ref": "U1",
+     "value": "MCP73831T-2ACI/OT",
+     "block_id": "charger",
+     "role": "LiPo linear charger",
+     "mpn": "MCP73831T-2ACI/OT",
+     "rationale": "single-cell 4.2 V charger, 500 mA max, tiny SOT-23-5"
+    },
+    {
+     "ref": "D2",
+     "value": "red",
+     "block_id": "charger",
+     "role": "charge status LED",
+     "mpn": "LTST-C191KRKT",
+     "rationale": "red LED driven by the charger STAT pin",
+     "ratings": {
+      "typ_ma": 0.0,
+      "max_ma": 3.0,
+      "sleep_ua": 0.0
+     }
+    },
+    {
+     "ref": "J2",
+     "value": "S2B-PH-SM4-TB(LF)(SN)",
+     "block_id": "battery",
+     "role": "LiPo battery connector",
+     "mpn": "S2B-PH-SM4-TB(LF)(SN)",
+     "rationale": "JST-PH is the common LiPo lead"
+    },
+    {
+     "ref": "U2",
+     "value": "AP2112K-3.3TRG1",
+     "block_id": "regulator",
+     "role": "3.3 V LDO",
+     "mpn": "AP2112K-3.3TRG1",
+     "rationale": "600 mA covers ESP32-C3 Wi-Fi TX peaks; 250 mV dropout"
+    },
+    {
+     "ref": "U3",
+     "value": "ESP32-C3-WROOM-02-N4",
+     "block_id": "mcu",
+     "role": "main Wi-Fi MCU",
+     "mpn": "ESP32-C3-WROOM-02-N4",
+     "rationale": "low-cost Wi-Fi/BLE module with native USB and deep sleep"
+    },
+    {
+     "ref": "U4",
+     "value": "SHT40-AD1B-R3",
+     "block_id": "sensor",
+     "role": "temperature/humidity sensor",
+     "mpn": "SHT40-AD1B-R3",
+     "rationale": "+/-0.2 C, +/-1.8 %RH, I2C, 0.08 uA idle"
+    },
+    {
+     "ref": "D3",
+     "value": "green",
+     "block_id": "ui",
+     "role": "status LED",
+     "mpn": "LTST-C191KGKT",
+     "rationale": "green status indicator",
+     "ratings": {
+      "typ_ma": 0.0,
+      "max_ma": 1.3,
+      "sleep_ua": 0.0
+     }
+    },
+    {
+     "ref": "SW1",
+     "value": "PTS810 SJM 250 SMTR LFS",
+     "block_id": "ui",
+     "role": "user button",
+     "mpn": "PTS810 SJM 250 SMTR LFS",
+     "rationale": "small SMD tactile switch"
+    },
+    {
+     "ref": "C1",
+     "value": "4.7u",
+     "block_id": "charger",
+     "role": "Input capacitor (4.7u) for LiPo linear charger",
+     "mpn": "GRM188R61A475KE15D",
+     "support_for": "U1",
+     "rationale": "Input capacitor on VBUS"
+    },
+    {
+     "ref": "C2",
+     "value": "4.7u",
+     "block_id": "charger",
+     "role": "Output capacitor (4.7u) for LiPo linear charger",
+     "mpn": "GRM188R61A475KE15D",
+     "support_for": "U1",
+     "rationale": "Output capacitor on VBAT"
+    },
+    {
+     "ref": "R1",
+     "value": "2k",
+     "block_id": "charger",
+     "role": "Charge-current program resistor, I_REG = 1000/R = 500 mA (2k)",
+     "mpn": "RC0603FR-072KL",
+     "support_for": "U1",
+     "rationale": "Charge-current program resistor, I_REG = 1000/R = 500 mA"
+    },
+    {
+     "ref": "R2",
+     "value": "1k",
+     "block_id": "charger",
+     "role": "Charge LED series resistor (1k)",
+     "mpn": "RC0402FR-071KL",
+     "support_for": "D2",
+     "rationale": "Charge LED series resistor"
+    },
+    {
+     "ref": "C3",
+     "value": "1u",
+     "block_id": "regulator",
+     "role": "Input capacitor (1u) for 3.3 V LDO",
+     "mpn": "GRM155R61A105KE15D",
+     "support_for": "U2",
+     "rationale": "Input capacitor on VBAT"
+    },
+    {
+     "ref": "C4",
+     "value": "1u",
+     "block_id": "regulator",
+     "role": "Output capacitor (1u) for 3.3 V LDO",
+     "mpn": "GRM155R61A105KE15D",
+     "support_for": "U2",
+     "rationale": "Output capacitor on +3V3"
+    },
+    {
+     "ref": "C5",
+     "value": "10u",
+     "block_id": "mcu",
+     "role": "Decoupling (10u) for main Wi-Fi MCU",
+     "mpn": "GRM188R61A106KE69D",
+     "support_for": "U3",
+     "rationale": "Decoupling on +3V3"
+    },
+    {
+     "ref": "C6",
+     "value": "100n",
+     "block_id": "mcu",
+     "role": "Decoupling (100n) for main Wi-Fi MCU",
+     "mpn": "GRM155R71C104KA88D",
+     "support_for": "U3",
+     "rationale": "Decoupling on +3V3"
+    },
+    {
+     "ref": "R3",
+     "value": "10k",
+     "block_id": "mcu",
+     "role": "EN pull-up (10k)",
+     "mpn": "RC0402FR-0710KL",
+     "support_for": "U3",
+     "rationale": "EN pull-up"
+    },
+    {
+     "ref": "C7",
+     "value": "1u",
+     "block_id": "mcu",
+     "role": "EN reset-delay capacitor (1u) for main Wi-Fi MCU",
+     "mpn": "GRM155R61A105KE15D",
+     "support_for": "U3",
+     "rationale": "EN reset-delay capacitor on MCU_EN"
+    },
+    {
+     "ref": "R4",
+     "value": "10k",
+     "block_id": "mcu",
+     "role": "Strapping pull-up IO2 (10k)",
+     "mpn": "RC0402FR-0710KL",
+     "support_for": "U3",
+     "rationale": "Strapping pull-up IO2"
+    },
+    {
+     "ref": "R5",
+     "value": "10k",
+     "block_id": "mcu",
+     "role": "Strapping pull-up IO8 (10k)",
+     "mpn": "RC0402FR-0710KL",
+     "support_for": "U3",
+     "rationale": "Strapping pull-up IO8"
+    },
+    {
+     "ref": "SW2",
+     "value": "PTS810 SJM 250 SMTR LFS",
+     "block_id": "mcu",
+     "role": "BOOT button (hold during reset for download mode)",
+     "mpn": "PTS810 SJM 250 SMTR LFS",
+     "support_for": "U3",
+     "rationale": "boot strapping pin needs a way to be pulled low"
+    },
+    {
+     "ref": "R6",
+     "value": "5.1k",
+     "block_id": "usb_in",
+     "role": "CC1 pull-down (UFP/sink advertisement) (5.1k)",
+     "mpn": "RC0402FR-075K1L",
+     "support_for": "J1",
+     "rationale": "CC1 pull-down (UFP/sink advertisement)"
+    },
+    {
+     "ref": "R7",
+     "value": "5.1k",
+     "block_id": "usb_in",
+     "role": "CC2 pull-down (UFP/sink advertisement) (5.1k)",
+     "mpn": "RC0402FR-075K1L",
+     "support_for": "J1",
+     "rationale": "CC2 pull-down (UFP/sink advertisement)"
+    },
+    {
+     "ref": "R8",
+     "value": "4.7k",
+     "block_id": "mcu",
+     "role": "I2C SDA pull-up (4.7k)",
+     "mpn": "RC0402FR-074K7L",
+     "support_for": "U3",
+     "rationale": "I2C SDA pull-up"
+    },
+    {
+     "ref": "R9",
+     "value": "4.7k",
+     "block_id": "mcu",
+     "role": "I2C SCL pull-up (4.7k)",
+     "mpn": "RC0402FR-074K7L",
+     "support_for": "U3",
+     "rationale": "I2C SCL pull-up"
+    },
+    {
+     "ref": "C8",
+     "value": "100n",
+     "block_id": "sensor",
+     "role": "Decoupling (100n) for temperature/humidity sensor",
+     "mpn": "GRM155R71C104KA88D",
+     "support_for": "U4",
+     "rationale": "Decoupling on +3V3"
+    },
+    {
+     "ref": "R10",
+     "value": "1k",
+     "block_id": "ui",
+     "role": "LED series resistor (1k)",
+     "mpn": "RC0402FR-071KL",
+     "support_for": "D3",
+     "rationale": "LED series resistor"
+    },
+    {
+     "ref": "R11",
+     "value": "10k",
+     "block_id": "ui",
+     "role": "Button pull-up (10k)",
+     "mpn": "RC0402FR-0710KL",
+     "support_for": "SW1",
+     "rationale": "Button pull-up"
+    },
+    {
+     "ref": "R12",
+     "value": "1M",
+     "block_id": "mcu",
+     "role": "Battery divider top (1M)",
+     "mpn": "RC0402FR-071ML",
+     "support_for": "U3",
+     "rationale": "Battery divider top",
+     "ratings": {
+      "typ_ma": 0.0021000000000000003,
+      "max_ma": 0.0021000000000000003,
+      "sleep_ua": 2.1
+     }
+    },
+    {
+     "ref": "R13",
+     "value": "1M",
+     "block_id": "mcu",
+     "role": "Battery divider bottom (1M)",
+     "mpn": "RC0402FR-071ML",
+     "support_for": "U3",
+     "rationale": "Battery divider bottom"
+    },
+    {
+     "ref": "C9",
+     "value": "100n",
+     "block_id": "mcu",
+     "role": "ADC reservoir (100n) for main Wi-Fi MCU",
+     "mpn": "GRM155R71C104KA88D",
+     "support_for": "U3",
+     "rationale": "ADC reservoir on VBAT_SENSE"
+    }
+   ],
+   "notes": [
+    "S2B-PH-SM4-TB(LF)(SN): pin 1 = battery +, pin 2 = battery -. JST-PH battery lead polarity is NOT standardised between vendors - check before connecting.",
+    "Charge current 500 mA = 0.50C for 1000 mAh.",
+    "AP2112K-3.3TRG1 enable tied to its input: always on.",
+    "Battery sense divider 1M/1M halves VBAT on IO3; leaks 2.1 uA continuously.",
+    "GPIO assignment on ESP32-C3-WROOM-02-N4: I2C_SDA->IO6, I2C_SCL->IO7, ui/led->IO10, ui/switch->IO4, VBAT_SENSE->IO3."
+   ]
+  }
+ ]
+}

@@ -2,13 +2,13 @@
 
 > **AI-GENERATED DESIGN PLAN - NOT VERIFIED FOR FABRICATION. This output was produced with the help of a language model and deterministic rule checks. It must be reviewed and signed off by a qualified electronics engineer before any fabrication, assembly or use.**
 
-- **Check status:** `PASS_WITH_WARNINGS` (0 errors, 5 warnings, 7 info)
+- **Check status:** `PASS_WITH_WARNINGS` (0 errors, 4 warnings, 7 info)
 - **Plan version:** v1
 - **Review status:** draft
-- **Created:** 2026-11-26T15:20:32+00:00
-- **LLM:** mock / `mock-llm` (fixtures: architecture/relay_motor_12v, components/relay_motor_12v, requirements/relay_motor_12v)
+- **Created:** 2026-11-28T08:17:01+00:00
+- **LLM:** mock / `mock-llm` (fixtures: architecture/relay_motor_12v, netlist/relay_motor_12v, parts/relay_motor_12v, requirements/relay_motor_12v)
   - Mock mode: the LLM answers are hand-authored fixtures, not model output.
-- **KiCad DRC:** KiCad DRC ran via kicad-cli-docker: Found 89 violations; Found 81 unconnected items
+- **KiCad DRC:** KiCad DRC ran via kicad-cli-docker: Found 86 violations; Found 81 unconnected items
 
 ## Prompt
 
@@ -16,14 +16,13 @@
 
 ## Findings
 
-### WARNING (5)
+### WARNING (4)
 
 | ID | Category | Message | Suggested fix |
 |---|---|---|---|
 | `DFM-DRILL:U3` | DFM | U3 pad 39 drill 0.2 mm < fab minimum 0.3 mm (thermal vias inside the footprint's ground pad). | Use a fab that drills this size, or edit the footprint's thermal vias to the fab minimum. |
 | `DRC-DRILL_OUT_OF_RANGE:footprint` | DRC | KiCad DRC drill_out_of_range: 12 item(s). Hole size out of range (board setup constraints min hole 0.3000 mm; actual 0.2000 mm) [PTH pad 39 [GND] of U3] \| Hole size out of range (board setup constraints min hole 0.3000 mm; actual 0.2000 mm) [PTH pad 39 [GND] of U3] \| Hole size out of range (board setup constraints min hole 0.3000 mm; actual 0.2000 mm) [PTH pad 39 [GND] of U3] \| Hole size out of range (board setup constraints min hole 0.3000 mm; actual 0.2000 mm) [PTH pad 39 [GND] of U3] (+8 more) All inside the KiCad library footprint(s) of U3: check that your fab accepts them or adapt the footprint. |  |
-| `DFM-DECOUPLING-DISTANCE:C4->U1.2` | placement | C4 is 5.4 mm from U1 pin 2 (limit 5 mm). | Move the capacitor next to the pin. |
-| `DFM-DECOUPLING-DISTANCE:C6->U2.5` | placement | C6 is 4.9 mm from U2 pin 5 (limit 3 mm). | Move the capacitor next to the pin. |
+| `DFM-DECOUPLING-DISTANCE:C4->U1.4` | placement | C4 is 5.4 mm from U1 pin 4 (limit 5 mm). | Move the capacitor next to the pin. |
 | `REQ-OUT-OF-SCOPE:1` | requirements | Out of scope for this tool, not designed: switching mains voltage through the relay contacts |  |
 
 ### INFO (7)
@@ -32,11 +31,11 @@
 |---|---|---|---|
 | `DFM-MIXED-ASSEMBLY:plan` | DFM | 5 through-hole part(s) (J1, J2, K1, J3, J4) need a second assembly step (wave/selective/hand soldering). |  |
 | `DRC-LIB_FOOTPRINT_ISSUES:warning` | DRC | KiCad DRC lib_footprint_issues: 39 item(s). The current configuration does not include the library 'Connector_BarrelJack'. [Footprint J1] \| The current configuration does not include the library 'Fuse'. [Footprint F1] \| The current configuration does not include the library 'Diode_SMD'. [Footprint D1] \| The current configuration does not include the library 'Diode_SMD'. [Footprint D2] (+35 more) Expected here: the board was checked without the KiCad footprint library tables. |  |
-| `DRC-SILK_EDGE_CLEARANCE:warning` | DRC | KiCad DRC silk_edge_clearance: 2 item(s). Silkscreen clipped by board edge [Segment on Edge.Cuts; Reference 'H1'] \| Silkscreen clipped by board edge [Segment on Edge.Cuts; Reference 'H2'] Expected here: silkscreen near the edge on edge-mounted connectors. |  |
-| `DRC-SILK_OVERLAP:warning` | DRC | KiCad DRC silk_overlap: 21 item(s). Silkscreen overlap [Reference 'F1'; Segment on F.Silkscreen] \| Silkscreen overlap [Reference 'K1'; Segment on F.Silkscreen] \| Silkscreen overlap [Reference 'D2'; Segment on F.Silkscreen] \| Silkscreen overlap [Segment on F.Silkscreen; Reference 'D1'] (+17 more) Expected here: silkscreen reference positions come from the library footprints. |  |
-| `DRC-SILK_OVER_COPPER:warning` | DRC | KiCad DRC silk_over_copper: 15 item(s). Silkscreen clipped by solder mask [Reference 'D2'] \| Silkscreen clipped by solder mask [Reference 'U1'] \| Silkscreen clipped by solder mask [Reference 'U3'] \| Silkscreen clipped by solder mask [Reference 'K1'] (+11 more) Expected here: silkscreen reference positions come from the library footprints. |  |
-| `DRC-UNCONNECTED_ITEMS:error` | DRC | KiCad DRC unconnected_items: 81 item(s). Missing connection between items [Pad 2 [GND] of C9 on F.Cu; Pad 2 [GND] of C8 on F.Cu] \| Missing connection between items [Pad 2 [GND] of C5 on F.Cu; Pad 2 [GND] of C6 on F.Cu] \| Missing connection between items [Pad 2 [GND] of C8 on F.Cu; Pad 2 [GND] of C7 on F.Cu] \| Missing connection between items [Pad 2 [GND] of U2 on F.Cu; Pad 2 [GND] of C6 on F.Cu] (+77 more) Expected here: routing is a manual step; every ratsnest line is reported. |  |
-| `LIB-NO-DATASHEET:plan` | library | No trusted datasheet URL for J1, F1, J2, J3, J4, D4 (KiCad metadata has none; URLs are never guessed). Look these up from the manufacturer. |  |
+| `DRC-SILK_EDGE_CLEARANCE:warning` | DRC | KiCad DRC silk_edge_clearance: 3 item(s). Silkscreen clipped by board edge [Segment on Edge.Cuts; Reference 'H1'] \| Silkscreen clipped by board edge [Segment on Edge.Cuts; Reference 'H2'] \| Silkscreen clipped by board edge [Segment on Edge.Cuts; Reference 'D5'] Expected here: silkscreen near the edge on edge-mounted connectors. |  |
+| `DRC-SILK_OVERLAP:warning` | DRC | KiCad DRC silk_overlap: 19 item(s). Silkscreen overlap [Reference 'F1'; Segment on F.Silkscreen] \| Silkscreen overlap [Reference 'U2'; Segment on F.Silkscreen] \| Silkscreen overlap [Reference 'U2'; Segment on F.Silkscreen] \| Silkscreen overlap [Reference 'D3'; Segment on F.Silkscreen] (+15 more) Expected here: silkscreen reference positions come from the library footprints. |  |
+| `DRC-SILK_OVER_COPPER:warning` | DRC | KiCad DRC silk_over_copper: 13 item(s). Silkscreen clipped by solder mask [Reference 'U2'] \| Silkscreen clipped by solder mask [Reference 'U3'] \| Silkscreen clipped by solder mask [Reference 'K1'] \| Silkscreen clipped by solder mask [Reference 'Q1'] (+9 more) Expected here: silkscreen reference positions come from the library footprints. |  |
+| `DRC-UNCONNECTED_ITEMS:error` | DRC | KiCad DRC unconnected_items: 81 item(s). Missing connection between items [Pad 2 [GND] of C9 on F.Cu; Pad 2 [GND] of C8 on F.Cu] \| Missing connection between items [Pad 2 [GND] of C8 on F.Cu; Pad 2 [GND] of C7 on F.Cu] \| Missing connection between items [Pad 1 [GND] of U3 on F.Cu; Pad 2 [GND] of C7 on F.Cu] \| Missing connection between items [Pad 1 [GND] of U4 on F.Cu; PTH pad 9 [GND] of U4] (+77 more) Expected here: routing is a manual step; every ratsnest line is reported. |  |
+| `LIB-NO-DATASHEET:plan` | library | No trusted datasheet URL for J1, F1, J2, J3, J4, D4, C1, C2, L1, C3, C4, C5, C6, C7, C8, R1, C9, SW1, SW2, R2, R3, R4, C10, C11, R5 (KiCad metadata has none; URLs are never guessed). Look these up from the manufacturer. |  |
 
 ## Requirements
 
@@ -110,29 +109,29 @@ Rationale: Buck avoids dissipating 7 V across a linear regulator; LDO cleans the
 
 | Ref | Role | MPN | Value | Footprint | Verified | Conf. | Status | Rationale |
 |---|---|---|---|---|---|---|---|---|
-| J1 | 12 V barrel jack | PJ-063AH |  | BarrelJack_CUI_PJ-063AH_Horizontal | yes | 0.85 | proposed | common 2.1 mm DC jack |
-| F1 | input resettable fuse | MF-MSMF110-2 |  | Fuse_1812_4532Metric | yes | 0.80 | proposed | 1.1 A hold PTC above the ~0.75 A load |
-| D1 | reverse-polarity series diode | SS14 |  | D_SMA | yes | 0.75 | proposed | 1 A Schottky in series with VIN |
-| D2 | input surge TVS | SMAJ15A |  | D_SMA | yes | 0.80 | proposed | 15 V standoff above the 13 V max input |
-| U1 | 12 V to 5 V buck | LM2596S-5.0/NOPB |  | TO-263-5_TabPin3 | yes | 0.75 | proposed | fixed 5 V, 3 A, simple asynchronous buck |
-| U2 | 5 V to 3.3 V LDO | AP2112K-3.3TRG1 |  | SOT-23-5 | yes | 0.80 | proposed | 600 mA LDO from 5 V |
-| U3 | main Wi-Fi MCU | ESP32-WROOM-32E-N4 |  | ESP32-WROOM-32E | yes | 0.80 | proposed | Wi-Fi module with plenty of GPIO |
-| U4 | DC motor H-bridge | DRV8871DDAR |  | Texas_HTSOP-8-1EP_3.9x4.9mm_P1.27mm_EP2.95x4.9mm_Mask2.4x3.1mm_ThermalVias | yes | 0.80 | proposed | 3.6 A peak H-bridge with current limit, 6.5-45 V |
-| J2 | motor output terminal | 1935161 |  | TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal | yes | 0.85 | proposed | 2-way 5.08 mm screw terminal |
-| K1 | 5 V relay | SRD-05VDC-SL-C |  | Relay_SPDT_SANYOU_SRD_Series_Form_C | yes | 0.80 | proposed | common SPDT 5 V relay |
-| Q1 | relay coil driver | AO3400A |  | SOT-23 | yes | 0.85 | proposed | logic-level N-MOSFET |
-| D3 | relay flyback diode | 1N4148W-7-F |  | D_SOD-123 | yes | 0.85 | proposed | clamps coil turn-off spike |
-| J3 | relay contacts terminal | 1935174 |  | TerminalBlock_Phoenix_MKDS-1,5-3-5.08_1x03_P5.08mm_Horizontal | yes | 0.85 | proposed | 3-way terminal for COM/NO/NC |
-| J4 | UART programming header | 61300411121 |  | PinHeader_1x04_P2.54mm_Vertical | yes | 0.80 | proposed | 4-pin 2.54 mm header for a USB-UART adapter |
-| D4 | status LED | LTST-C191KGKT | green | LED_0603_1608Metric | yes | 0.80 | proposed | green indicator |
-| H1 | M3 mounting hole #1 | MOUNTING-HOLE-M3 |  | MountingHole_3.2mm_M3 | yes | 0.90 | proposed | four corner holes |
-| H2 | M3 mounting hole #2 | MOUNTING-HOLE-M3 |  | MountingHole_3.2mm_M3 | yes | 0.90 | proposed | four corner holes |
-| H3 | M3 mounting hole #3 | MOUNTING-HOLE-M3 |  | MountingHole_3.2mm_M3 | yes | 0.90 | proposed | four corner holes |
-| H4 | M3 mounting hole #4 | MOUNTING-HOLE-M3 |  | MountingHole_3.2mm_M3 | yes | 0.90 | proposed | four corner holes |
+| J1 | 12 V barrel jack | PJ-063AH | PJ-063AH | BarrelJack_CUI_PJ-063AH_Horizontal | yes | 0.90 | proposed | common 2.1 mm DC jack |
+| F1 | input resettable fuse | MF-MSMF110-2 | MF-MSMF110-2 | Fuse_1812_4532Metric | yes | 0.90 | proposed | 1.1 A hold PTC above the ~0.75 A load |
+| D1 | reverse-polarity series diode | SS14 | SS14 | D_SMA | yes | 0.90 | proposed | 1 A Schottky in series with VIN |
+| D2 | input surge TVS | SMAJ15A | SMAJ15A | D_SMA | yes | 0.90 | proposed | 15 V standoff above the 13 V max input |
+| U1 | 12 V to 5 V buck | LM2596S-5.0/NOPB | LM2596S-5.0/NOPB | TO-263-5_TabPin3 | yes | 0.90 | proposed | fixed 5 V, 3 A, simple asynchronous buck |
+| U2 | 5 V to 3.3 V LDO | AP2112K-3.3TRG1 | AP2112K-3.3TRG1 | SOT-23-5 | yes | 0.90 | proposed | 600 mA LDO from 5 V |
+| U3 | main Wi-Fi MCU | ESP32-WROOM-32E-N4 | ESP32-WROOM-32E-N4 | ESP32-WROOM-32E | yes | 0.90 | proposed | Wi-Fi module with plenty of GPIO |
+| U4 | DC motor H-bridge | DRV8871DDAR | DRV8871DDAR | Texas_HTSOP-8-1EP_3.9x4.9mm_P1.27mm_EP2.95x4.9mm_Mask2.4x3.1mm_ThermalVias | yes | 0.90 | proposed | 3.6 A peak H-bridge with current limit, 6.5-45 V |
+| J2 | motor output terminal | 1935161 | 1935161 | TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal | yes | 0.90 | proposed | 2-way 5.08 mm screw terminal |
+| K1 | 5 V relay | SRD-05VDC-SL-C | SRD-05VDC-SL-C | Relay_SPDT_SANYOU_SRD_Series_Form_C | yes | 0.90 | proposed | common SPDT 5 V relay |
+| Q1 | relay coil driver | AO3400A | AO3400A | SOT-23 | yes | 0.90 | proposed | logic-level N-MOSFET |
+| D3 | relay flyback diode | 1N4148W-7-F | 1N4148W-7-F | D_SOD-123 | yes | 0.90 | proposed | clamps coil turn-off spike |
+| J3 | relay contacts terminal | 1935174 | 1935174 | TerminalBlock_Phoenix_MKDS-1,5-3-5.08_1x03_P5.08mm_Horizontal | yes | 0.90 | proposed | 3-way terminal for COM/NO/NC |
+| J4 | UART programming header | 61300411121 | 61300411121 | PinHeader_1x04_P2.54mm_Vertical | yes | 0.90 | proposed | 4-pin 2.54 mm header for a USB-UART adapter |
+| D4 | status LED | LTST-C191KGKT | green | LED_0603_1608Metric | yes | 0.90 | proposed | green indicator |
+| H1 | M3 mounting hole #1 | MOUNTING-HOLE-M3 | MOUNTING-HOLE-M3 | MountingHole_3.2mm_M3 | yes | 0.90 | proposed | four corner holes |
+| H2 | M3 mounting hole #2 | MOUNTING-HOLE-M3 | MOUNTING-HOLE-M3 | MountingHole_3.2mm_M3 | yes | 0.90 | proposed | four corner holes |
+| H3 | M3 mounting hole #3 | MOUNTING-HOLE-M3 | MOUNTING-HOLE-M3 | MountingHole_3.2mm_M3 | yes | 0.90 | proposed | four corner holes |
+| H4 | M3 mounting hole #4 | MOUNTING-HOLE-M3 | MOUNTING-HOLE-M3 | MountingHole_3.2mm_M3 | yes | 0.90 | proposed | four corner holes |
 | C1 | Input capacitor (10u) for 12 V to 5 V buck | GRM21BR61E106KA73L | 10u | C_0805_2012Metric | yes | 0.90 | proposed | Input capacitor on VIN |
 | C2 | Input capacitor (100n) for 12 V to 5 V buck | GRM188R71H104KA93D | 100n | C_0603_1608Metric | yes | 0.90 | proposed | Input capacitor on VIN |
 | L1 | Buck inductor for 12 V to 5 V buck | SRN8040TA-330M | 33u | L_Bourns_SRN8040TA | yes | 0.90 | proposed | 33 uH per the LM2596 typical application for 5 V output |
-| D5 | Catch (freewheel) diode for 12 V to 5 V buck | SS14 |  | D_SMA | yes | 0.90 | proposed | Schottky freewheel diode required by the asynchronous buck |
+| D5 | Catch (freewheel) diode for 12 V to 5 V buck | SS14 | SS14 | D_SMA | yes | 0.90 | proposed | Schottky freewheel diode required by the asynchronous buck |
 | C3 | Output capacitor (22u) for 12 V to 5 V buck | GRM21BR61C226ME44L | 22u | C_0805_2012Metric | yes | 0.90 | proposed | Output capacitor on +5V |
 | C4 | Output capacitor (22u) for 12 V to 5 V buck | GRM21BR61C226ME44L | 22u | C_0805_2012Metric | yes | 0.90 | proposed | Output capacitor on +5V |
 | C5 | Input capacitor (1u) for 5 V to 3.3 V LDO | GRM155R61A105KE15D | 1u | C_0402_1005Metric | yes | 0.90 | proposed | Input capacitor on +5V |
@@ -141,8 +140,8 @@ Rationale: Buck avoids dissipating 7 V across a linear regulator; LDO cleans the
 | C8 | Decoupling (100n) for main Wi-Fi MCU | GRM155R71C104KA88D | 100n | C_0402_1005Metric | yes | 0.90 | proposed | Decoupling on +3V3 |
 | R1 | EN pull-up (10k) | RC0402FR-0710KL | 10k | R_0402_1005Metric | yes | 0.90 | proposed | EN pull-up |
 | C9 | EN reset-delay capacitor (1u) for main Wi-Fi MCU | GRM155R61A105KE15D | 1u | C_0402_1005Metric | yes | 0.90 | proposed | EN reset-delay capacitor on MCU_EN |
-| SW1 | BOOT button (hold during reset for download mode) | PTS810 SJM 250 SMTR LFS |  | SW_SPST_PTS810 | yes | 0.90 | proposed | boot strapping pin needs a way to be pulled low |
-| SW2 | RESET (EN) button | PTS810 SJM 250 SMTR LFS |  | SW_SPST_PTS810 | yes | 0.90 | proposed | no USB auto-reset; manual reset needed for programming |
+| SW1 | BOOT button (hold during reset for download mode) | PTS810 SJM 250 SMTR LFS | PTS810 SJM 250 SMTR LFS | SW_SPST_PTS810 | yes | 0.90 | proposed | boot strapping pin needs a way to be pulled low |
+| SW2 | RESET (EN) button | PTS810 SJM 250 SMTR LFS | PTS810 SJM 250 SMTR LFS | SW_SPST_PTS810 | yes | 0.90 | proposed | no USB auto-reset; manual reset needed for programming |
 | R2 | LED series resistor (1k) | RC0402FR-071KL | 1k | R_0402_1005Metric | yes | 0.90 | proposed | LED series resistor |
 | R3 | Gate series resistor (1k) | RC0402FR-071KL | 1k | R_0402_1005Metric | yes | 0.90 | proposed | Gate series resistor |
 | R4 | Gate pull-down (relay off at reset) (100k) | RC0402FR-07100KL | 100k | R_0402_1005Metric | yes | 0.90 | proposed | Gate pull-down (relay off at reset) |
@@ -154,9 +153,12 @@ Rationale: Buck avoids dissipating 7 V across a linear regulator; LDO cleans the
 
 | Rail | Nominal | Range | Source | From | Capability mA | Peak mA | Active mA | Sleep uA |
 |---|---|---|---|---|---|---|---|---|
-| VIN | 11.5 V | 10.5-13 V | dc_input J1 | - | 1000.0 | 736.9 | 592.50 | 541350.4 |
-| +5V | 5 V | 4.85-5.15 V | buck U1 | VIN | 3000.0 | 453.4 | 171.06 | 71065.0 |
 | +3V3 | 3.3 V | 3.201-3.399 V | ldo U2 | +5V | 600.0 | 381.3 | 100.00 | 10.0 |
+| +5V | 5 V | 4.85-5.15 V | buck U1 | VIN | 3000.0 | 453.4 | 171.06 | 71065.0 |
+| VIN | 11.5 V | 10.5-13 V | dc_input J1 | - | 1000.0 | 736.9 | 592.50 | 541350.4 |
+| SW_5V | 5 V | 4.75-5.25 V | other  | - | - | 0.0 | 0.00 | 0.0 |
+| VIN_F | 12 V | 11.4-12.6 V | other  | - | - | 0.0 | 0.00 | 0.0 |
+| VIN_RAW | 12 V | 11.4-12.6 V | other  | - | - | 0.0 | 0.00 | 0.0 |
 
 ## Netlist
 
@@ -232,7 +234,7 @@ Rationale: Buck avoids dissipating 7 V across a linear regulator; LDO cleans the
 | Ground | 0.4 | 0.15 | 0.6/0.3 |  | return currents; use a pour on B.Cu, short stubs elsewhere |
 
 - Decoupling: C1, C2 within 5 mm of U1 pin 1
-- Decoupling: C3, C4 within 5 mm of U1 pin 2
+- Decoupling: C3, C4 within 5 mm of U1 pin 4
 - Decoupling: C5 within 3 mm of U2 pin 1
 - Decoupling: C6 within 3 mm of U2 pin 5
 - Decoupling: C7, C8 within 5 mm of U3 pin 2
@@ -254,32 +256,32 @@ Algorithm: zone shelf-packing with proximity ordering (deterministic).
 
 | Zone | Kind | Area (x, y, w, h mm) | Purpose |
 |---|---|---|---|
-| power | power | 0.8, 7.2, 28.1, 42.5 | Power entry, protection, charging and regulation; keep high-current loops short. |
-| mcu | mcu | 23.8, 0.0, 48.5, 45.9 | MCU and its local decoupling/strapping. |
-| driver | driver | 15.4, 19.4, 63.9, 32.4 | Actuator drivers next to their output terminals; wide copper for load current. |
+| power | power | 0.8, 1.2, 30.2, 47.5 | Power entry, protection, charging and regulation; keep high-current loops short. |
+| mcu | mcu | 23.8, 0.0, 48.5, 44.4 | MCU and its local decoupling/strapping. |
+| driver | driver | 15.4, 24.1, 51.8, 27.7 | Actuator drivers next to their output terminals; wide copper for load current. |
 | general | general | 0.5, 0.5, 78.9, 58.9 | User I/O and miscellaneous parts. |
 | connector | connector | 0.0, 22.3, 80.0, 37.7 | Edge connectors. |
 | U3_antenna | rf | 23.8, 0.0, 48.5, 21.8 | Antenna keepout: no copper, components or vias on any layer. |
 
 | Ref | X mm | Y mm | Rot | Zone | Hint |
 |---|---|---|---|---|---|
-| C1 | 7.50 | 10.00 | 0 | power | C1 within 5mm of U1 pin 1 |
+| C1 | 9.50 | 8.00 | 0 | power | C1 within 5mm of U1 pin 1 |
 | C10 | 65.50 | 49.00 | 0 | driver | C10 within 10mm of U4 pin 5 |
 | C11 | 62.00 | 51.00 | 0 | driver | C11 within 5mm of U4 pin 5 |
-| C2 | 4.00 | 10.00 | 0 | power | C2 within 5mm of U1 pin 1 |
-| C3 | 2.50 | 15.50 | 0 | power | C3 within 5mm of U1 pin 2 |
-| C4 | 2.50 | 13.00 | 0 | power | C4 within 5mm of U1 pin 2 |
-| C5 | 2.00 | 38.00 | 0 | power | C5 within 3mm of U2 pin 1 |
-| C6 | 2.00 | 39.50 | 0 | power | C6 within 3mm of U2 pin 5 |
+| C2 | 3.00 | 11.50 | 0 | power | C2 within 5mm of U1 pin 1 |
+| C3 | 2.50 | 16.50 | 0 | power | C3 within 5mm of U1 pin 4 |
+| C4 | 2.50 | 19.00 | 0 | power | C4 within 5mm of U1 pin 4 |
+| C5 | 10.00 | 38.50 | 0 | power | C5 within 3mm of U2 pin 1 |
+| C6 | 12.50 | 38.50 | 0 | power | C6 within 3mm of U2 pin 5 |
 | C7 | 36.50 | 23.00 | 0 | mcu | C7 within 5mm of U3 pin 2 |
 | C8 | 37.00 | 24.50 | 0 | mcu | C8 within 5mm of U3 pin 2 |
 | C9 | 37.00 | 26.00 | 0 | mcu | C9 within 10mm of U3 pin 3 |
-| D1 | 11.50 | 39.00 | 0 | power |  |
-| D2 | 19.00 | 42.00 | 0 | power |  |
-| D3 | 77.00 | 20.50 | 0 | driver |  |
+| D1 | 11.50 | 5.00 | 0 | power | D1 within 10mm of U1 pin 1 |
+| D2 | 19.00 | 7.00 | 0 | power | D2 within 10mm of U1 pin 1 |
+| D3 | 19.00 | 41.50 | 0 | driver | D3 within 10mm of K1 pin 2 |
 | D4 | 48.00 | 51.00 | 0 | general |  |
-| D5 | 13.00 | 9.00 | 0 | power | D5 within 10mm of U1 pin 2 |
-| F1 | 26.00 | 42.50 | 0 | power |  |
+| D5 | 19.00 | 3.00 | 0 | power | D5 within 10mm of U1 pin 2 |
+| F1 | 5.50 | 39.50 | 0 | power | F1 within 10mm of J1 pin 1 |
 | H1 | 4.00 | 4.00 | 0 | general |  |
 | H2 | 76.00 | 4.00 | 0 | general |  |
 | H3 | 4.00 | 56.00 | 0 | general |  |
@@ -289,17 +291,17 @@ Algorithm: zone shelf-packing with proximity ordering (deterministic).
 | J3 | 66.79 | 39.50 | 0 | connector | rotate so the mating face points off the board |
 | J4 | 40.00 | 50.60 | 0 | connector | rotate so the mating face points off the board |
 | K1 | 17.00 | 32.00 | 0 | driver |  |
-| L1 | 7.50 | 45.50 | 0 | power | L1 within 10mm of U1 pin 2 |
+| L1 | 26.50 | 44.50 | 0 | power | L1 within 10mm of U1 pin 4 |
 | Q1 | 64.00 | 30.00 | 0 | driver |  |
-| R1 | 37.00 | 27.50 | 0 | mcu | R1 within 10mm of U3 pin 3 |
+| R1 | 37.00 | 27.50 | 0 | mcu | R1 within 10mm of U3 pin 2 |
 | R2 | 49.00 | 49.50 | 0 | general | R2 within 10mm of D4 pin 2 |
 | R3 | 63.00 | 27.50 | 0 | driver | R3 within 10mm of Q1 pin 1 |
 | R4 | 60.50 | 29.00 | 0 | driver | R4 within 10mm of Q1 pin 1 |
 | R5 | 56.00 | 50.50 | 0 | driver | R5 within 10mm of U4 pin 4 |
-| SW1 | 51.50 | 44.00 | 0 | mcu | SW1 within 10mm of U3 pin 25 |
-| SW2 | 35.00 | 42.50 | 0 | mcu | SW2 within 10mm of U3 pin 3 |
-| U1 | 15.00 | 17.00 | 0 | power |  |
-| U2 | 5.50 | 39.00 | 0 | power |  |
+| SW1 | 61.00 | 24.00 | 0 | mcu | SW1 within 10mm of U3 |
+| SW2 | 35.00 | 42.50 | 0 | mcu | SW2 within 10mm of U3 |
+| U1 | 15.00 | 15.00 | 0 | power |  |
+| U2 | 11.00 | 41.00 | 0 | power |  |
 | U3 | 48.00 | 28.00 | 0 | mcu |  |
 | U4 | 59.00 | 47.00 | 0 | driver |  |
 
@@ -313,7 +315,7 @@ Stackup: F.Cu 0.035 mm / Core 1.53 mm / B.Cu 0.035 mm
 
 1. **antenna keepout** - keep the module antenna area free of copper first
 2. **SW_5V** - switching node: minimise the loop VIN cap -> regulator -> diode -> GND
-3. **VIN, +5V, +3V3** - power rails at Power net-class width; star from the source
+3. **+3V3, +5V, VIN, SW_5V, VIN_F, VIN_RAW** - power rails at Power net-class width; star from the source
 4. **decoupling** - decoupling caps: pad -> cap -> via to GND, shortest possible
 5. **MOTOR1_ILIM** - analog/sense nets away from switching nodes and RF
 6. **remaining signals** - Default net class
@@ -327,7 +329,7 @@ Stackup: F.Cu 0.035 mm / Core 1.53 mm / B.Cu 0.035 mm
 - Power/GND vias 0.8/0.4 mm; use at least two in parallel per amp of current.
 - No vias inside SMD pads unless the fab offers filled/capped via-in-pad.
 - C1, C2 within 5 mm of U1 pin 1 (LM2596S-5.0/NOPB)
-- C3, C4 within 5 mm of U1 pin 2 (LM2596S-5.0/NOPB)
+- C3, C4 within 5 mm of U1 pin 4 (LM2596S-5.0/NOPB)
 - C5 within 3 mm of U2 pin 1 (AP2112K-3.3TRG1)
 - C6 within 3 mm of U2 pin 5 (AP2112K-3.3TRG1)
 - C7, C8 within 5 mm of U3 pin 2 (ESP32-WROOM-32E-N4)
@@ -336,15 +338,7 @@ Stackup: F.Cu 0.035 mm / Core 1.53 mm / B.Cu 0.035 mm
 
 ## Design notes (deterministic stages)
 
-- SS14 in series with VIN for reverse-polarity protection (drops ~0.5 V).
-- PJ-063AH: centre pin (symbol pin 1) assumed positive; confirm adapter polarity.
-- LM2596S-5.0/NOPB ~ON/OFF tied low: always on.
-- LM2596S-5.0/NOPB: the datasheet design uses low-ESR electrolytic output capacitance; the ceramic-only output here must be checked for loop stability. Catch diode SS14 is rated 1 A.
-- AP2112K-3.3TRG1 enable tied to its input: always on.
-- SRD-05VDC-SL-C: contacts on pins 3 and 4 - confirm which is normally-open against the manufacturer's datasheet before labelling.
-- DRV8871DDAR ILIM = 100 kOhm (about 0.64 A regulation if I_TRIP = 64 kV/R_ILIM as in the datasheet) - recompute for the actual motor stall current.
-- 61300411121 programming header: 1=GND 2=MCU TX 3=MCU RX 4=+3V3 (3.3 V logic).
-- GPIO assignment on ESP32-WROOM-32E-N4: ui/led->IO25, RELAY1->IO26, MOTOR1_IN1->IO27, MOTOR1_IN2->IO14.
+- Parts: 39 entries; netlist: 24 nets, accepted after 1 submission(s)
 
 ## Review
 

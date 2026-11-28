@@ -6,23 +6,23 @@ C3 C4,2,22u,GRM21BR61C226ME44L,Murata Electronics,Capacitor_SMD:C_0805_2012Metri
 C5 C6 C9,3,1u,GRM155R61A105KE15D,Murata Electronics,Capacitor_SMD:C_0402_1005Metric,"1 uF 10 V X5R MLCC, 0402",,yes,0.90,proposed,no trusted datasheet URL
 C7,1,10u,GRM188R61A106KE69D,Murata Electronics,Capacitor_SMD:C_0603_1608Metric,"10 uF 10 V X5R MLCC, 0603",,yes,0.90,proposed,no trusted datasheet URL
 C8,1,100n,GRM155R71C104KA88D,Murata Electronics,Capacitor_SMD:C_0402_1005Metric,"100 nF 16 V X7R MLCC, 0402",,yes,0.90,proposed,no trusted datasheet URL
-D1 D5,2,,SS14,onsemi,Diode_SMD:D_SMA,"1 A 40 V Schottky rectifier, SMA",https://www.vishay.com/docs/88746/ss12.pdf,yes,0.75,proposed,
-D2,1,,SMAJ15A,Littelfuse,Diode_SMD:D_SMA,"400 W unidirectional TVS, 15 V standoff, SMA",https://www.littelfuse.com/media?resourcetype=datasheets&itemid=75e32973-b177-4ee3-a0ff-cedaf1abdb93&filename=smaj-datasheet,yes,0.80,proposed,
-D3,1,,1N4148W-7-F,Diodes Incorporated,Diode_SMD:D_SOD-123,"75 V 300 mA small-signal switching diode, SOD-123",https://www.vishay.com/docs/85748/1n4148w.pdf,yes,0.85,proposed,
-D4,1,green,LTST-C191KGKT,Lite-On,LED_SMD:LED_0603_1608Metric,"Green LED, 0603",,yes,0.80,proposed,no trusted datasheet URL
-F1,1,,MF-MSMF110-2,Bourns,Fuse:Fuse_1812_4532Metric,"PTC resettable fuse, 1.1 A hold, 1812",,yes,0.80,proposed,no trusted datasheet URL
-J1,1,,PJ-063AH,CUI Devices,Connector_BarrelJack:BarrelJack_CUI_PJ-063AH_Horizontal,"DC barrel jack, through-hole horizontal",,yes,0.85,proposed,no trusted datasheet URL
-J2,1,,1935161,Phoenix Contact,"TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal","2-position 5.08 mm screw terminal block (MKDS 1,5/2-5,08)",,yes,0.85,proposed,no trusted datasheet URL
-J3,1,,1935174,Phoenix Contact,"TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-3-5.08_1x03_P5.08mm_Horizontal","3-position 5.08 mm screw terminal block (MKDS 1,5/3-5,08)",,yes,0.85,proposed,no trusted datasheet URL
-J4,1,,61300411121,Wurth Elektronik,Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical,"1x04 2.54 mm pin header, vertical, through-hole",,yes,0.80,proposed,no trusted datasheet URL
-K1,1,,SRD-05VDC-SL-C,Songle,Relay_THT:Relay_SPDT_SANYOU_SRD_Series_Form_C,"SPDT power relay, 5 V coil (~71 mA), 10 A contacts, through-hole",http://www.sanyourelay.ca/public/products/pdf/SRD.pdf,yes,0.80,proposed,
+D1 D5,2,SS14,SS14,onsemi,Diode_SMD:D_SMA,"1 A 40 V Schottky rectifier, SMA",https://www.vishay.com/docs/88746/ss12.pdf,yes,0.90,proposed,
+D2,1,SMAJ15A,SMAJ15A,Littelfuse,Diode_SMD:D_SMA,"400 W unidirectional TVS, 15 V standoff, SMA",https://www.littelfuse.com/media?resourcetype=datasheets&itemid=75e32973-b177-4ee3-a0ff-cedaf1abdb93&filename=smaj-datasheet,yes,0.90,proposed,
+D3,1,1N4148W-7-F,1N4148W-7-F,Diodes Incorporated,Diode_SMD:D_SOD-123,"75 V 300 mA small-signal switching diode, SOD-123",https://www.vishay.com/docs/85748/1n4148w.pdf,yes,0.90,proposed,
+D4,1,green,LTST-C191KGKT,Lite-On,LED_SMD:LED_0603_1608Metric,"Green LED, 0603",,yes,0.90,proposed,no trusted datasheet URL
+F1,1,MF-MSMF110-2,MF-MSMF110-2,Bourns,Fuse:Fuse_1812_4532Metric,"PTC resettable fuse, 1.1 A hold, 1812",,yes,0.90,proposed,no trusted datasheet URL
+J1,1,PJ-063AH,PJ-063AH,CUI Devices,Connector_BarrelJack:BarrelJack_CUI_PJ-063AH_Horizontal,"DC barrel jack, through-hole horizontal",,yes,0.90,proposed,no trusted datasheet URL
+J2,1,1935161,1935161,Phoenix Contact,"TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal","2-position 5.08 mm screw terminal block (MKDS 1,5/2-5,08)",,yes,0.90,proposed,no trusted datasheet URL
+J3,1,1935174,1935174,Phoenix Contact,"TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-3-5.08_1x03_P5.08mm_Horizontal","3-position 5.08 mm screw terminal block (MKDS 1,5/3-5,08)",,yes,0.90,proposed,no trusted datasheet URL
+J4,1,61300411121,61300411121,Wurth Elektronik,Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical,"1x04 2.54 mm pin header, vertical, through-hole",,yes,0.90,proposed,no trusted datasheet URL
+K1,1,SRD-05VDC-SL-C,SRD-05VDC-SL-C,Songle,Relay_THT:Relay_SPDT_SANYOU_SRD_Series_Form_C,"SPDT power relay, 5 V coil (~71 mA), 10 A contacts, through-hole",http://www.sanyourelay.ca/public/products/pdf/SRD.pdf,yes,0.90,proposed,
 L1,1,33u,SRN8040TA-330M,Bourns,Inductor_SMD:L_Bourns_SRN8040TA,"33 uH semi-shielded power inductor, 8x8x4 mm",,yes,0.90,proposed,no trusted datasheet URL
-Q1,1,,AO3400A,Alpha & Omega Semiconductor,Package_TO_SOT_SMD:SOT-23,"N-channel 30 V 5.7 A logic-level MOSFET, SOT-23",http://www.aosmd.com/pdfs/datasheet/AO3400A.pdf,yes,0.85,proposed,
+Q1,1,AO3400A,AO3400A,Alpha & Omega Semiconductor,Package_TO_SOT_SMD:SOT-23,"N-channel 30 V 5.7 A logic-level MOSFET, SOT-23",http://www.aosmd.com/pdfs/datasheet/AO3400A.pdf,yes,0.90,proposed,
 R1,1,10k,RC0402FR-0710KL,Yageo,Resistor_SMD:R_0402_1005Metric,"10 kOhm 1% 1/16 W thick-film resistor, 0402",,yes,0.90,proposed,no trusted datasheet URL
 R2 R3,2,1k,RC0402FR-071KL,Yageo,Resistor_SMD:R_0402_1005Metric,"1 kOhm 1% 1/16 W thick-film resistor, 0402",,yes,0.90,proposed,no trusted datasheet URL
 R4 R5,2,100k,RC0402FR-07100KL,Yageo,Resistor_SMD:R_0402_1005Metric,"100 kOhm 1% 1/16 W thick-film resistor, 0402",,yes,0.90,proposed,no trusted datasheet URL
-SW1 SW2,2,,PTS810 SJM 250 SMTR LFS,C&K,Button_Switch_SMD:SW_SPST_PTS810,"SMD tactile switch, 4.2x3.2 mm, 250 gf",,yes,0.90,proposed,no trusted datasheet URL
-U1,1,,LM2596S-5.0/NOPB,Texas Instruments,Package_TO_SOT_SMD:TO-263-5_TabPin3,"Fixed 5 V 3 A step-down regulator, up to 40 V input, TO-263-5",http://www.ti.com/lit/ds/symlink/lm2596.pdf,yes,0.75,proposed,
-U2,1,,AP2112K-3.3TRG1,Diodes Incorporated,Package_TO_SOT_SMD:SOT-23-5,"3.3 V 600 mA LDO with enable, SOT-23-5",https://www.diodes.com/assets/Datasheets/AP2112.pdf,yes,0.80,proposed,
-U3,1,,ESP32-WROOM-32E-N4,Espressif Systems,RF_Module:ESP32-WROOM-32E,"WiFi 4 + BT Classic/BLE 4.2 module, dual-core ESP32 240 MHz, 4 MB flash, PCB antenna",https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32e_esp32-wroom-32ue_datasheet_en.pdf,yes,0.80,proposed,
-U4,1,,DRV8871DDAR,Texas Instruments,Package_SO:Texas_HTSOP-8-1EP_3.9x4.9mm_P1.27mm_EP2.95x4.9mm_Mask2.4x3.1mm_ThermalVias,"Brushed DC motor H-bridge, 6.5-45 V, 3.6 A peak, current regulation, HSOP-8",http://www.ti.com/lit/ds/symlink/drv8871.pdf,yes,0.80,proposed,
+SW1 SW2,2,PTS810 SJM 250 SMTR LFS,PTS810 SJM 250 SMTR LFS,C&K,Button_Switch_SMD:SW_SPST_PTS810,"SMD tactile switch, 4.2x3.2 mm, 250 gf",,yes,0.90,proposed,no trusted datasheet URL
+U1,1,LM2596S-5.0/NOPB,LM2596S-5.0/NOPB,Texas Instruments,Package_TO_SOT_SMD:TO-263-5_TabPin3,"Fixed 5 V 3 A step-down regulator, up to 40 V input, TO-263-5",http://www.ti.com/lit/ds/symlink/lm2596.pdf,yes,0.90,proposed,
+U2,1,AP2112K-3.3TRG1,AP2112K-3.3TRG1,Diodes Incorporated,Package_TO_SOT_SMD:SOT-23-5,"3.3 V 600 mA LDO with enable, SOT-23-5",https://www.diodes.com/assets/Datasheets/AP2112.pdf,yes,0.90,proposed,
+U3,1,ESP32-WROOM-32E-N4,ESP32-WROOM-32E-N4,Espressif Systems,RF_Module:ESP32-WROOM-32E,"WiFi 4 + BT Classic/BLE 4.2 module, dual-core ESP32 240 MHz, 4 MB flash, PCB antenna",https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32e_esp32-wroom-32ue_datasheet_en.pdf,yes,0.90,proposed,
+U4,1,DRV8871DDAR,DRV8871DDAR,Texas Instruments,Package_SO:Texas_HTSOP-8-1EP_3.9x4.9mm_P1.27mm_EP2.95x4.9mm_Mask2.4x3.1mm_ThermalVias,"Brushed DC motor H-bridge, 6.5-45 V, 3.6 A peak, current regulation, HSOP-8",http://www.ti.com/lit/ds/symlink/drv8871.pdf,yes,0.90,proposed,

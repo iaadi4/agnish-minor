@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import os
+
+# hermetic: footprints come from the vendored set and the bundled index, never ~/.cache
+os.environ.setdefault("PCBASSIST_KICAD_FOOTPRINT_DIR", "none")
+
 from functools import cache
 from pathlib import Path
 
@@ -11,7 +16,13 @@ from pcbassist.pipeline import generate_plan
 from pcbassist.schemas import DesignPlan
 
 ROOT = Path(__file__).resolve().parents[1]
-EXAMPLES = ["iot_env_sensor", "ble_coin_tag", "relay_motor_12v", "flawed_coin_wifi"]
+EXAMPLES = [
+    "iot_env_sensor",
+    "ble_coin_tag",
+    "relay_motor_12v",
+    "flawed_coin_wifi",
+    "motor_current_monitor",
+]
 
 
 def example_prompt(name: str) -> str:

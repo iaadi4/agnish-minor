@@ -3,13 +3,13 @@
   "disclaimer": "AI-GENERATED DESIGN PLAN - NOT VERIFIED FOR FABRICATION. This output was produced with the help of a language model and deterministic rule checks. It must be reviewed and signed off by a qualified electronics engineer before any fabrication, assembly or use.",
   "version": 1,
   "parent_version": null,
-  "created_at": "2026-11-26T15:20:33.399855Z",
+  "created_at": "2026-11-28T08:17:05.598932Z",
   "prompt": "Wi-Fi temperature and humidity logger that runs for 2 years on a single CR2032 coin cell, uploads a reading every 10 seconds, switches a 5 V relay, uses two identical humidity sensors for redundancy, and fits on a 15 x 15 mm board.",
   "feedback_history": [],
   "llm": {
     "mode": "mock",
     "model": "mock-llm",
-    "fixture_set": "architecture/flawed_coin_wifi, components/flawed_coin_wifi, requirements/flawed_coin_wifi"
+    "fixture_set": "architecture/flawed_coin_wifi, netlist/flawed_coin_wifi, parts/flawed_coin_wifi, requirements/flawed_coin_wifi"
   },
   "requirements": {
     "summary": "Wi-Fi T/RH logger on a CR2032 with a 5 V relay, two sensors, 15 x 15 mm.",
@@ -183,68 +183,695 @@
     ],
     "rationale": "As requested, although several requirements conflict."
   },
-  "selection": {
+  "selection": null,
+  "manifest": {
     "parts": [
       {
-        "role": "CR2032 holder",
+        "ref": "BT1",
+        "value": "3034",
         "block_id": "battery",
+        "role": "CR2032 holder",
         "mpn": "3034",
-        "quantity": 1,
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": null,
         "rationale": "requested coin cell",
-        "confidence": 0.6,
-        "alternates": []
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
       },
       {
-        "role": "3.3 V LDO",
+        "ref": "U1",
+        "value": "MCP1700T-3302E/TT",
         "block_id": "regulator",
+        "role": "3.3 V LDO",
         "mpn": "MCP1700T-3302E/TT",
-        "quantity": 1,
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": null,
         "rationale": "1.6 uA quiescent current",
-        "confidence": 0.5,
-        "alternates": []
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
       },
       {
-        "role": "Wi-Fi MCU",
+        "ref": "U2",
+        "value": "ESP32-C3-WROOM-02-N4",
         "block_id": "mcu",
+        "role": "Wi-Fi MCU",
         "mpn": "ESP32-C3-WROOM-02-N4",
-        "quantity": 1,
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": null,
         "rationale": "Wi-Fi requested",
-        "confidence": 0.6,
-        "alternates": []
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
       },
       {
-        "role": "humidity sensor",
+        "ref": "U3",
+        "value": "SHT40-AD1B-R3",
         "block_id": "sensors",
+        "role": "humidity sensor #1",
         "mpn": "SHT40-AD1B-R3",
-        "quantity": 2,
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": null,
         "rationale": "two identical sensors as requested",
-        "confidence": 0.7,
-        "alternates": []
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
       },
       {
+        "ref": "U4",
+        "value": "SHT40-AD1B-R3",
+        "block_id": "sensors",
+        "role": "humidity sensor #2",
+        "mpn": "SHT40-AD1B-R3",
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": null,
+        "rationale": "two identical sensors as requested",
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
+      },
+      {
+        "ref": "K1",
+        "value": "SRD-05VDC-SL-C",
+        "block_id": "relay",
         "role": "5 V relay",
-        "block_id": "relay",
         "mpn": "SRD-05VDC-SL-C",
-        "quantity": 1,
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": null,
         "rationale": "5 V relay requested",
-        "confidence": 0.6,
-        "alternates": []
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
       },
       {
-        "role": "relay driver transistor",
+        "ref": "U5",
+        "value": "MMBT3904",
         "block_id": "relay",
+        "role": "relay driver transistor",
         "mpn": "MMBT3904",
-        "quantity": 1,
+        "manufacturer": null,
+        "lib_id": "Transistor_BJT:MMBT3904",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "package": null,
+        "support_for": null,
         "rationale": "generic NPN; not in the candidate list",
-        "confidence": 0.3,
-        "alternates": []
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
+      },
+      {
+        "ref": "C1",
+        "value": "1u",
+        "block_id": "regulator",
+        "role": "Input capacitor (1u) for 3.3 V LDO",
+        "mpn": "GRM155R61A105KE15D",
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": "U1",
+        "rationale": "Input capacitor on VBAT",
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
+      },
+      {
+        "ref": "C2",
+        "value": "1u",
+        "block_id": "regulator",
+        "role": "Output capacitor (1u) for 3.3 V LDO",
+        "mpn": "GRM155R61A105KE15D",
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": "U1",
+        "rationale": "Output capacitor on +3V3",
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
+      },
+      {
+        "ref": "C3",
+        "value": "10u",
+        "block_id": "mcu",
+        "role": "Decoupling (10u) for Wi-Fi MCU",
+        "mpn": "GRM188R61A106KE69D",
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": "U2",
+        "rationale": "Decoupling on +3V3",
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
+      },
+      {
+        "ref": "C4",
+        "value": "100n",
+        "block_id": "mcu",
+        "role": "Decoupling (100n) for Wi-Fi MCU",
+        "mpn": "GRM155R71C104KA88D",
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": "U2",
+        "rationale": "Decoupling on +3V3",
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
+      },
+      {
+        "ref": "R1",
+        "value": "10k",
+        "block_id": "mcu",
+        "role": "EN pull-up (10k)",
+        "mpn": "RC0402FR-0710KL",
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": "U2",
+        "rationale": "EN pull-up",
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
+      },
+      {
+        "ref": "C5",
+        "value": "1u",
+        "block_id": "mcu",
+        "role": "EN reset-delay capacitor (1u) for Wi-Fi MCU",
+        "mpn": "GRM155R61A105KE15D",
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": "U2",
+        "rationale": "EN reset-delay capacitor on MCU_EN",
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
+      },
+      {
+        "ref": "R2",
+        "value": "10k",
+        "block_id": "mcu",
+        "role": "Strapping pull-up IO2 (10k)",
+        "mpn": "RC0402FR-0710KL",
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": "U2",
+        "rationale": "Strapping pull-up IO2",
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
+      },
+      {
+        "ref": "R3",
+        "value": "10k",
+        "block_id": "mcu",
+        "role": "Strapping pull-up IO8 (10k)",
+        "mpn": "RC0402FR-0710KL",
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": "U2",
+        "rationale": "Strapping pull-up IO8",
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
+      },
+      {
+        "ref": "SW1",
+        "value": "PTS810 SJM 250 SMTR LFS",
+        "block_id": "mcu",
+        "role": "BOOT button (hold during reset for download mode)",
+        "mpn": "PTS810 SJM 250 SMTR LFS",
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": "U2",
+        "rationale": "boot strapping pin needs a way to be pulled low",
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
+      },
+      {
+        "ref": "SW2",
+        "value": "PTS810 SJM 250 SMTR LFS",
+        "block_id": "mcu",
+        "role": "RESET (EN) button",
+        "mpn": "PTS810 SJM 250 SMTR LFS",
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": "U2",
+        "rationale": "no USB auto-reset; manual reset needed for programming",
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
+      },
+      {
+        "ref": "R4",
+        "value": "4.7k",
+        "block_id": "mcu",
+        "role": "I2C SDA pull-up (4.7k)",
+        "mpn": "RC0402FR-074K7L",
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": "U2",
+        "rationale": "I2C SDA pull-up",
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
+      },
+      {
+        "ref": "R5",
+        "value": "4.7k",
+        "block_id": "mcu",
+        "role": "I2C SCL pull-up (4.7k)",
+        "mpn": "RC0402FR-074K7L",
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": "U2",
+        "rationale": "I2C SCL pull-up",
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
+      },
+      {
+        "ref": "C6",
+        "value": "100n",
+        "block_id": "sensors",
+        "role": "Decoupling (100n) for humidity sensor #1",
+        "mpn": "GRM155R71C104KA88D",
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": "U3",
+        "rationale": "Decoupling on +3V3",
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
+      },
+      {
+        "ref": "C7",
+        "value": "100n",
+        "block_id": "sensors",
+        "role": "Decoupling (100n) for humidity sensor #2",
+        "mpn": "GRM155R71C104KA88D",
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": "U4",
+        "rationale": "Decoupling on +3V3",
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
+      },
+      {
+        "ref": "Q1",
+        "value": "AO3400A",
+        "block_id": "relay",
+        "role": "Low-side relay driver for 5 V relay",
+        "mpn": "AO3400A",
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": "K1",
+        "rationale": "logic-level N-MOSFET switches the coil from a 3.3 V GPIO",
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
+      },
+      {
+        "ref": "D1",
+        "value": "1N4148W-7-F",
+        "block_id": "relay",
+        "role": "Flyback diode across 5 V relay coil",
+        "mpn": "1N4148W-7-F",
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": "K1",
+        "rationale": "clamps the coil's inductive kick when the FET turns off",
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
+      },
+      {
+        "ref": "R6",
+        "value": "1k",
+        "block_id": "relay",
+        "role": "Gate series resistor (1k)",
+        "mpn": "RC0402FR-071KL",
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": "Q1",
+        "rationale": "Gate series resistor",
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
+      },
+      {
+        "ref": "R7",
+        "value": "100k",
+        "block_id": "relay",
+        "role": "Gate pull-down (relay off at reset) (100k)",
+        "mpn": "RC0402FR-07100KL",
+        "manufacturer": null,
+        "lib_id": null,
+        "footprint": null,
+        "package": null,
+        "support_for": "Q1",
+        "rationale": "Gate pull-down (relay off at reset)",
+        "ratings": null,
+        "off_board": false,
+        "no_part": false
       }
     ],
+    "substitutions": [],
+    "blockers": [],
     "notes": [
-      "Several requirements conflict; see requirements.conflicts."
-    ],
-    "rejected_candidates": []
+      "SRD-05VDC-SL-C: contacts on pins 3 and 4 - confirm which is normally-open against the manufacturer's datasheet before labelling.",
+      "GPIO assignment on ESP32-C3-WROOM-02-N4: I2C_SDA->IO6, I2C_SCL->IO7, RELAY1->IO10."
+    ]
   },
+  "netlist_intent": {
+    "nets": [
+      {
+        "name": "GND",
+        "pins": [
+          "BT1.2",
+          "C1.2",
+          "C2.2",
+          "C3.2",
+          "C4.2",
+          "C5.2",
+          "C6.2",
+          "C7.2",
+          "Q1.2",
+          "R7.2",
+          "SW1.2",
+          "SW2.2",
+          "U1.1",
+          "U2.9",
+          "U2.19",
+          "U3.4",
+          "U4.4"
+        ],
+        "kind": "ground",
+        "net_class": null,
+        "voltage_v": null,
+        "notes": null
+      },
+      {
+        "name": "+3V3",
+        "pins": [
+          "C2.1",
+          "C3.1",
+          "C4.1",
+          "C6.1",
+          "C7.1",
+          "D1.1",
+          "K1.2",
+          "R1.1",
+          "R2.1",
+          "R3.1",
+          "R4.1",
+          "R5.1",
+          "U1.2",
+          "U2.1",
+          "U3.3",
+          "U4.3"
+        ],
+        "kind": "power",
+        "net_class": null,
+        "voltage_v": 3.3,
+        "notes": null
+      },
+      {
+        "name": "VBAT",
+        "pins": [
+          "BT1.1",
+          "C1.1",
+          "U1.3"
+        ],
+        "kind": "power",
+        "net_class": null,
+        "voltage_v": 3.0,
+        "notes": null
+      },
+      {
+        "name": "I2C_SCL",
+        "pins": [
+          "R5.2",
+          "U2.6",
+          "U3.2",
+          "U4.2"
+        ],
+        "kind": "signal",
+        "net_class": null,
+        "voltage_v": null,
+        "notes": null
+      },
+      {
+        "name": "I2C_SDA",
+        "pins": [
+          "R4.2",
+          "U2.5",
+          "U3.1",
+          "U4.1"
+        ],
+        "kind": "signal",
+        "net_class": null,
+        "voltage_v": null,
+        "notes": null
+      },
+      {
+        "name": "MCU_BOOT",
+        "pins": [
+          "SW1.1",
+          "U2.8"
+        ],
+        "kind": "signal",
+        "net_class": null,
+        "voltage_v": null,
+        "notes": null
+      },
+      {
+        "name": "MCU_EN",
+        "pins": [
+          "C5.1",
+          "R1.2",
+          "SW2.1",
+          "U2.2"
+        ],
+        "kind": "signal",
+        "net_class": null,
+        "voltage_v": null,
+        "notes": null
+      },
+      {
+        "name": "RELAY1_COIL",
+        "pins": [
+          "D1.2",
+          "K1.5",
+          "Q1.3"
+        ],
+        "kind": "power",
+        "net_class": null,
+        "voltage_v": null,
+        "notes": null
+      },
+      {
+        "name": "RELAY1_COM",
+        "pins": [
+          "K1.1"
+        ],
+        "kind": "power",
+        "net_class": null,
+        "voltage_v": null,
+        "notes": null
+      },
+      {
+        "name": "RELAY1_DRV",
+        "pins": [
+          "R6.1",
+          "U2.10"
+        ],
+        "kind": "signal",
+        "net_class": null,
+        "voltage_v": null,
+        "notes": null
+      },
+      {
+        "name": "RELAY1_GATE",
+        "pins": [
+          "Q1.1",
+          "R6.2",
+          "R7.1"
+        ],
+        "kind": "signal",
+        "net_class": null,
+        "voltage_v": null,
+        "notes": null
+      },
+      {
+        "name": "RELAY1_K3",
+        "pins": [
+          "K1.3"
+        ],
+        "kind": "power",
+        "net_class": null,
+        "voltage_v": null,
+        "notes": null
+      },
+      {
+        "name": "RELAY1_K4",
+        "pins": [
+          "K1.4"
+        ],
+        "kind": "power",
+        "net_class": null,
+        "voltage_v": null,
+        "notes": null
+      },
+      {
+        "name": "STRAP_IO2",
+        "pins": [
+          "R2.2",
+          "U2.16"
+        ],
+        "kind": "signal",
+        "net_class": null,
+        "voltage_v": null,
+        "notes": null
+      },
+      {
+        "name": "STRAP_IO8",
+        "pins": [
+          "R3.2",
+          "U2.7"
+        ],
+        "kind": "signal",
+        "net_class": null,
+        "voltage_v": null,
+        "notes": null
+      }
+    ],
+    "no_connect": [
+      {
+        "pin": "U2.3",
+        "reason": "unused GPIO"
+      },
+      {
+        "pin": "U2.4",
+        "reason": "unused GPIO"
+      },
+      {
+        "pin": "U2.11",
+        "reason": "UART0 console pin not brought out"
+      },
+      {
+        "pin": "U2.12",
+        "reason": "UART0 console pin not brought out"
+      },
+      {
+        "pin": "U2.13",
+        "reason": "native USB unused"
+      },
+      {
+        "pin": "U2.14",
+        "reason": "native USB unused"
+      },
+      {
+        "pin": "U2.15",
+        "reason": "unused GPIO"
+      },
+      {
+        "pin": "U2.17",
+        "reason": "unused GPIO"
+      },
+      {
+        "pin": "U2.18",
+        "reason": "unused GPIO"
+      },
+      {
+        "pin": "U5.1",
+        "reason": "left unwired: the synthesizer only wires curated parts (this example keeps the gap on purpose)"
+      },
+      {
+        "pin": "U5.2",
+        "reason": "left unwired: the synthesizer only wires curated parts (this example keeps the gap on purpose)"
+      },
+      {
+        "pin": "U5.3",
+        "reason": "left unwired: the synthesizer only wires curated parts (this example keeps the gap on purpose)"
+      }
+    ],
+    "rails": [
+      {
+        "net": "VBAT",
+        "voltage_v": 3.0,
+        "source_ref": "BT1",
+        "source_kind": "battery",
+        "parent_net": null,
+        "max_current_ma": 15.0,
+        "min_v": 2.0,
+        "max_v": 3.0
+      },
+      {
+        "net": "+3V3",
+        "voltage_v": 3.3,
+        "source_ref": "U1",
+        "source_kind": "ldo",
+        "parent_net": "VBAT",
+        "max_current_ma": 250.0,
+        "min_v": 3.201,
+        "max_v": 3.399
+      }
+    ],
+    "notes": []
+  },
+  "engine": "intent",
   "components": [
     {
       "ref_des": "BT1",
@@ -255,7 +882,7 @@
       "description": "CR2032 coin-cell holder, SMT",
       "package": "BatteryHolder_Keystone_3034_1x20mm",
       "footprint": "Battery:BatteryHolder_Keystone_3034_1x20mm",
-      "value": null,
+      "value": "3034",
       "key_specs": {
         "cell": "CR2032"
       },
@@ -287,13 +914,15 @@
       "datasheet_url": null,
       "kicad_symbol": "Device:Battery_Cell",
       "rationale": "requested coin cell",
-      "confidence": 0.6,
+      "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "battery",
       "rail": "VBAT",
       "support_for": null,
       "support_pin": null,
-      "key": "battery/battery_holder",
+      "key": "part:BT1",
       "origin": "llm",
       "in_bom": true,
       "status": "proposed",
@@ -308,7 +937,7 @@
       "description": "3.3 V 250 mA ultra-low-Iq (1.6 uA) LDO, SOT-23-3",
       "package": "SOT-23",
       "footprint": "Package_TO_SOT_SMD:SOT-23",
-      "value": null,
+      "value": "MCP1700T-3302E/TT",
       "key_specs": {
         "vout_v": 3.3,
         "iout_max_ma": 250,
@@ -355,13 +984,15 @@
       "datasheet_url": "http://ww1.microchip.com/downloads/en/DeviceDoc/20001826D.pdf",
       "kicad_symbol": "Regulator_Linear:MCP1700x-330xxTT",
       "rationale": "1.6 uA quiescent current",
-      "confidence": 0.5,
+      "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "regulator",
       "rail": "VBAT",
       "support_for": null,
       "support_pin": null,
-      "key": "regulator/ldo",
+      "key": "part:U1",
       "origin": "llm",
       "in_bom": true,
       "status": "proposed",
@@ -376,7 +1007,7 @@
       "description": "WiFi 4 + BLE 5 module, ESP32-C3 RISC-V 160 MHz, 4 MB flash, PCB antenna",
       "package": "ESP32-C3-WROOM-02",
       "footprint": "RF_Module:ESP32-C3-WROOM-02",
-      "value": null,
+      "value": "ESP32-C3-WROOM-02-N4",
       "key_specs": {
         "cpu": "RISC-V 160 MHz",
         "flash_mb": 4,
@@ -563,13 +1194,15 @@
       "datasheet_url": "https://www.espressif.com/sites/default/files/documentation/esp32-c3-wroom-02_datasheet_en.pdf",
       "kicad_symbol": "RF_Module:ESP32-C3-WROOM-02",
       "rationale": "Wi-Fi requested",
-      "confidence": 0.6,
+      "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "mcu",
       "rail": "+3V3",
       "support_for": null,
       "support_pin": null,
-      "key": "mcu/mcu_wireless",
+      "key": "part:U2",
       "origin": "llm",
       "in_bom": true,
       "status": "proposed",
@@ -584,7 +1217,7 @@
       "description": "Digital temperature + humidity sensor, +/-1.8 %RH, +/-0.2 C, I2C, DFN-4 1.5x1.5",
       "package": "Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad",
       "footprint": "Sensor_Humidity:Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad",
-      "value": null,
+      "value": "SHT40-AD1B-R3",
       "key_specs": {
         "interface": "I2C",
         "i2c_address": "0x44",
@@ -639,13 +1272,15 @@
       "datasheet_url": "https://sensirion.com/media/documents/33FD6951/624C4357/Datasheet_SHT4x.pdf",
       "kicad_symbol": "Sensor_Humidity:SHT4x",
       "rationale": "two identical sensors as requested",
-      "confidence": 0.7,
+      "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "sensors",
       "rail": "+3V3",
       "support_for": null,
       "support_pin": null,
-      "key": "sensors/sensor_env",
+      "key": "part:U3",
       "origin": "llm",
       "in_bom": true,
       "status": "proposed",
@@ -660,7 +1295,7 @@
       "description": "Digital temperature + humidity sensor, +/-1.8 %RH, +/-0.2 C, I2C, DFN-4 1.5x1.5",
       "package": "Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad",
       "footprint": "Sensor_Humidity:Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad",
-      "value": null,
+      "value": "SHT40-AD1B-R3",
       "key_specs": {
         "interface": "I2C",
         "i2c_address": "0x44",
@@ -715,13 +1350,15 @@
       "datasheet_url": "https://sensirion.com/media/documents/33FD6951/624C4357/Datasheet_SHT4x.pdf",
       "kicad_symbol": "Sensor_Humidity:SHT4x",
       "rationale": "two identical sensors as requested",
-      "confidence": 0.7,
+      "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "sensors",
       "rail": "+3V3",
       "support_for": null,
       "support_pin": null,
-      "key": "sensors/sensor_env#1",
+      "key": "part:U4",
       "origin": "llm",
       "in_bom": true,
       "status": "proposed",
@@ -736,7 +1373,7 @@
       "description": "SPDT power relay, 5 V coil (~71 mA), 10 A contacts, through-hole",
       "package": "Relay_SPDT_SANYOU_SRD_Series_Form_C",
       "footprint": "Relay_THT:Relay_SPDT_SANYOU_SRD_Series_Form_C",
-      "value": null,
+      "value": "SRD-05VDC-SL-C",
       "key_specs": {
         "coil_v": 5,
         "coil_resistance_ohm": 70,
@@ -787,13 +1424,15 @@
       "datasheet_url": "http://www.sanyourelay.ca/public/products/pdf/SRD.pdf",
       "kicad_symbol": "Relay:SANYOU_SRD_Form_C",
       "rationale": "5 V relay requested",
-      "confidence": 0.6,
+      "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "relay",
       "rail": "+3V3",
       "support_for": null,
       "support_pin": null,
-      "key": "relay/relay",
+      "key": "part:K1",
       "origin": "llm",
       "in_bom": true,
       "status": "proposed",
@@ -803,14 +1442,33 @@
       "ref_des": "U5",
       "role": "relay driver transistor",
       "mpn": "MMBT3904",
-      "category": null,
+      "category": "bjt",
       "manufacturer": null,
-      "description": "unverified part (not in library)",
-      "package": null,
-      "footprint": null,
-      "value": null,
+      "description": "0.2A Ic, 40V Vce, Small Signal NPN Transistor, SOT-23",
+      "package": "SOT-23",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "value": "MMBT3904",
       "key_specs": {},
-      "pins": [],
+      "pins": [
+        {
+          "number": "1",
+          "name": "B",
+          "type": "input",
+          "functions": []
+        },
+        {
+          "number": "2",
+          "name": "E",
+          "type": "passive",
+          "functions": []
+        },
+        {
+          "number": "3",
+          "name": "C",
+          "type": "passive",
+          "functions": []
+        }
+      ],
       "supply_range": null,
       "current": {
         "typ_ma": null,
@@ -818,16 +1476,18 @@
         "sleep_ua": null
       },
       "alternates": [],
-      "datasheet_url": null,
-      "kicad_symbol": null,
+      "datasheet_url": "https://www.onsemi.com/pdf/datasheet/pzt3904-d.pdf",
+      "kicad_symbol": "Transistor_BJT:MMBT3904",
       "rationale": "generic NPN; not in the candidate list",
-      "confidence": 0.3,
+      "confidence": 0.6,
       "verified": false,
+      "pins_verified": true,
+      "data_source": "kicad",
       "block_id": "relay",
       "rail": null,
       "support_for": null,
       "support_pin": null,
-      "key": "relay/unverified",
+      "key": "part:U5",
       "origin": "llm",
       "in_bom": true,
       "status": "proposed",
@@ -874,12 +1534,14 @@
       "rationale": "Input capacitor on VBAT",
       "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "regulator",
       "rail": null,
       "support_for": "U1",
       "support_pin": "3",
-      "key": "regulator/ldo/input:VI:1u",
-      "origin": "synth",
+      "key": "part:C1",
+      "origin": "llm",
       "in_bom": true,
       "status": "proposed",
       "locked": false
@@ -925,12 +1587,14 @@
       "rationale": "Output capacitor on +3V3",
       "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "regulator",
       "rail": null,
       "support_for": "U1",
       "support_pin": "2",
-      "key": "regulator/ldo/output:VO:1u",
-      "origin": "synth",
+      "key": "part:C2",
+      "origin": "llm",
       "in_bom": true,
       "status": "proposed",
       "locked": false
@@ -976,12 +1640,14 @@
       "rationale": "Decoupling on +3V3",
       "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "mcu",
       "rail": null,
       "support_for": "U2",
       "support_pin": "1",
-      "key": "mcu/mcu_wireless/decoupling:3V3:10u",
-      "origin": "synth",
+      "key": "part:C3",
+      "origin": "llm",
       "in_bom": true,
       "status": "proposed",
       "locked": false
@@ -1027,12 +1693,14 @@
       "rationale": "Decoupling on +3V3",
       "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "mcu",
       "rail": null,
       "support_for": "U2",
       "support_pin": "1",
-      "key": "mcu/mcu_wireless/decoupling:3V3:100n",
-      "origin": "synth",
+      "key": "part:C4",
+      "origin": "llm",
       "in_bom": true,
       "status": "proposed",
       "locked": false
@@ -1078,12 +1746,14 @@
       "rationale": "EN pull-up",
       "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "mcu",
       "rail": null,
       "support_for": "U2",
-      "support_pin": "2",
-      "key": "mcu/mcu_wireless/en:EN",
-      "origin": "synth",
+      "support_pin": "1",
+      "key": "part:R1",
+      "origin": "llm",
       "in_bom": true,
       "status": "proposed",
       "locked": false
@@ -1129,12 +1799,14 @@
       "rationale": "EN reset-delay capacitor on MCU_EN",
       "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "mcu",
       "rail": null,
       "support_for": "U2",
       "support_pin": "2",
-      "key": "mcu/mcu_wireless/en:EN:1u",
-      "origin": "synth",
+      "key": "part:C5",
+      "origin": "llm",
       "in_bom": true,
       "status": "proposed",
       "locked": false
@@ -1180,12 +1852,14 @@
       "rationale": "Strapping pull-up IO2",
       "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "mcu",
       "rail": null,
       "support_for": "U2",
-      "support_pin": "16",
-      "key": "mcu/mcu_wireless/strapping:IO2",
-      "origin": "synth",
+      "support_pin": "1",
+      "key": "part:R2",
+      "origin": "llm",
       "in_bom": true,
       "status": "proposed",
       "locked": false
@@ -1231,12 +1905,14 @@
       "rationale": "Strapping pull-up IO8",
       "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "mcu",
       "rail": null,
       "support_for": "U2",
-      "support_pin": "7",
-      "key": "mcu/mcu_wireless/strapping:IO8",
-      "origin": "synth",
+      "support_pin": "1",
+      "key": "part:R3",
+      "origin": "llm",
       "in_bom": true,
       "status": "proposed",
       "locked": false
@@ -1250,7 +1926,7 @@
       "description": "SMD tactile switch, 4.2x3.2 mm, 250 gf",
       "package": "SW_SPST_PTS810",
       "footprint": "Button_Switch_SMD:SW_SPST_PTS810",
-      "value": null,
+      "value": "PTS810 SJM 250 SMTR LFS",
       "key_specs": {
         "actuation_force_gf": 250
       },
@@ -1280,12 +1956,14 @@
       "rationale": "boot strapping pin needs a way to be pulled low",
       "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "mcu",
       "rail": "+3V3",
       "support_for": "U2",
-      "support_pin": "8",
-      "key": "mcu/mcu_wireless/boot_button",
-      "origin": "synth",
+      "support_pin": null,
+      "key": "part:SW1",
+      "origin": "llm",
       "in_bom": true,
       "status": "proposed",
       "locked": false
@@ -1299,7 +1977,7 @@
       "description": "SMD tactile switch, 4.2x3.2 mm, 250 gf",
       "package": "SW_SPST_PTS810",
       "footprint": "Button_Switch_SMD:SW_SPST_PTS810",
-      "value": null,
+      "value": "PTS810 SJM 250 SMTR LFS",
       "key_specs": {
         "actuation_force_gf": 250
       },
@@ -1329,12 +2007,14 @@
       "rationale": "no USB auto-reset; manual reset needed for programming",
       "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "mcu",
       "rail": "+3V3",
       "support_for": "U2",
-      "support_pin": "2",
-      "key": "mcu/mcu_wireless/reset_button",
-      "origin": "synth",
+      "support_pin": null,
+      "key": "part:SW2",
+      "origin": "llm",
       "in_bom": true,
       "status": "proposed",
       "locked": false
@@ -1380,12 +2060,14 @@
       "rationale": "I2C SDA pull-up",
       "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "mcu",
       "rail": null,
       "support_for": "U2",
-      "support_pin": "5",
-      "key": "mcu/mcu_wireless/i2c:IO6",
-      "origin": "synth",
+      "support_pin": "1",
+      "key": "part:R4",
+      "origin": "llm",
       "in_bom": true,
       "status": "proposed",
       "locked": false
@@ -1431,12 +2113,14 @@
       "rationale": "I2C SCL pull-up",
       "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "mcu",
       "rail": null,
       "support_for": "U2",
-      "support_pin": "6",
-      "key": "mcu/mcu_wireless/i2c:IO7",
-      "origin": "synth",
+      "support_pin": "1",
+      "key": "part:R5",
+      "origin": "llm",
       "in_bom": true,
       "status": "proposed",
       "locked": false
@@ -1482,12 +2166,14 @@
       "rationale": "Decoupling on +3V3",
       "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "sensors",
       "rail": null,
       "support_for": "U3",
       "support_pin": "3",
-      "key": "sensors/sensor_env/decoupling:VDD:100n",
-      "origin": "synth",
+      "key": "part:C6",
+      "origin": "llm",
       "in_bom": true,
       "status": "proposed",
       "locked": false
@@ -1533,12 +2219,14 @@
       "rationale": "Decoupling on +3V3",
       "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "sensors",
       "rail": null,
       "support_for": "U4",
       "support_pin": "3",
-      "key": "sensors/sensor_env#1/decoupling:VDD:100n",
-      "origin": "synth",
+      "key": "part:C7",
+      "origin": "llm",
       "in_bom": true,
       "status": "proposed",
       "locked": false
@@ -1552,7 +2240,7 @@
       "description": "N-channel 30 V 5.7 A logic-level MOSFET, SOT-23",
       "package": "SOT-23",
       "footprint": "Package_TO_SOT_SMD:SOT-23",
-      "value": null,
+      "value": "AO3400A",
       "key_specs": {
         "vds_v": 30,
         "id_a": 5.7,
@@ -1591,12 +2279,14 @@
       "rationale": "logic-level N-MOSFET switches the coil from a 3.3 V GPIO",
       "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "relay",
       "rail": null,
       "support_for": "K1",
       "support_pin": null,
-      "key": "relay/relay/driver",
-      "origin": "synth",
+      "key": "part:Q1",
+      "origin": "llm",
       "in_bom": true,
       "status": "proposed",
       "locked": false
@@ -1610,7 +2300,7 @@
       "description": "75 V 300 mA small-signal switching diode, SOD-123",
       "package": "D_SOD-123",
       "footprint": "Diode_SMD:D_SOD-123",
-      "value": null,
+      "value": "1N4148W-7-F",
       "key_specs": {
         "vrrm_v": 75,
         "if_ma": 300
@@ -1645,12 +2335,14 @@
       "rationale": "clamps the coil's inductive kick when the FET turns off",
       "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "relay",
       "rail": null,
       "support_for": "K1",
-      "support_pin": null,
-      "key": "relay/relay/flyback",
-      "origin": "synth",
+      "support_pin": "2",
+      "key": "part:D1",
+      "origin": "llm",
       "in_bom": true,
       "status": "proposed",
       "locked": false
@@ -1696,12 +2388,14 @@
       "rationale": "Gate series resistor",
       "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "relay",
       "rail": null,
       "support_for": "Q1",
       "support_pin": "1",
-      "key": "relay/relay/driver/gate:G",
-      "origin": "synth",
+      "key": "part:R6",
+      "origin": "llm",
       "in_bom": true,
       "status": "proposed",
       "locked": false
@@ -1747,12 +2441,14 @@
       "rationale": "Gate pull-down (relay off at reset)",
       "confidence": 0.9,
       "verified": true,
+      "pins_verified": true,
+      "data_source": "library",
       "block_id": "relay",
       "rail": null,
       "support_for": "Q1",
       "support_pin": "1",
-      "key": "relay/relay/driver/gate:G#1",
-      "origin": "synth",
+      "key": "part:R7",
+      "origin": "llm",
       "in_bom": true,
       "status": "proposed",
       "locked": false
@@ -2216,21 +2912,25 @@
         "ref": "U2",
         "pin": "18",
         "reason": "unused GPIO"
+      },
+      {
+        "ref": "U5",
+        "pin": "1",
+        "reason": "left unwired: the synthesizer only wires curated parts (this example keeps the gap on purpose)"
+      },
+      {
+        "ref": "U5",
+        "pin": "2",
+        "reason": "left unwired: the synthesizer only wires curated parts (this example keeps the gap on purpose)"
+      },
+      {
+        "ref": "U5",
+        "pin": "3",
+        "reason": "left unwired: the synthesizer only wires curated parts (this example keeps the gap on purpose)"
       }
     ]
   },
   "power_tree": [
-    {
-      "name": "VBAT",
-      "nominal_v": 3.0,
-      "min_v": 2.0,
-      "max_v": 3.0,
-      "max_current_ma": 15.0,
-      "budget_ma": null,
-      "source_ref": "BT1",
-      "source_kind": "battery",
-      "parent_rail": null
-    },
     {
       "name": "+3V3",
       "nominal_v": 3.3,
@@ -2241,22 +2941,22 @@
       "source_ref": "U1",
       "source_kind": "ldo",
       "parent_rail": "VBAT"
+    },
+    {
+      "name": "VBAT",
+      "nominal_v": 3.0,
+      "min_v": 2.0,
+      "max_v": 3.0,
+      "max_current_ma": 15.0,
+      "budget_ma": null,
+      "source_ref": "BT1",
+      "source_kind": "battery",
+      "parent_rail": null
     }
   ],
   "constraints": {
     "electrical": {
       "rails": [
-        {
-          "name": "VBAT",
-          "nominal_v": 3.0,
-          "min_v": 2.0,
-          "max_v": 3.0,
-          "max_current_ma": 15.0,
-          "budget_ma": 423.0,
-          "source_ref": "BT1",
-          "source_kind": "battery",
-          "parent_rail": null
-        },
         {
           "name": "+3V3",
           "nominal_v": 3.3,
@@ -2267,6 +2967,17 @@
           "source_ref": "U1",
           "source_kind": "ldo",
           "parent_rail": "VBAT"
+        },
+        {
+          "name": "VBAT",
+          "nominal_v": 3.0,
+          "min_v": 2.0,
+          "max_v": 3.0,
+          "max_current_ma": 15.0,
+          "budget_ma": 423.0,
+          "source_ref": "BT1",
+          "source_kind": "battery",
+          "parent_rail": null
         }
       ],
       "net_classes": [
@@ -2414,10 +3125,10 @@
         "name": "mcu",
         "kind": "mcu",
         "rect": {
-          "x_mm": 4.65,
-          "y_mm": 4.03,
-          "w_mm": 6.779999999999999,
-          "h_mm": 9.82
+          "x_mm": 4.07,
+          "y_mm": 3.0300000000000002,
+          "w_mm": 6.859999999999999,
+          "h_mm": 9.440000000000001
         },
         "description": "MCU and its local decoupling/strapping."
       },
@@ -2425,10 +3136,10 @@
         "name": "driver",
         "kind": "driver",
         "rect": {
-          "x_mm": 2.07,
-          "y_mm": 1.3,
-          "w_mm": 11.36,
-          "h_mm": 11.17
+          "x_mm": 1.15,
+          "y_mm": 2.0300000000000002,
+          "w_mm": 12.77,
+          "h_mm": 11.620000000000001
         },
         "description": "Actuator drivers next to their output terminals; wide copper for load current."
       },
@@ -2436,10 +3147,10 @@
         "name": "sensor",
         "kind": "sensor",
         "rect": {
-          "x_mm": 11.8,
-          "y_mm": 6.04,
-          "w_mm": 2.6099999999999994,
-          "h_mm": 7.96
+          "x_mm": 7.3,
+          "y_mm": 7.5,
+          "w_mm": 7.11,
+          "h_mm": 6.5
         },
         "description": "Sensors away from regulators and the MCU module to limit self-heating."
       }
@@ -2492,6 +3203,15 @@
       },
       {
         "ref": "K1",
+        "zone": "driver",
+        "side": "top",
+        "rotation_deg": 0.0,
+        "near": [],
+        "edge": null,
+        "notes": ""
+      },
+      {
+        "ref": "U5",
         "zone": "driver",
         "side": "top",
         "rotation_deg": 0.0,
@@ -2571,7 +3291,7 @@
         "near": [
           {
             "target_ref": "U2",
-            "target_pin": "2",
+            "target_pin": "1",
             "max_distance_mm": 10.0,
             "reason": "EN pull-up (10k)"
           }
@@ -2603,7 +3323,7 @@
         "near": [
           {
             "target_ref": "U2",
-            "target_pin": "16",
+            "target_pin": "1",
             "max_distance_mm": 10.0,
             "reason": "Strapping pull-up IO2 (10k)"
           }
@@ -2619,7 +3339,7 @@
         "near": [
           {
             "target_ref": "U2",
-            "target_pin": "7",
+            "target_pin": "1",
             "max_distance_mm": 10.0,
             "reason": "Strapping pull-up IO8 (10k)"
           }
@@ -2635,7 +3355,7 @@
         "near": [
           {
             "target_ref": "U2",
-            "target_pin": "8",
+            "target_pin": null,
             "max_distance_mm": 10.0,
             "reason": "BOOT button (hold during reset for download mode)"
           }
@@ -2651,7 +3371,7 @@
         "near": [
           {
             "target_ref": "U2",
-            "target_pin": "2",
+            "target_pin": null,
             "max_distance_mm": 10.0,
             "reason": "RESET (EN) button"
           }
@@ -2667,7 +3387,7 @@
         "near": [
           {
             "target_ref": "U2",
-            "target_pin": "5",
+            "target_pin": "1",
             "max_distance_mm": 10.0,
             "reason": "I2C SDA pull-up (4.7k)"
           }
@@ -2683,7 +3403,7 @@
         "near": [
           {
             "target_ref": "U2",
-            "target_pin": "6",
+            "target_pin": "1",
             "max_distance_mm": 10.0,
             "reason": "I2C SCL pull-up (4.7k)"
           }
@@ -2747,7 +3467,7 @@
         "near": [
           {
             "target_ref": "K1",
-            "target_pin": null,
+            "target_pin": "2",
             "max_distance_mm": 10.0,
             "reason": "Flyback diode across 5 V relay coil"
           }
@@ -2820,13 +3540,13 @@
       {
         "ref": "C3",
         "x_mm": 7.5,
-        "y_mm": 7.5,
+        "y_mm": 6.5,
         "rotation_deg": 0.0,
         "side": "top",
         "zone": "mcu",
         "bbox": {
           "x_mm": 6.02,
-          "y_mm": 6.77,
+          "y_mm": 5.77,
           "w_mm": 2.960000000000001,
           "h_mm": 1.4600000000000009
         }
@@ -2834,29 +3554,29 @@
       {
         "ref": "C4",
         "x_mm": 7.5,
-        "y_mm": 6.0,
+        "y_mm": 5.0,
         "rotation_deg": 0.0,
         "side": "top",
         "zone": "mcu",
         "bbox": {
           "x_mm": 6.59,
-          "y_mm": 5.54,
+          "y_mm": 4.54,
           "w_mm": 1.8200000000000003,
           "h_mm": 0.9199999999999999
         }
       },
       {
         "ref": "C5",
-        "x_mm": 10.0,
-        "y_mm": 6.0,
+        "x_mm": 6.5,
+        "y_mm": 10.5,
         "rotation_deg": 0.0,
         "side": "top",
         "zone": "mcu",
         "bbox": {
-          "x_mm": 9.09,
-          "y_mm": 5.54,
+          "x_mm": 5.59,
+          "y_mm": 10.04,
           "w_mm": 1.8200000000000003,
-          "h_mm": 0.9199999999999999
+          "h_mm": 0.9200000000000017
         }
       },
       {
@@ -2875,156 +3595,128 @@
       },
       {
         "ref": "C7",
-        "x_mm": 13.5,
-        "y_mm": 6.5,
+        "x_mm": 9.0,
+        "y_mm": 10.5,
         "rotation_deg": 0.0,
         "side": "top",
         "zone": "sensor",
         "bbox": {
-          "x_mm": 12.59,
-          "y_mm": 6.04,
+          "x_mm": 8.09,
+          "y_mm": 10.04,
           "w_mm": 1.8200000000000003,
-          "h_mm": 0.9199999999999999
+          "h_mm": 0.9200000000000017
         }
       },
       {
         "ref": "D1",
-        "x_mm": 9.0,
-        "y_mm": 2.5,
+        "x_mm": 3.5,
+        "y_mm": 12.5,
         "rotation_deg": 0.0,
         "side": "top",
         "zone": "driver",
         "bbox": {
-          "x_mm": 6.65,
-          "y_mm": 1.35,
+          "x_mm": 1.15,
+          "y_mm": 11.35,
           "w_mm": 4.699999999999999,
-          "h_mm": 2.3
-        }
-      },
-      {
-        "ref": "Q1",
-        "x_mm": 4.0,
-        "y_mm": 3.0,
-        "rotation_deg": 0.0,
-        "side": "top",
-        "zone": "driver",
-        "bbox": {
-          "x_mm": 2.08,
-          "y_mm": 1.3,
-          "w_mm": 3.84,
-          "h_mm": 3.4000000000000004
+          "h_mm": 2.3000000000000007
         }
       },
       {
         "ref": "R1",
-        "x_mm": 7.5,
-        "y_mm": 9.0,
-        "rotation_deg": 0.0,
-        "side": "top",
-        "zone": "mcu",
-        "bbox": {
-          "x_mm": 6.57,
-          "y_mm": 8.53,
-          "w_mm": 1.8599999999999994,
-          "h_mm": 0.9400000000000013
-        }
-      },
-      {
-        "ref": "R2",
         "x_mm": 10.0,
-        "y_mm": 9.0,
-        "rotation_deg": 0.0,
-        "side": "top",
-        "zone": "mcu",
-        "bbox": {
-          "x_mm": 9.07,
-          "y_mm": 8.53,
-          "w_mm": 1.8599999999999994,
-          "h_mm": 0.9400000000000013
-        }
-      },
-      {
-        "ref": "R3",
-        "x_mm": 7.5,
-        "y_mm": 4.5,
-        "rotation_deg": 0.0,
-        "side": "top",
-        "zone": "mcu",
-        "bbox": {
-          "x_mm": 6.57,
-          "y_mm": 4.03,
-          "w_mm": 1.8599999999999994,
-          "h_mm": 0.9399999999999995
-        }
-      },
-      {
-        "ref": "R4",
-        "x_mm": 10.5,
-        "y_mm": 7.5,
-        "rotation_deg": 0.0,
-        "side": "top",
-        "zone": "mcu",
-        "bbox": {
-          "x_mm": 9.57,
-          "y_mm": 7.03,
-          "w_mm": 1.8599999999999994,
-          "h_mm": 0.9399999999999995
-        }
-      },
-      {
-        "ref": "R5",
-        "x_mm": 10.0,
-        "y_mm": 4.5,
-        "rotation_deg": 0.0,
-        "side": "top",
-        "zone": "mcu",
-        "bbox": {
-          "x_mm": 9.07,
-          "y_mm": 4.03,
-          "w_mm": 1.8599999999999994,
-          "h_mm": 0.9399999999999995
-        }
-      },
-      {
-        "ref": "R6",
-        "x_mm": 3.0,
-        "y_mm": 12.0,
-        "rotation_deg": 0.0,
-        "side": "top",
-        "zone": "driver",
-        "bbox": {
-          "x_mm": 2.07,
-          "y_mm": 11.53,
-          "w_mm": 1.8600000000000003,
-          "h_mm": 0.9400000000000013
-        }
-      },
-      {
-        "ref": "R7",
-        "x_mm": 12.5,
         "y_mm": 5.0,
         "rotation_deg": 0.0,
         "side": "top",
-        "zone": "driver",
+        "zone": "mcu",
         "bbox": {
-          "x_mm": 11.57,
+          "x_mm": 9.07,
           "y_mm": 4.53,
           "w_mm": 1.8599999999999994,
           "h_mm": 0.9399999999999995
         }
       },
       {
-        "ref": "SW1",
+        "ref": "R2",
+        "x_mm": 5.0,
+        "y_mm": 4.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 4.07,
+          "y_mm": 3.5300000000000002,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9399999999999995
+        }
+      },
+      {
+        "ref": "R3",
+        "x_mm": 7.5,
+        "y_mm": 3.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 6.57,
+          "y_mm": 3.0300000000000002,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9399999999999995
+        }
+      },
+      {
+        "ref": "R4",
+        "x_mm": 10.0,
+        "y_mm": 3.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "mcu",
+        "bbox": {
+          "x_mm": 9.07,
+          "y_mm": 3.0300000000000002,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9399999999999995
+        }
+      },
+      {
+        "ref": "R5",
         "x_mm": 7.5,
         "y_mm": 12.0,
         "rotation_deg": 0.0,
         "side": "top",
         "zone": "mcu",
         "bbox": {
-          "x_mm": 4.65,
-          "y_mm": 10.15,
-          "w_mm": 5.699999999999999,
-          "h_mm": 3.6999999999999993
+          "x_mm": 6.57,
+          "y_mm": 11.53,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9400000000000013
+        }
+      },
+      {
+        "ref": "R6",
+        "x_mm": 10.0,
+        "y_mm": 12.0,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "driver",
+        "bbox": {
+          "x_mm": 9.07,
+          "y_mm": 11.53,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9400000000000013
+        }
+      },
+      {
+        "ref": "R7",
+        "x_mm": 5.0,
+        "y_mm": 2.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "driver",
+        "bbox": {
+          "x_mm": 4.07,
+          "y_mm": 2.0300000000000002,
+          "w_mm": 1.8599999999999994,
+          "h_mm": 0.9399999999999995
         }
       },
       {
@@ -3057,16 +3749,30 @@
       },
       {
         "ref": "U4",
-        "x_mm": 13.0,
+        "x_mm": 8.5,
         "y_mm": 8.5,
         "rotation_deg": 0.0,
         "side": "top",
         "zone": "sensor",
         "bbox": {
-          "x_mm": 11.8,
+          "x_mm": 7.3,
           "y_mm": 7.5,
-          "w_mm": 2.3999999999999986,
+          "w_mm": 2.3999999999999995,
           "h_mm": 2.0
+        }
+      },
+      {
+        "ref": "U5",
+        "x_mm": 12.0,
+        "y_mm": 7.5,
+        "rotation_deg": 0.0,
+        "side": "top",
+        "zone": "driver",
+        "bbox": {
+          "x_mm": 10.08,
+          "y_mm": 5.8,
+          "w_mm": 3.84,
+          "h_mm": 3.3999999999999995
         }
       }
     ],
@@ -3105,7 +3811,7 @@
     "priorities": [
       {
         "order": 1,
-        "target": "VBAT, +3V3",
+        "target": "+3V3, VBAT",
         "reason": "power rails at Power net-class width; star from the source"
       },
       {
@@ -3184,7 +3890,7 @@
       "rule": "CON-BOARD-AREA",
       "severity": "error",
       "category": "placement",
-      "message": "Requested board 15 x 15 mm = 225 mm^2 but the parts' courtyards need about 1662 mm^2 before any routing space.",
+      "message": "Requested board 15 x 15 mm = 225 mm^2 but the parts' courtyards need about 1679 mm^2 before any routing space.",
       "refs": [],
       "nets": [],
       "suggested_fix": "Enlarge the board, use a double-sided assembly, or drop parts.",
@@ -3195,12 +3901,14 @@
       "rule": "DFM-UNPLACED",
       "severity": "error",
       "category": "placement",
-      "message": "4 part(s) could not be placed: BT1, U2, K1, SW2.",
+      "message": "6 part(s) could not be placed: BT1, U2, K1, SW1, SW2, Q1.",
       "refs": [
         "BT1",
         "U2",
         "K1",
-        "SW2"
+        "SW1",
+        "SW2",
+        "Q1"
       ],
       "nets": [],
       "suggested_fix": "Enlarge the board or remove parts.",
@@ -3227,6 +3935,32 @@
       "message": "K1 (SRD-05VDC-SL-C) does not fit on the 15 x 15 mm board.",
       "refs": [
         "K1"
+      ],
+      "nets": [],
+      "suggested_fix": "Enlarge the board or remove parts.",
+      "source": "internal"
+    },
+    {
+      "id": "PLACE-NO-SPACE:Q1",
+      "rule": "PLACE-NO-SPACE",
+      "severity": "error",
+      "category": "placement",
+      "message": "Q1 (AO3400A) does not fit on the 15 x 15 mm board.",
+      "refs": [
+        "Q1"
+      ],
+      "nets": [],
+      "suggested_fix": "Enlarge the board or remove parts.",
+      "source": "internal"
+    },
+    {
+      "id": "PLACE-NO-SPACE:SW1",
+      "rule": "PLACE-NO-SPACE",
+      "severity": "error",
+      "category": "placement",
+      "message": "SW1 (PTS810 SJM 250 SMTR LFS) does not fit on the 15 x 15 mm board.",
+      "refs": [
+        "SW1"
       ],
       "nets": [],
       "suggested_fix": "Enlarge the board or remove parts.",
@@ -3387,16 +4121,16 @@
       "source": "internal"
     },
     {
-      "id": "LIB-UNVERIFIED:U5",
-      "rule": "LIB-UNVERIFIED",
+      "id": "LIB-KICAD-ONLY:U5",
+      "rule": "LIB-KICAD-ONLY",
       "severity": "warning",
       "category": "library",
-      "message": "MMBT3904 (relay driver transistor) is not in the verified library: no pin table, so it is excluded from the netlist and its function is missing.",
+      "message": "U5 (MMBT3904) is not in the curated library: pins from KiCad symbol Transistor_BJT:MMBT3904, footprint Package_TO_SOT_SMD:SOT-23; MPN, footprint match and ratings are not verified.",
       "refs": [
         "U5"
       ],
       "nets": [],
-      "suggested_fix": "Pick a library part, or add this MPN to parts_curated.toml with its KiCad symbol and rebuild the seed.",
+      "suggested_fix": "Check the MPN, package and ratings against the datasheet.",
       "source": "internal"
     },
     {
@@ -3461,18 +4195,7 @@
       "rule": "DRC-LIB_FOOTPRINT_ISSUES",
       "severity": "info",
       "category": "DRC",
-      "message": "KiCad DRC lib_footprint_issues: 20 item(s). The current configuration does not include the library 'Package_TO_SOT_SMD'. [Footprint U1] | The current configuration does not include the library 'Sensor_Humidity'. [Footprint U3] | The current configuration does not include the library 'Sensor_Humidity'. [Footprint U4] | The current configuration does not include the library 'Capacitor_SMD'. [Footprint C1] (+16 more) Expected here: the board was checked without the KiCad footprint library tables.",
-      "refs": [],
-      "nets": [],
-      "suggested_fix": null,
-      "source": "kicad"
-    },
-    {
-      "id": "DRC-SILK_EDGE_CLEARANCE:warning",
-      "rule": "DRC-SILK_EDGE_CLEARANCE",
-      "severity": "info",
-      "category": "DRC",
-      "message": "KiCad DRC silk_edge_clearance: 2 item(s). Silkscreen clipped by board edge [Segment on Edge.Cuts; Reference 'Q1'] | Silkscreen clipped by board edge [Segment on Edge.Cuts; Reference 'D1'] Expected here: silkscreen near the edge on edge-mounted connectors.",
+      "message": "KiCad DRC lib_footprint_issues: 19 item(s). The current configuration does not include the library 'Package_TO_SOT_SMD'. [Footprint U1] | The current configuration does not include the library 'Sensor_Humidity'. [Footprint U3] | The current configuration does not include the library 'Sensor_Humidity'. [Footprint U4] | The current configuration does not include the library 'Package_TO_SOT_SMD'. [Footprint U5] (+15 more) Expected here: the board was checked without the KiCad footprint library tables.",
       "refs": [],
       "nets": [],
       "suggested_fix": null,
@@ -3483,7 +4206,7 @@
       "rule": "DRC-SILK_OVERLAP",
       "severity": "info",
       "category": "DRC",
-      "message": "KiCad DRC silk_overlap: 18 item(s). Silkscreen overlap [Reference 'C1'; Segment on F.Silkscreen] | Silkscreen overlap [Segment on F.Silkscreen; Reference 'C2'] | Silkscreen overlap [Reference 'C1'; Segment on F.Silkscreen] | Silkscreen overlap [Reference 'C3'; Segment on F.Silkscreen] (+14 more) Expected here: silkscreen reference positions come from the library footprints.",
+      "message": "KiCad DRC silk_overlap: 7 item(s). Silkscreen overlap [Segment on F.Silkscreen; Reference 'C2'] | Silkscreen overlap [Reference 'U3'; Segment on F.Silkscreen] | Silkscreen overlap [Segment on F.Silkscreen; Reference 'C7'] | Silkscreen overlap [Segment on F.Silkscreen; Reference 'C3'] (+3 more) Expected here: silkscreen reference positions come from the library footprints.",
       "refs": [],
       "nets": [],
       "suggested_fix": null,
@@ -3494,7 +4217,7 @@
       "rule": "DRC-SILK_OVER_COPPER",
       "severity": "info",
       "category": "DRC",
-      "message": "KiCad DRC silk_over_copper: 16 item(s). Silkscreen clipped by solder mask [Reference 'U1'] | Silkscreen clipped by solder mask [Reference 'U3'] | Silkscreen clipped by solder mask [Reference 'U4'] | Silkscreen clipped by solder mask [Reference 'C1'] (+12 more) Expected here: silkscreen reference positions come from the library footprints.",
+      "message": "KiCad DRC silk_over_copper: 13 item(s). Silkscreen clipped by solder mask [Reference 'U1'] | Silkscreen clipped by solder mask [Reference 'U3'] | Silkscreen clipped by solder mask [Reference 'U4'] | Silkscreen clipped by solder mask [Reference 'C1'] (+9 more) Expected here: silkscreen reference positions come from the library footprints.",
       "refs": [],
       "nets": [],
       "suggested_fix": null,
@@ -3505,7 +4228,7 @@
       "rule": "DRC-UNCONNECTED_ITEMS",
       "severity": "info",
       "category": "DRC",
-      "message": "KiCad DRC unconnected_items: 36 item(s). Missing connection between items [Pad 2 [GND] of C3 on F.Cu; Pad 2 [GND] of C4 on F.Cu] | Missing connection between items [Pad 4 [GND] of U4 on F.Cu; Pad 2 [GND] of C7 on F.Cu] | Missing connection between items [Pad 4 [GND] of U3 on F.Cu; Pad 2 [GND] of C6 on F.Cu] | Missing connection between items [Pad 2 [GND] of C7 on F.Cu; Pad 2 [GND] of R7 on F.Cu] (+32 more) Expected here: routing is a manual step; every ratsnest line is reported.",
+      "message": "KiCad DRC unconnected_items: 30 item(s). Missing connection between items [Pad 2 [GND] of C3 on F.Cu; Pad 2 [GND] of C4 on F.Cu] | Missing connection between items [Pad 4 [GND] of U3 on F.Cu; Pad 2 [GND] of C6 on F.Cu] | Missing connection between items [Pad 2 [GND] of C3 on F.Cu; Pad 4 [GND] of U4 on F.Cu] | Missing connection between items [Pad 4 [GND] of U4 on F.Cu; Pad 2 [GND] of C7 on F.Cu] (+26 more) Expected here: routing is a manual step; every ratsnest line is reported.",
       "refs": [],
       "nets": [],
       "suggested_fix": null,
@@ -3516,9 +4239,25 @@
       "rule": "LIB-NO-DATASHEET",
       "severity": "info",
       "category": "library",
-      "message": "No trusted datasheet URL for BT1 (KiCad metadata has none; URLs are never guessed). Look these up from the manufacturer.",
+      "message": "No trusted datasheet URL for BT1, C1, C2, C3, C4, R1, C5, R2, R3, SW1, SW2, R4, R5, C6, C7, R6, R7 (KiCad metadata has none; URLs are never guessed). Look these up from the manufacturer.",
       "refs": [
-        "BT1"
+        "BT1",
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "R1",
+        "C5",
+        "R2",
+        "R3",
+        "SW1",
+        "SW2",
+        "R4",
+        "R5",
+        "C6",
+        "C7",
+        "R6",
+        "R7"
       ],
       "nets": [],
       "suggested_fix": null,
@@ -3527,11 +4266,11 @@
   ],
   "check_summary": {
     "status": "FAIL",
-    "errors": 12,
+    "errors": 14,
     "warnings": 10,
-    "infos": 7,
+    "infos": 6,
     "kicad_drc_ran": true,
-    "kicad_drc_note": "KiCad DRC ran via kicad-cli-docker: Found 56 violations; Found 36 unconnected items"
+    "kicad_drc_note": "KiCad DRC ran via kicad-cli-docker: Found 39 violations; Found 30 unconnected items"
   },
   "assumptions": [
     {
@@ -3541,8 +4280,7 @@
     }
   ],
   "design_notes": [
-    "SRD-05VDC-SL-C: contacts on pins 3 and 4 - confirm which is normally-open against the manufacturer's datasheet before labelling.",
-    "GPIO assignment on ESP32-C3-WROOM-02-N4: I2C_SDA->IO6, I2C_SCL->IO7, RELAY1->IO10."
+    "Parts: 25 entries; netlist: 15 nets, accepted after 5 submission(s) (NOT accepted: open problems listed)"
   ],
   "stages_run": [
     "requirements",

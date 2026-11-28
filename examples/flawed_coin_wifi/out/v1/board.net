@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "pcbassist plan")
-		(date "2026-11-26")
+		(date "2026-11-28")
 		(tool "pcbassist 0.1.0")
 		(sheet
 			(number "1")
@@ -12,7 +12,7 @@
 				(title "Wi-Fi T/RH logger on a CR2032 with a 5 V relay, two sensors, 15 x 15 mm.")
 				(company "")
 				(rev "v1")
-				(date "2026-11-26")
+				(date "2026-11-28")
 				(source "pcbassist")
 				(comment
 					(number "1")
@@ -135,6 +135,25 @@
 			)
 			(sheetpath (names "/") (tstamps "/"))
 			(tstamps "d0c99f61-2dfc-5aeb-98bd-de5119085243")
+		)
+		(comp
+			(ref "U5")
+			(value "MMBT3904")
+			(footprint "Package_TO_SOT_SMD:SOT-23")
+			(datasheet "https://www.onsemi.com/pdf/datasheet/pzt3904-d.pdf")
+			(description "0.2A Ic, 40V Vce, Small Signal NPN Transistor, SOT-23")
+			(fields
+				(field (name "MPN") "MMBT3904")
+				(field (name "Manufacturer") "")
+				(field (name "Role") "relay driver transistor")
+			)
+			(libsource
+				(lib "Transistor_BJT")
+				(part "MMBT3904")
+				(description "0.2A Ic, 40V Vce, Small Signal NPN Transistor, SOT-23")
+			)
+			(sheetpath (names "/") (tstamps "/"))
+			(tstamps "a30c02f1-bc7c-51ec-9f18-9c822a048ded")
 		)
 		(comp
 			(ref "C1")

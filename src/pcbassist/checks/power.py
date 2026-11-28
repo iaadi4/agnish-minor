@@ -108,7 +108,7 @@ def analyze_power(plan: DesignPlan) -> PowerReport:
     budgets = {r.name: RailBudget(r) for r in rails}
     no_data: list[str] = []
     for c in plan.components:
-        if not c.verified or not c.rail or c.rail not in budgets:
+        if not c.pins_known or not c.rail or c.rail not in budgets:
             continue
         load = _load_of(c)
         if load is None:

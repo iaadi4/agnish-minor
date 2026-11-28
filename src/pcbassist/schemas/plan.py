@@ -12,6 +12,7 @@ from .common import DISCLAIMER, SCHEMA_VERSION, Model, ReviewStatus
 from .component import Component
 from .constraints import Constraints, RailConstraint
 from .findings import CheckSummary, Finding
+from .intent import NetlistIntent, PartsManifest
 from .llm_outputs import ComponentSelection
 from .netlist import Netlist
 from .placement import PlacementPlan
@@ -39,6 +40,17 @@ class DesignPlan(Model):
     architecture: Architecture | None = None
     selection: ComponentSelection | None = Field(
         default=None, description="Raw LLM component selection (before library cross-check)"
+    )
+    manifest: PartsManifest | None = Field(
+        default=None, description="Parts the LLM chose (intent engine), as it submitted them"
+    )
+    netlist_intent: NetlistIntent | None = Field(
+        default=None, description="Pin-level netlist the LLM wrote (intent engine)"
+    )
+    engine: str = Field(
+        default="intent",
+        pattern=r"^(intent|synth)$",
+        description="intent: LLM-authored parts+netlist verified by code; synth: rule templates",
     )
     components: list[Component] = Field(default_factory=list)
     netlist: Netlist | None = None

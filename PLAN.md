@@ -113,9 +113,10 @@ rule code are, and every LLM claim is checked against them.
   bridged with bulk capacitance); beyond that it is an error.
 - Net-class clearance equals the fab minimum (0.15 mm), because fine-pitch library
   footprints have 0.15 mm pad gaps.
-- When an LLM proposes an MPN that is not in the library it is kept, flagged
-  `verified=false`, given confidence ≤ 0.3, and excluded from the netlist until a human
-  confirms it with a pin table.
+- Intent engine (default since M8): a part outside the curated library is accepted only
+  with an exact KiCad symbol and footprint whose pins and pads match; it is wired from the
+  KiCad pin table and flagged `LIB-KICAD-ONLY`. Synth engine: an MPN that is not in the
+  library is kept, flagged `verified=false`, confidence ≤ 0.3, and excluded from the netlist.
 
 ## 4. Milestones
 
@@ -128,6 +129,8 @@ rule code are, and every LLM claim is checked against them.
 5. **Exporters** — `.net`, `.kicad_pro`, `.kicad_pcb`, (`.kicad_sch`), BOM CSV, report.md, DRC.
 6. **Review & iteration** — versions, diff, comments/decisions/locks, partial regen, UI.
 7. **Examples, docs, Docker, `make demo`.**
+8. **Intent engine** (copperhead-style): LLM-authored parts and netlist over the full KiCad
+   library, verified and repaired in tool loops.
 
 ## 5. Risks / known limitations
 
@@ -138,9 +141,12 @@ rule code are, and every LLM claim is checked against them.
   entry carries `verified_by` provenance notes; anything uncertain is marked in `notes`.
 - No routing, single-sided placement, 0° rotation. Edge connectors still need rotating so
   their mating face points off the board.
-- Subcircuit rules cover the parts the examples use plus their close relatives. Other
-  parts get power and ground, and their remaining pins become explicit NCs with a
-  SYNTH-INCOMPLETE warning, never silent guesses.
+- Synth engine: subcircuit rules cover the parts the examples use plus their close
+  relatives. Other parts get power and ground, and their remaining pins become explicit NCs
+  with a SYNTH-INCOMPLETE warning, never silent guesses.
+- Intent engine: correctness is bounded by the validators (parts exist, pins exist, every
+  pin accounted for, ERC/power rules pass). A circuit can pass them and still be a poor
+  design; ratings of KiCad-only parts are model claims. Both are flagged for review.
 
 ## 6. Milestone log
 
@@ -216,3 +222,49 @@ rule code are, and every LLM claim is checked against them.
 - **Tested:** 214 tests (+2 real-KiCad tests that run when kicad-cli is available), 92 %
   line coverage, ruff clean, mypy strict on the core modules.
 - **Still untested:** the live Anthropic path against the real API (no key here).
+
+### M8 - Intent engine, after copperhead (done 2026-11-28)
+Studied [copperhead](https://github.com/copperheadhq/copperhead) (Apache-2.0; ideas adapted,
+no code copied). What makes it accurate, and what we took:
+
+| copperhead | pcbassist |
+|---|---|
+| Parts manifest (`parts.intent.json`) validated by `draft_bom` against the installed KiCad libraries: lib_id resolves, footprint resolves, symbol pins are footprint pads, value is not prose, one entry per refdes, MPN for active parts, substitutions recorded | `PartsManifest` + `resolve_manifest` with the same rules, plus curated-library parts (verified ratings), locked/rejected parts and `blockers` |
+| Passive shorthand (`package: "0603"` -> stock symbol + footprint) | same table (`PASSIVES`) |
+| Netlist-intent IR (`REF.PIN` endpoints, `noConnect`), validated before drafting: pin exists (lists real pins), pin in one net, power-token collisions | `NetlistIntent` + `validate_intent`: same, plus "every pin in a net or a no-connect with a reason", NC power/ground refused, rail voltages, pin-name -> number hints |
+| Pin dossier of every part's real pins injected into the schematic prompt | `pin_dossier` in the netlist prompt |
+| `search_symbols` / `symbol_pins` / `check_footprints` tools; "installed as" suggestions on a miss | same tools over a bundled index of all 21,700 KiCad 8.0.9 symbols and 14,193 footprints |
+| Verification-gated loop: nothing is done until ERC/DRC agree; findings fed back to the model | tool loop with `submit`; ERC/power ERRORs fed back; part-level ones loop back to the parts stage |
+| Refusal with blockers when a constraint cannot be met | `PartsManifest.blockers` -> `SEL-BLOCKER` errors |
+
+Not taken (out of scope for a prompt-to-plan tool): editing existing KiCad repos, the
+schematic drawing engine and legibility scoring, SPICE gate, grounded review bundle, MCP
+server, multiple model providers.
+
+Decisions:
+- **D18. Default engine = intent.** The LLM now writes pin numbers, but only from tables
+  the tool gives it, and every one is checked. The synthesizer stays as `--engine synth`
+  and is what the mock parts/netlist fixtures are derived from.
+- **D19. Bundled KiCad index** (`data/kicad/*.json.gz`, 3.6 MB) instead of requiring a
+  KiCad install: search, pins and pad checks work everywhere (CI, Docker, laptops).
+  Boards embed real footprint files when a library tree exists (`make kicad-libs`),
+  otherwise footprints rebuilt from pads + courtyard.
+- **D20. ERC feedback split.** Wiring problems (unconnected, shorts, driver conflicts,
+  ground pins, supply range) go back to the netlist stage; problems that need a part
+  (decoupling, pull-ups, CC resistors, flyback, LED resistor, capacity) re-run the parts
+  stage, at most 2 extra rounds, stopping early if the manifest does not change.
+- **D21. Pin-based ERC on KiCad-only parts.** `Component.pins_known` (curated or KiCad
+  symbol) gates pin rules, layout and export; `verified` (curated ratings) still gates
+  nothing silently: unverified ratings are flagged instead.
+- **D22. Submission budget:** 5 submissions and 30 turns per tool stage; the best
+  schema-valid submission is kept and its open problems become error findings.
+
+- **Works:** five examples through the intent engine in mock mode; four match the synth
+  engine's netlist exactly (tested), `motor_current_monitor` adds an INA226 that only the
+  intent engine can wire. Real KiCad 8.0.9 (Docker): all boards load and DRC runs; the
+  netlist KiCad extracts from our schematic matches the plan for iot, relay and the INA226
+  board. `pcbassist kicad search|pins|footprint`. `--engine`, recording of tool turns.
+- **Tested:** 250 tests (+3 real-KiCad tests, passing via Docker), 86 % coverage, ruff
+  clean, mypy strict.
+- **Still untested:** the tool loop against the real API (no key here).
+

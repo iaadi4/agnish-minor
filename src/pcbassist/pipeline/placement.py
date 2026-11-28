@@ -265,7 +265,7 @@ class Placer:
         comps = [
             c
             for c in self.plan.components
-            if c.verified and c.ref_des not in self.placed and not c.support_for
+            if c.pins_known and c.ref_des not in self.placed and not c.support_for
         ]
         comps.sort(
             key=lambda c: (
@@ -303,7 +303,7 @@ class Placer:
         sups = [
             c
             for c in self.plan.components
-            if c.support_for == anchor_ref and c.verified and c.ref_des not in self.placed
+            if c.support_for == anchor_ref and c.pins_known and c.ref_des not in self.placed
         ]
         sups.sort(key=lambda c: (0 if c.role.startswith("Decoupling") else 1, c.ref_des))
         for c in sups:
@@ -325,7 +325,7 @@ class Placer:
 
     def leftovers(self) -> None:
         for c in self.plan.components:
-            if c.verified and c.ref_des not in self.placed and c.footprint:
+            if c.pins_known and c.ref_des not in self.placed and c.footprint:
                 self._place_near(c, (self.w / 2, self.h / 2), self.zone.get(c.ref_des, "general"))
 
     def _area(self, c: Component) -> float:
@@ -417,7 +417,7 @@ class Placer:
         }
         edges = {cp.ref: cp for cp in self.plan.constraints.mechanical.connectors}
         for c in self.plan.components:
-            if not c.verified:
+            if not c.pins_known:
                 continue
             near: list[ProximityRule] = []
             if c.support_for:

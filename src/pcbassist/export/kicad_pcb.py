@@ -307,7 +307,7 @@ def build_pcb(plan: DesignPlan, name: str = "board") -> SExpr:
     placements = {p.ref: p for p in plan.placement.placements} if plan.placement else {}
     for c in plan.components:
         p = placements.get(c.ref_des)
-        if p is None or not c.verified or not c.footprint:
+        if p is None or not c.pins_known or not c.footprint:
             continue
         fp = footprint_instance(
             c.footprint,

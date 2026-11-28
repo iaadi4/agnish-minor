@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "pcbassist plan")
-		(date "2026-11-26")
+		(date "2026-11-28")
 		(tool "pcbassist 0.1.0")
 		(sheet
 			(number "1")
@@ -12,7 +12,7 @@
 				(title "12 V Wi-Fi controller for a small DC motor and a 5 V relay.")
 				(company "")
 				(rev "v1")
-				(date "2026-11-26")
+				(date "2026-11-28")
 				(source "pcbassist")
 				(comment
 					(number "1")

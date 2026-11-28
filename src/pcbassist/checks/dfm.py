@@ -64,7 +64,7 @@ def run_dfm(plan: DesignPlan, fab: FabProfile) -> list[Finding]:
     out: list[Finding] = []
     min_idx = IMPERIAL_ORDER.index(fab.min_passive_size)
     for c in plan.components:
-        if not c.verified or not c.footprint:
+        if not c.pins_known or not c.footprint:
             continue
         size = passive_size(c.footprint)
         if size and IMPERIAL_ORDER.index(size) < min_idx:
@@ -307,7 +307,9 @@ def run_placement_checks(plan: DesignPlan, fab: FabProfile) -> list[Finding]:
                 )
     placed = {p.ref for p in plan.placement.placements}
     missing = [
-        c.ref_des for c in plan.components if c.verified and c.footprint and c.ref_des not in placed
+        c.ref_des
+        for c in plan.components
+        if c.pins_known and c.footprint and c.ref_des not in placed
     ]
     if missing:
         out.append(

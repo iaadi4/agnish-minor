@@ -186,9 +186,12 @@ def test_rejected_part_is_reported_on_refine(plans, library: ComponentLibrary) -
         lib=library,
         stage="components",
     )
-    # the mock answers with the original selection, which re-proposes the rejected part:
-    assert any(f.rule == "SEL-REJECTED-AGAIN" for f in new.findings)
-    assert "SHT40-AD1B-R3" not in {c.mpn for c in new.components}
+    # the mock answers with the original manifest, which re-proposes the rejected part: the
+    # validator refuses it every round, so it ends as an error and stays marked rejected
+    again = [f for f in new.findings if f.rule == "SEL-REJECTED-AGAIN"]
+    assert again and again[0].severity.value == "error"
+    sht = next(c for c in new.components if c.mpn == "SHT40-AD1B-R3")
+    assert sht.status.value == "rejected"
 
 
 def test_generate_writes_audit_without_secrets(

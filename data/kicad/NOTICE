@@ -1,0 +1,12 @@
+The files in this directory are derived from the official KiCad libraries
+(https://gitlab.com/kicad/libraries/kicad-symbols and kicad-footprints, version 8.0.9):
+
+* footprints/                vendored footprint files of the curated library's parts
+* symbol_index.json.gz       symbol names, descriptions, default footprints, datasheet
+                             links and pin tables (number, name, electrical type, unit)
+* footprint_geom.json.gz     footprint names, pads and courtyards
+* footprint_index.json       footprint names
+
+The KiCad libraries are licensed under CC-BY-SA 4.0 with the KiCad library exception:
+designs made with them are not derivative works and may use any license. See
+https://www.kicad.org/libraries/license/ . Rebuild with scripts/build_kicad_index.py.

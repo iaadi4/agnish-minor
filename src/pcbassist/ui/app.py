@@ -39,6 +39,7 @@ class CreateBody(BaseModel):
     mock: bool = True
     fab_profile: str | None = None
     drc: bool = False
+    engine: str = Field(default="intent", pattern=r"^(intent|synth)$")
 
 
 class CommentBody(BaseModel):
@@ -135,7 +136,7 @@ def create_app(sessions_root: Path, lib: ComponentLibrary | None = None) -> Fast
                 client=client(body.mock),
                 lib=library,
                 audit=s.audit(),
-                options=PipelineOptions(fab_profile=body.fab_profile),
+                options=PipelineOptions(fab_profile=body.fab_profile, engine=body.engine),
             )
         except LLMError as e:
             raise HTTPException(502, f"LLM stage '{e.stage}' failed: {e}") from e

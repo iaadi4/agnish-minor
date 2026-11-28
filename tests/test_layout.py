@@ -76,7 +76,7 @@ def test_placement_is_legal(plans: dict[str, DesignPlan], name: str) -> None:
     placed = {p.ref: p for p in plan.placement.placements}
     comps = {c.ref_des: c for c in plan.components}
     for c in plan.components:
-        if c.verified and c.footprint:
+        if c.pins_known and c.footprint:
             assert c.ref_des in placed, f"{c.ref_des} unplaced"
     shapes = {}
     for ref, p in placed.items():

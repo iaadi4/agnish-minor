@@ -41,7 +41,12 @@ def write_bom(plan: DesignPlan) -> str:
         comps.sort(key=lambda c: _natural(c.ref_des))
         first = comps[0]
         notes = []
-        if not first.verified:
+        if not first.verified and first.pins_known:
+            notes.append(
+                f"UNVERIFIED MPN/ratings: pins from KiCad symbol {first.kicad_symbol}; "
+                "check the datasheet"
+            )
+        elif not first.verified:
             notes.append("UNVERIFIED: not in library, excluded from netlist")
         if first.datasheet_url is None:
             notes.append("no trusted datasheet URL")

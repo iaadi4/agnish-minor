@@ -8,6 +8,11 @@ Fixture layout: ``fixtures/llm/<stage>/<name>.json`` with::
       "responses": [ "<raw text>", ... ]        # successive answers (for retry tests)
     }
 
+Tool stages (``complete_tools``): each fixture response becomes one assistant turn. A
+response shaped ``{"tool_calls": [{"name": ..., "input": {...}}]}`` is replayed as those
+tool calls (to exercise lookups); any other response is sent as a ``submit`` call carrying
+that JSON document.
+
 Selection: an exact ``prompt_sha256`` match wins; otherwise the fixture with the most
 keyword hits (ties broken by name). A ``_default.json`` fixture is used when nothing scores.
 If several responses are listed they are returned in order across calls for the same
@@ -24,7 +29,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 from ..paths import fixtures_dir
-from .base import LLMError, LLMRequest, LLMResponse
+from .base import LLMError, LLMRequest, LLMResponse, ToolCall, ToolRequest, ToolTurn
 
 MOCK_MODEL = "mock-llm"
 
@@ -38,6 +43,7 @@ class MockLLMClient:
         self.root = root or fixtures_dir() / "llm"
         self._cursor: dict[tuple[str, str], int] = defaultdict(int)
         self.calls: list[LLMRequest] = []
+        self.tool_calls: list[ToolRequest] = []
 
     @property
     def model_name(self) -> str:
@@ -99,5 +105,36 @@ class MockLLMClient:
             text=text,
             model=MOCK_MODEL,
             stop_reason="end_turn",
+            meta={"fixture": f"{request.stage}/{name}", "match": how},
+        )
+
+    def complete_tools(self, request: ToolRequest) -> ToolTurn:
+        self.tool_calls.append(request)
+        name, fx, how = self.select(request.stage, request.fixture_key)
+        responses = fx.get("responses")
+        if not isinstance(responses, list) or not responses:
+            raise LLMError(
+                f"mock fixture {request.stage}/{name} has no responses", stage=request.stage
+            )
+        i = self._cursor[(request.stage, name)]
+        self._cursor[(request.stage, name)] = i + 1
+        raw = responses[min(i, len(responses) - 1)]
+        if isinstance(raw, dict) and "tool_calls" in raw:
+            calls = tuple(
+                ToolCall(id=f"mock_{i}_{k}", name=str(c["name"]), input=dict(c.get("input", {})))
+                for k, c in enumerate(raw["tool_calls"])
+            )
+        else:
+            doc = raw if isinstance(raw, str) else json.dumps(raw)
+            calls = (ToolCall(id=f"mock_{i}_0", name="submit", input={"json": doc}),)
+        content = [
+            {"type": "tool_use", "id": c.id, "name": c.name, "input": c.input} for c in calls
+        ]
+        return ToolTurn(
+            text="",
+            calls=calls,
+            content=content,
+            model=MOCK_MODEL,
+            stop_reason="tool_use",
             meta={"fixture": f"{request.stage}/{name}", "match": how},
         )

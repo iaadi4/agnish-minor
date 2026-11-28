@@ -1,0 +1,243 @@
+{
+ "_note": "Derived fixture (not a model recording): the synthesizer's design for this example in the shape the model submits. See scripts/derive_intent_fixtures.py.",
+ "match": [
+  "logger",
+  "10",
+  "seconds",
+  "redundancy",
+  "identical",
+  "15",
+  "years"
+ ],
+ "prompt_sha256": "2dd0336747887b32f92ccfde65e0cb68dea23081ab78ba0fff6a721296037b21",
+ "responses": [
+  {
+   "parts": [
+    {
+     "ref": "BT1",
+     "value": "3034",
+     "block_id": "battery",
+     "role": "CR2032 holder",
+     "mpn": "3034",
+     "rationale": "requested coin cell"
+    },
+    {
+     "ref": "U1",
+     "value": "MCP1700T-3302E/TT",
+     "block_id": "regulator",
+     "role": "3.3 V LDO",
+     "mpn": "MCP1700T-3302E/TT",
+     "rationale": "1.6 uA quiescent current"
+    },
+    {
+     "ref": "U2",
+     "value": "ESP32-C3-WROOM-02-N4",
+     "block_id": "mcu",
+     "role": "Wi-Fi MCU",
+     "mpn": "ESP32-C3-WROOM-02-N4",
+     "rationale": "Wi-Fi requested"
+    },
+    {
+     "ref": "U3",
+     "value": "SHT40-AD1B-R3",
+     "block_id": "sensors",
+     "role": "humidity sensor #1",
+     "mpn": "SHT40-AD1B-R3",
+     "rationale": "two identical sensors as requested"
+    },
+    {
+     "ref": "U4",
+     "value": "SHT40-AD1B-R3",
+     "block_id": "sensors",
+     "role": "humidity sensor #2",
+     "mpn": "SHT40-AD1B-R3",
+     "rationale": "two identical sensors as requested"
+    },
+    {
+     "ref": "K1",
+     "value": "SRD-05VDC-SL-C",
+     "block_id": "relay",
+     "role": "5 V relay",
+     "mpn": "SRD-05VDC-SL-C",
+     "rationale": "5 V relay requested"
+    },
+    {
+     "ref": "U5",
+     "value": "MMBT3904",
+     "block_id": "relay",
+     "role": "relay driver transistor",
+     "mpn": "MMBT3904",
+     "rationale": "generic NPN; not in the candidate list",
+     "lib_id": "Transistor_BJT:MMBT3904",
+     "footprint": "Package_TO_SOT_SMD:SOT-23"
+    },
+    {
+     "ref": "C1",
+     "value": "1u",
+     "block_id": "regulator",
+     "role": "Input capacitor (1u) for 3.3 V LDO",
+     "mpn": "GRM155R61A105KE15D",
+     "support_for": "U1",
+     "rationale": "Input capacitor on VBAT"
+    },
+    {
+     "ref": "C2",
+     "value": "1u",
+     "block_id": "regulator",
+     "role": "Output capacitor (1u) for 3.3 V LDO",
+     "mpn": "GRM155R61A105KE15D",
+     "support_for": "U1",
+     "rationale": "Output capacitor on +3V3"
+    },
+    {
+     "ref": "C3",
+     "value": "10u",
+     "block_id": "mcu",
+     "role": "Decoupling (10u) for Wi-Fi MCU",
+     "mpn": "GRM188R61A106KE69D",
+     "support_for": "U2",
+     "rationale": "Decoupling on +3V3"
+    },
+    {
+     "ref": "C4",
+     "value": "100n",
+     "block_id": "mcu",
+     "role": "Decoupling (100n) for Wi-Fi MCU",
+     "mpn": "GRM155R71C104KA88D",
+     "support_for": "U2",
+     "rationale": "Decoupling on +3V3"
+    },
+    {
+     "ref": "R1",
+     "value": "10k",
+     "block_id": "mcu",
+     "role": "EN pull-up (10k)",
+     "mpn": "RC0402FR-0710KL",
+     "support_for": "U2",
+     "rationale": "EN pull-up"
+    },
+    {
+     "ref": "C5",
+     "value": "1u",
+     "block_id": "mcu",
+     "role": "EN reset-delay capacitor (1u) for Wi-Fi MCU",
+     "mpn": "GRM155R61A105KE15D",
+     "support_for": "U2",
+     "rationale": "EN reset-delay capacitor on MCU_EN"
+    },
+    {
+     "ref": "R2",
+     "value": "10k",
+     "block_id": "mcu",
+     "role": "Strapping pull-up IO2 (10k)",
+     "mpn": "RC0402FR-0710KL",
+     "support_for": "U2",
+     "rationale": "Strapping pull-up IO2"
+    },
+    {
+     "ref": "R3",
+     "value": "10k",
+     "block_id": "mcu",
+     "role": "Strapping pull-up IO8 (10k)",
+     "mpn": "RC0402FR-0710KL",
+     "support_for": "U2",
+     "rationale": "Strapping pull-up IO8"
+    },
+    {
+     "ref": "SW1",
+     "value": "PTS810 SJM 250 SMTR LFS",
+     "block_id": "mcu",
+     "role": "BOOT button (hold during reset for download mode)",
+     "mpn": "PTS810 SJM 250 SMTR LFS",
+     "support_for": "U2",
+     "rationale": "boot strapping pin needs a way to be pulled low"
+    },
+    {
+     "ref": "SW2",
+     "value": "PTS810 SJM 250 SMTR LFS",
+     "block_id": "mcu",
+     "role": "RESET (EN) button",
+     "mpn": "PTS810 SJM 250 SMTR LFS",
+     "support_for": "U2",
+     "rationale": "no USB auto-reset; manual reset needed for programming"
+    },
+    {
+     "ref": "R4",
+     "value": "4.7k",
+     "block_id": "mcu",
+     "role": "I2C SDA pull-up (4.7k)",
+     "mpn": "RC0402FR-074K7L",
+     "support_for": "U2",
+     "rationale": "I2C SDA pull-up"
+    },
+    {
+     "ref": "R5",
+     "value": "4.7k",
+     "block_id": "mcu",
+     "role": "I2C SCL pull-up (4.7k)",
+     "mpn": "RC0402FR-074K7L",
+     "support_for": "U2",
+     "rationale": "I2C SCL pull-up"
+    },
+    {
+     "ref": "C6",
+     "value": "100n",
+     "block_id": "sensors",
+     "role": "Decoupling (100n) for humidity sensor #1",
+     "mpn": "GRM155R71C104KA88D",
+     "support_for": "U3",
+     "rationale": "Decoupling on +3V3"
+    },
+    {
+     "ref": "C7",
+     "value": "100n",
+     "block_id": "sensors",
+     "role": "Decoupling (100n) for humidity sensor #2",
+     "mpn": "GRM155R71C104KA88D",
+     "support_for": "U4",
+     "rationale": "Decoupling on +3V3"
+    },
+    {
+     "ref": "Q1",
+     "value": "AO3400A",
+     "block_id": "relay",
+     "role": "Low-side relay driver for 5 V relay",
+     "mpn": "AO3400A",
+     "support_for": "K1",
+     "rationale": "logic-level N-MOSFET switches the coil from a 3.3 V GPIO"
+    },
+    {
+     "ref": "D1",
+     "value": "1N4148W-7-F",
+     "block_id": "relay",
+     "role": "Flyback diode across 5 V relay coil",
+     "mpn": "1N4148W-7-F",
+     "support_for": "K1",
+     "rationale": "clamps the coil's inductive kick when the FET turns off"
+    },
+    {
+     "ref": "R6",
+     "value": "1k",
+     "block_id": "relay",
+     "role": "Gate series resistor (1k)",
+     "mpn": "RC0402FR-071KL",
+     "support_for": "Q1",
+     "rationale": "Gate series resistor"
+    },
+    {
+     "ref": "R7",
+     "value": "100k",
+     "block_id": "relay",
+     "role": "Gate pull-down (relay off at reset) (100k)",
+     "mpn": "RC0402FR-07100KL",
+     "support_for": "Q1",
+     "rationale": "Gate pull-down (relay off at reset)"
+    }
+   ],
+   "notes": [
+    "SRD-05VDC-SL-C: contacts on pins 3 and 4 - confirm which is normally-open against the manufacturer's datasheet before labelling.",
+    "GPIO assignment on ESP32-C3-WROOM-02-N4: I2C_SDA->IO6, I2C_SCL->IO7, RELAY1->IO10."
+   ]
+  }
+ ]
+}

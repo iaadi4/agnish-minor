@@ -1,18 +1,18 @@
 # AI-GENERATED DESIGN PLAN - NOT VERIFIED FOR FABRICATION. This output was produced with the help of a language model and deterministic rule checks. It must be reviewed and signed off by a qualified electronics engineer before any fabrication, assembly or use.
 Refs,Qty,Value,MPN,Manufacturer,Footprint,Description,Datasheet,Verified,Min confidence,Status,Notes
-BT1,1,,3034,Keystone Electronics,Battery:BatteryHolder_Keystone_3034_1x20mm,"CR2032 coin-cell holder, SMT",,yes,0.60,proposed,no trusted datasheet URL
+BT1,1,3034,3034,Keystone Electronics,Battery:BatteryHolder_Keystone_3034_1x20mm,"CR2032 coin-cell holder, SMT",,yes,0.90,proposed,no trusted datasheet URL
 C1 C2 C5,3,1u,GRM155R61A105KE15D,Murata Electronics,Capacitor_SMD:C_0402_1005Metric,"1 uF 10 V X5R MLCC, 0402",,yes,0.90,proposed,no trusted datasheet URL
 C3,1,10u,GRM188R61A106KE69D,Murata Electronics,Capacitor_SMD:C_0603_1608Metric,"10 uF 10 V X5R MLCC, 0603",,yes,0.90,proposed,no trusted datasheet URL
 C4 C6 C7,3,100n,GRM155R71C104KA88D,Murata Electronics,Capacitor_SMD:C_0402_1005Metric,"100 nF 16 V X7R MLCC, 0402",,yes,0.90,proposed,no trusted datasheet URL
-D1,1,,1N4148W-7-F,Diodes Incorporated,Diode_SMD:D_SOD-123,"75 V 300 mA small-signal switching diode, SOD-123",https://www.vishay.com/docs/85748/1n4148w.pdf,yes,0.90,proposed,
-K1,1,,SRD-05VDC-SL-C,Songle,Relay_THT:Relay_SPDT_SANYOU_SRD_Series_Form_C,"SPDT power relay, 5 V coil (~71 mA), 10 A contacts, through-hole",http://www.sanyourelay.ca/public/products/pdf/SRD.pdf,yes,0.60,proposed,
-Q1,1,,AO3400A,Alpha & Omega Semiconductor,Package_TO_SOT_SMD:SOT-23,"N-channel 30 V 5.7 A logic-level MOSFET, SOT-23",http://www.aosmd.com/pdfs/datasheet/AO3400A.pdf,yes,0.90,proposed,
+D1,1,1N4148W-7-F,1N4148W-7-F,Diodes Incorporated,Diode_SMD:D_SOD-123,"75 V 300 mA small-signal switching diode, SOD-123",https://www.vishay.com/docs/85748/1n4148w.pdf,yes,0.90,proposed,
+K1,1,SRD-05VDC-SL-C,SRD-05VDC-SL-C,Songle,Relay_THT:Relay_SPDT_SANYOU_SRD_Series_Form_C,"SPDT power relay, 5 V coil (~71 mA), 10 A contacts, through-hole",http://www.sanyourelay.ca/public/products/pdf/SRD.pdf,yes,0.90,proposed,
+Q1,1,AO3400A,AO3400A,Alpha & Omega Semiconductor,Package_TO_SOT_SMD:SOT-23,"N-channel 30 V 5.7 A logic-level MOSFET, SOT-23",http://www.aosmd.com/pdfs/datasheet/AO3400A.pdf,yes,0.90,proposed,
 R1 R2 R3,3,10k,RC0402FR-0710KL,Yageo,Resistor_SMD:R_0402_1005Metric,"10 kOhm 1% 1/16 W thick-film resistor, 0402",,yes,0.90,proposed,no trusted datasheet URL
 R4 R5,2,4.7k,RC0402FR-074K7L,Yageo,Resistor_SMD:R_0402_1005Metric,"4.7 kOhm 1% 1/16 W thick-film resistor, 0402",,yes,0.90,proposed,no trusted datasheet URL
 R6,1,1k,RC0402FR-071KL,Yageo,Resistor_SMD:R_0402_1005Metric,"1 kOhm 1% 1/16 W thick-film resistor, 0402",,yes,0.90,proposed,no trusted datasheet URL
 R7,1,100k,RC0402FR-07100KL,Yageo,Resistor_SMD:R_0402_1005Metric,"100 kOhm 1% 1/16 W thick-film resistor, 0402",,yes,0.90,proposed,no trusted datasheet URL
-SW1 SW2,2,,PTS810 SJM 250 SMTR LFS,C&K,Button_Switch_SMD:SW_SPST_PTS810,"SMD tactile switch, 4.2x3.2 mm, 250 gf",,yes,0.90,proposed,no trusted datasheet URL
-U1,1,,MCP1700T-3302E/TT,Microchip Technology,Package_TO_SOT_SMD:SOT-23,"3.3 V 250 mA ultra-low-Iq (1.6 uA) LDO, SOT-23-3",http://ww1.microchip.com/downloads/en/DeviceDoc/20001826D.pdf,yes,0.50,proposed,
-U2,1,,ESP32-C3-WROOM-02-N4,Espressif Systems,RF_Module:ESP32-C3-WROOM-02,"WiFi 4 + BLE 5 module, ESP32-C3 RISC-V 160 MHz, 4 MB flash, PCB antenna",https://www.espressif.com/sites/default/files/documentation/esp32-c3-wroom-02_datasheet_en.pdf,yes,0.60,proposed,
-U3 U4,2,,SHT40-AD1B-R3,Sensirion,Sensor_Humidity:Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad,"Digital temperature + humidity sensor, +/-1.8 %RH, +/-0.2 C, I2C, DFN-4 1.5x1.5",https://sensirion.com/media/documents/33FD6951/624C4357/Datasheet_SHT4x.pdf,yes,0.70,proposed,
-U5,1,,MMBT3904,,,unverified part (not in library),,NO,0.30,proposed,"UNVERIFIED: not in library, excluded from netlist; no trusted datasheet URL"
+SW1 SW2,2,PTS810 SJM 250 SMTR LFS,PTS810 SJM 250 SMTR LFS,C&K,Button_Switch_SMD:SW_SPST_PTS810,"SMD tactile switch, 4.2x3.2 mm, 250 gf",,yes,0.90,proposed,no trusted datasheet URL
+U1,1,MCP1700T-3302E/TT,MCP1700T-3302E/TT,Microchip Technology,Package_TO_SOT_SMD:SOT-23,"3.3 V 250 mA ultra-low-Iq (1.6 uA) LDO, SOT-23-3",http://ww1.microchip.com/downloads/en/DeviceDoc/20001826D.pdf,yes,0.90,proposed,
+U2,1,ESP32-C3-WROOM-02-N4,ESP32-C3-WROOM-02-N4,Espressif Systems,RF_Module:ESP32-C3-WROOM-02,"WiFi 4 + BLE 5 module, ESP32-C3 RISC-V 160 MHz, 4 MB flash, PCB antenna",https://www.espressif.com/sites/default/files/documentation/esp32-c3-wroom-02_datasheet_en.pdf,yes,0.90,proposed,
+U3 U4,2,SHT40-AD1B-R3,SHT40-AD1B-R3,Sensirion,Sensor_Humidity:Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad,"Digital temperature + humidity sensor, +/-1.8 %RH, +/-0.2 C, I2C, DFN-4 1.5x1.5",https://sensirion.com/media/documents/33FD6951/624C4357/Datasheet_SHT4x.pdf,yes,0.90,proposed,
+U5,1,MMBT3904,MMBT3904,,Package_TO_SOT_SMD:SOT-23,"0.2A Ic, 40V Vce, Small Signal NPN Transistor, SOT-23",https://www.onsemi.com/pdf/datasheet/pzt3904-d.pdf,NO,0.60,proposed,UNVERIFIED MPN/ratings: pins from KiCad symbol Transistor_BJT:MMBT3904; check the datasheet

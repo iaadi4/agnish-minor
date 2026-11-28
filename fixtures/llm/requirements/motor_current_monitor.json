@@ -1,0 +1,124 @@
+{
+ "_note": "Derived fixture (not a model recording): the synthesizer's design for this example in the shape the model submits. See scripts/derive_intent_fixtures.py.",
+ "match": [
+  "ina226",
+  "current monitor",
+  "power monitor"
+ ],
+ "prompt_sha256": "6d117ae258311f0d8d2d946bf24b857bde52b5e23cc8a0de79c9a27976efec88",
+ "responses": [
+  {
+   "summary": "12 V Wi-Fi motor/relay controller with an INA226 motor-current monitor.",
+   "functional_goals": [
+    "drive one brushed DC motor up to 0.5 A in both directions",
+    "switch one 5 V relay with contacts on a screw terminal",
+    "protect the 12 V input against reverse polarity, overcurrent and surges",
+    "UART programming header, status LED, four M3 mounting holes",
+    "measure motor supply current and power with an INA226"
+   ],
+   "power_sources": [
+    {
+     "kind": "dc_jack",
+     "nominal_v": 12.0,
+     "min_v": 11.0,
+     "max_v": 13.0,
+     "max_current_ma": 1000,
+     "notes": "12 V 1 A wall adapter, centre positive"
+    }
+   ],
+   "voltage_rails": [
+    {
+     "name": "+5V",
+     "nominal_v": 5.0,
+     "purpose": "relay coil, LDO input"
+    },
+    {
+     "name": "+3V3",
+     "nominal_v": 3.3,
+     "purpose": "MCU"
+    }
+   ],
+   "interfaces": [
+    {
+     "kind": "UART",
+     "purpose": "programming",
+     "external": true
+    },
+    {
+     "kind": "GPIO",
+     "purpose": "motor and relay control"
+    },
+    {
+     "kind": "I2C",
+     "purpose": "INA226 current monitor",
+     "external": false
+    }
+   ],
+   "wireless": [
+    {
+     "protocol": "wifi",
+     "antenna": "pcb"
+    }
+   ],
+   "actuators": [
+    {
+     "kind": "dc_motor",
+     "voltage_v": 12,
+     "current_ma": 500
+    },
+    {
+     "kind": "relay",
+     "voltage_v": 5,
+     "current_ma": 72
+    }
+   ],
+   "user_io": [
+    "status LED"
+   ],
+   "environment": {
+    "temp_min_c": 0,
+    "temp_max_c": 60
+   },
+   "size": {
+    "max_width_mm": 80,
+    "max_height_mm": 60
+   },
+   "layer_count_target": 2,
+   "assumptions": [
+    {
+     "text": "12 V 1 A centre-positive barrel adapter",
+     "field": "power_sources"
+    },
+    {
+     "text": "Relay contacts switch low-voltage loads only (<= 30 V DC)",
+     "field": "actuators"
+    },
+    {
+     "text": "Motor runs from the protected 12 V rail",
+     "field": "actuators"
+    },
+    {
+     "text": "Programming via external USB-UART adapter",
+     "field": "interfaces"
+    },
+    {
+     "text": "50 mOhm shunt: 25 mV at 0.5 A, well inside the INA226 81.92 mV range",
+     "field": "sensors"
+    }
+   ],
+   "open_questions": [
+    "Motor stall current (sets the driver current limit)?"
+   ],
+   "out_of_scope": [
+    "switching mains voltage through the relay contacts"
+   ],
+   "sensors": [
+    {
+     "quantity": "current",
+     "accuracy": "0.1 % gain error (INA226)",
+     "notes": "high-side shunt on the motor supply"
+    }
+   ]
+  }
+ ]
+}

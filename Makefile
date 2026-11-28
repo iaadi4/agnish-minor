@@ -1,7 +1,8 @@
 .PHONY: install lint format typecheck test test-kicad cov seed seed-index fixtures check-all \
+        kicad-libs kicad-index \
         demo serve-demo examples docker-build docker-demo
 
-EXAMPLES := iot_env_sensor ble_coin_tag relay_motor_12v flawed_coin_wifi
+EXAMPLES := iot_env_sensor ble_coin_tag relay_motor_12v flawed_coin_wifi motor_current_monitor
 REFINE := Replace the SHT40 with a BME280 so we also get barometric pressure.
 # Use KiCad from Docker when it is not installed locally (override: make demo KICAD_CLI=kicad-cli)
 KICAD_CLI ?= $(shell command -v kicad-cli 2>/dev/null || echo $(CURDIR)/scripts/kicad-cli-docker)
@@ -37,9 +38,19 @@ seed:
 seed-index:
 	uv run python scripts/build_seed.py --index
 
-# Regenerate the hand-authored mock fixtures (and their prompt hashes).
+# Regenerate the mock fixtures (and their prompt hashes): hand-authored requirements /
+# architecture / selection, then the parts + netlist fixtures derived from them.
 fixtures:
 	uv run python scripts/author_fixtures.py
+	cd scripts && uv run python derive_intent_fixtures.py
+
+# Copy the KiCad 8.0.9 symbol/footprint libraries out of the official Docker image into
+# ~/.cache/pcbassist/kicad/8.0.9 (full footprint files for export), then rebuild the index.
+kicad-libs:
+	scripts/fetch-kicad-libs
+
+kicad-index:
+	uv run python scripts/build_kicad_index.py
 
 check-all: lint typecheck cov
 	uv run pcbassist library validate

@@ -49,6 +49,15 @@ RULES: list[tuple[str, str, re.Pattern[str]]] = [
         ),
     ),
     (
+        "netlist",
+        "concerns wiring / pin assignment",
+        re.compile(
+            r"\b(connect|connected|wire|wiring|rewire|pin ?out|pull-?ups?|pull-?downs?|tie|"
+            r"strap|gpio|io\d+|netlist)\b",
+            re.I,
+        ),
+    ),
+    (
         "architecture",
         "changes the block structure",
         re.compile(r"\b(architecture|block|topology|separate (rail|supply))\b", re.I),
@@ -122,6 +131,11 @@ def refine_plan(
     base.review_status = ReviewStatus.DRAFT
     notes = apply_directives(base, feedback)
     start = cls.stage
+    if (
+        start == "netlist"
+        and (options.engine if options and options.engine else plan.engine) == "synth"
+    ):
+        start = "components"  # the synthesizer's wiring is deterministic: re-select instead
     if notes and STAGES.index(start) > STAGES.index("constraints"):
         start = "constraints"
     if audit is not None:

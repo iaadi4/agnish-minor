@@ -58,3 +58,50 @@ class LLMClient(Protocol):
     def mode(self) -> Literal["live", "mock"]: ...
 
     def complete(self, request: LLMRequest) -> LLMResponse: ...
+
+
+# ---------------------------------------------------------------------------
+# Tool use (parts and netlist stages)
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class ToolSpec:
+    name: str
+    description: str
+    input_schema: dict[str, object]
+
+
+@dataclass(frozen=True)
+class ToolCall:
+    id: str
+    name: str
+    input: dict[str, object]
+
+
+@dataclass(frozen=True)
+class ToolRequest:
+    stage: str
+    system: str
+    #: Anthropic-shaped messages: {"role": ..., "content": str | list[block]}
+    messages: tuple[dict[str, object], ...]
+    tools: tuple[ToolSpec, ...]
+    max_tokens: int = 32000
+    fixture_key: str = ""
+
+
+@dataclass(frozen=True)
+class ToolTurn:
+    text: str
+    calls: tuple[ToolCall, ...]
+    #: assistant content to append verbatim to the history (SDK blocks or dicts)
+    content: object
+    model: str
+    stop_reason: str | None = None
+    request_id: str | None = None
+    usage: dict[str, int] = field(default_factory=dict)
+    meta: dict[str, str] = field(default_factory=dict)
+
+
+class ToolCapable(Protocol):
+    def complete_tools(self, request: ToolRequest) -> ToolTurn: ...

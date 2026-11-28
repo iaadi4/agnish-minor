@@ -1,0 +1,372 @@
+{
+ "_note": "Derived fixture (not a model recording): the synthesizer's design for this example in the shape the model submits. See scripts/derive_intent_fixtures.py.",
+ "match": [
+  "12",
+  "relay",
+  "motor",
+  "screw",
+  "terminals",
+  "mounting",
+  "reverse-polarity",
+  "uart"
+ ],
+ "prompt_sha256": "7eb7eedc2fa17a8c814bd9652b5adfea41395f96d86fbb1267ecaf19a7577e89",
+ "responses": [
+  {
+   "parts": [
+    {
+     "ref": "J1",
+     "value": "PJ-063AH",
+     "block_id": "power_in",
+     "role": "12 V barrel jack",
+     "mpn": "PJ-063AH",
+     "rationale": "common 2.1 mm DC jack"
+    },
+    {
+     "ref": "F1",
+     "value": "MF-MSMF110-2",
+     "block_id": "power_in",
+     "role": "input resettable fuse",
+     "mpn": "MF-MSMF110-2",
+     "rationale": "1.1 A hold PTC above the ~0.75 A load"
+    },
+    {
+     "ref": "D1",
+     "value": "SS14",
+     "block_id": "power_in",
+     "role": "reverse-polarity series diode",
+     "mpn": "SS14",
+     "rationale": "1 A Schottky in series with VIN"
+    },
+    {
+     "ref": "D2",
+     "value": "SMAJ15A",
+     "block_id": "power_in",
+     "role": "input surge TVS",
+     "mpn": "SMAJ15A",
+     "rationale": "15 V standoff above the 13 V max input"
+    },
+    {
+     "ref": "U1",
+     "value": "LM2596S-5.0/NOPB",
+     "block_id": "buck",
+     "role": "12 V to 5 V buck",
+     "mpn": "LM2596S-5.0/NOPB",
+     "rationale": "fixed 5 V, 3 A, simple asynchronous buck"
+    },
+    {
+     "ref": "U2",
+     "value": "AP2112K-3.3TRG1",
+     "block_id": "ldo",
+     "role": "5 V to 3.3 V LDO",
+     "mpn": "AP2112K-3.3TRG1",
+     "rationale": "600 mA LDO from 5 V"
+    },
+    {
+     "ref": "U3",
+     "value": "ESP32-WROOM-32E-N4",
+     "block_id": "mcu",
+     "role": "main Wi-Fi MCU",
+     "mpn": "ESP32-WROOM-32E-N4",
+     "rationale": "Wi-Fi module with plenty of GPIO"
+    },
+    {
+     "ref": "U4",
+     "value": "DRV8871DDAR",
+     "block_id": "motor",
+     "role": "DC motor H-bridge",
+     "mpn": "DRV8871DDAR",
+     "rationale": "3.6 A peak H-bridge with current limit, 6.5-45 V",
+     "ratings": {
+      "typ_ma": 500.0,
+      "max_ma": 500.0
+     }
+    },
+    {
+     "ref": "J2",
+     "value": "1935161",
+     "block_id": "motor",
+     "role": "motor output terminal",
+     "mpn": "1935161",
+     "rationale": "2-way 5.08 mm screw terminal"
+    },
+    {
+     "ref": "K1",
+     "value": "SRD-05VDC-SL-C",
+     "block_id": "relay",
+     "role": "5 V relay",
+     "mpn": "SRD-05VDC-SL-C",
+     "rationale": "common SPDT 5 V relay"
+    },
+    {
+     "ref": "Q1",
+     "value": "AO3400A",
+     "block_id": "relay",
+     "role": "relay coil driver",
+     "mpn": "AO3400A",
+     "rationale": "logic-level N-MOSFET"
+    },
+    {
+     "ref": "D3",
+     "value": "1N4148W-7-F",
+     "block_id": "relay",
+     "role": "relay flyback diode",
+     "mpn": "1N4148W-7-F",
+     "rationale": "clamps coil turn-off spike"
+    },
+    {
+     "ref": "J3",
+     "value": "1935174",
+     "block_id": "relay",
+     "role": "relay contacts terminal",
+     "mpn": "1935174",
+     "rationale": "3-way terminal for COM/NO/NC"
+    },
+    {
+     "ref": "J4",
+     "value": "61300411121",
+     "block_id": "debug",
+     "role": "UART programming header",
+     "mpn": "61300411121",
+     "rationale": "4-pin 2.54 mm header for a USB-UART adapter"
+    },
+    {
+     "ref": "D4",
+     "value": "green",
+     "block_id": "ui",
+     "role": "status LED",
+     "mpn": "LTST-C191KGKT",
+     "rationale": "green indicator",
+     "ratings": {
+      "typ_ma": 0.0,
+      "max_ma": 1.3,
+      "sleep_ua": 0.0
+     }
+    },
+    {
+     "ref": "H1",
+     "value": "MOUNTING-HOLE-M3",
+     "block_id": "mech",
+     "role": "M3 mounting hole #1",
+     "mpn": "MOUNTING-HOLE-M3",
+     "rationale": "four corner holes"
+    },
+    {
+     "ref": "H2",
+     "value": "MOUNTING-HOLE-M3",
+     "block_id": "mech",
+     "role": "M3 mounting hole #2",
+     "mpn": "MOUNTING-HOLE-M3",
+     "rationale": "four corner holes"
+    },
+    {
+     "ref": "H3",
+     "value": "MOUNTING-HOLE-M3",
+     "block_id": "mech",
+     "role": "M3 mounting hole #3",
+     "mpn": "MOUNTING-HOLE-M3",
+     "rationale": "four corner holes"
+    },
+    {
+     "ref": "H4",
+     "value": "MOUNTING-HOLE-M3",
+     "block_id": "mech",
+     "role": "M3 mounting hole #4",
+     "mpn": "MOUNTING-HOLE-M3",
+     "rationale": "four corner holes"
+    },
+    {
+     "ref": "C1",
+     "value": "10u",
+     "block_id": "buck",
+     "role": "Input capacitor (10u) for 12 V to 5 V buck",
+     "mpn": "GRM21BR61E106KA73L",
+     "support_for": "U1",
+     "rationale": "Input capacitor on VIN"
+    },
+    {
+     "ref": "C2",
+     "value": "100n",
+     "block_id": "buck",
+     "role": "Input capacitor (100n) for 12 V to 5 V buck",
+     "mpn": "GRM188R71H104KA93D",
+     "support_for": "U1",
+     "rationale": "Input capacitor on VIN"
+    },
+    {
+     "ref": "L1",
+     "value": "33u",
+     "block_id": "buck",
+     "role": "Buck inductor for 12 V to 5 V buck",
+     "mpn": "SRN8040TA-330M",
+     "support_for": "U1",
+     "rationale": "33 uH per the LM2596 typical application for 5 V output"
+    },
+    {
+     "ref": "D5",
+     "value": "SS14",
+     "block_id": "buck",
+     "role": "Catch (freewheel) diode for 12 V to 5 V buck",
+     "mpn": "SS14",
+     "support_for": "U1",
+     "rationale": "Schottky freewheel diode required by the asynchronous buck"
+    },
+    {
+     "ref": "C3",
+     "value": "22u",
+     "block_id": "buck",
+     "role": "Output capacitor (22u) for 12 V to 5 V buck",
+     "mpn": "GRM21BR61C226ME44L",
+     "support_for": "U1",
+     "rationale": "Output capacitor on +5V"
+    },
+    {
+     "ref": "C4",
+     "value": "22u",
+     "block_id": "buck",
+     "role": "Output capacitor (22u) for 12 V to 5 V buck",
+     "mpn": "GRM21BR61C226ME44L",
+     "support_for": "U1",
+     "rationale": "Output capacitor on +5V"
+    },
+    {
+     "ref": "C5",
+     "value": "1u",
+     "block_id": "ldo",
+     "role": "Input capacitor (1u) for 5 V to 3.3 V LDO",
+     "mpn": "GRM155R61A105KE15D",
+     "support_for": "U2",
+     "rationale": "Input capacitor on +5V"
+    },
+    {
+     "ref": "C6",
+     "value": "1u",
+     "block_id": "ldo",
+     "role": "Output capacitor (1u) for 5 V to 3.3 V LDO",
+     "mpn": "GRM155R61A105KE15D",
+     "support_for": "U2",
+     "rationale": "Output capacitor on +3V3"
+    },
+    {
+     "ref": "C7",
+     "value": "10u",
+     "block_id": "mcu",
+     "role": "Decoupling (10u) for main Wi-Fi MCU",
+     "mpn": "GRM188R61A106KE69D",
+     "support_for": "U3",
+     "rationale": "Decoupling on +3V3"
+    },
+    {
+     "ref": "C8",
+     "value": "100n",
+     "block_id": "mcu",
+     "role": "Decoupling (100n) for main Wi-Fi MCU",
+     "mpn": "GRM155R71C104KA88D",
+     "support_for": "U3",
+     "rationale": "Decoupling on +3V3"
+    },
+    {
+     "ref": "R1",
+     "value": "10k",
+     "block_id": "mcu",
+     "role": "EN pull-up (10k)",
+     "mpn": "RC0402FR-0710KL",
+     "support_for": "U3",
+     "rationale": "EN pull-up"
+    },
+    {
+     "ref": "C9",
+     "value": "1u",
+     "block_id": "mcu",
+     "role": "EN reset-delay capacitor (1u) for main Wi-Fi MCU",
+     "mpn": "GRM155R61A105KE15D",
+     "support_for": "U3",
+     "rationale": "EN reset-delay capacitor on MCU_EN"
+    },
+    {
+     "ref": "SW1",
+     "value": "PTS810 SJM 250 SMTR LFS",
+     "block_id": "mcu",
+     "role": "BOOT button (hold during reset for download mode)",
+     "mpn": "PTS810 SJM 250 SMTR LFS",
+     "support_for": "U3",
+     "rationale": "boot strapping pin needs a way to be pulled low"
+    },
+    {
+     "ref": "SW2",
+     "value": "PTS810 SJM 250 SMTR LFS",
+     "block_id": "mcu",
+     "role": "RESET (EN) button",
+     "mpn": "PTS810 SJM 250 SMTR LFS",
+     "support_for": "U3",
+     "rationale": "no USB auto-reset; manual reset needed for programming"
+    },
+    {
+     "ref": "R2",
+     "value": "1k",
+     "block_id": "ui",
+     "role": "LED series resistor (1k)",
+     "mpn": "RC0402FR-071KL",
+     "support_for": "D4",
+     "rationale": "LED series resistor"
+    },
+    {
+     "ref": "R3",
+     "value": "1k",
+     "block_id": "relay",
+     "role": "Gate series resistor (1k)",
+     "mpn": "RC0402FR-071KL",
+     "support_for": "Q1",
+     "rationale": "Gate series resistor"
+    },
+    {
+     "ref": "R4",
+     "value": "100k",
+     "block_id": "relay",
+     "role": "Gate pull-down (relay off at reset) (100k)",
+     "mpn": "RC0402FR-07100KL",
+     "support_for": "Q1",
+     "rationale": "Gate pull-down (relay off at reset)"
+    },
+    {
+     "ref": "C10",
+     "value": "10u",
+     "block_id": "motor",
+     "role": "Bulk capacitor (10u) for DC motor H-bridge",
+     "mpn": "GRM21BR61E106KA73L",
+     "support_for": "U4",
+     "rationale": "Bulk capacitor on VIN"
+    },
+    {
+     "ref": "C11",
+     "value": "100n",
+     "block_id": "motor",
+     "role": "Decoupling (100n) for DC motor H-bridge",
+     "mpn": "GRM188R71H104KA93D",
+     "support_for": "U4",
+     "rationale": "Decoupling on VIN"
+    },
+    {
+     "ref": "R5",
+     "value": "100k",
+     "block_id": "motor",
+     "role": "Current-limit resistor (100k)",
+     "mpn": "RC0402FR-07100KL",
+     "support_for": "U4",
+     "rationale": "Current-limit resistor"
+    }
+   ],
+   "notes": [
+    "SS14 in series with VIN for reverse-polarity protection (drops ~0.5 V).",
+    "PJ-063AH: centre pin (symbol pin 1) assumed positive; confirm adapter polarity.",
+    "LM2596S-5.0/NOPB ~ON/OFF tied low: always on.",
+    "LM2596S-5.0/NOPB: the datasheet design uses low-ESR electrolytic output capacitance; the ceramic-only output here must be checked for loop stability. Catch diode SS14 is rated 1 A.",
+    "AP2112K-3.3TRG1 enable tied to its input: always on.",
+    "SRD-05VDC-SL-C: contacts on pins 3 and 4 - confirm which is normally-open against the manufacturer's datasheet before labelling.",
+    "DRV8871DDAR ILIM = 100 kOhm (about 0.64 A regulation if I_TRIP = 64 kV/R_ILIM as in the datasheet) - recompute for the actual motor stall current.",
+    "61300411121 programming header: 1=GND 2=MCU TX 3=MCU RX 4=+3V3 (3.3 V logic).",
+    "GPIO assignment on ESP32-WROOM-32E-N4: ui/led->IO25, RELAY1->IO26, MOTOR1_IN1->IO27, MOTOR1_IN2->IO14."
+   ]
+  }
+ ]
+}

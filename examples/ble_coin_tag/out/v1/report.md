@@ -2,13 +2,13 @@
 
 > **AI-GENERATED DESIGN PLAN - NOT VERIFIED FOR FABRICATION. This output was produced with the help of a language model and deterministic rule checks. It must be reviewed and signed off by a qualified electronics engineer before any fabrication, assembly or use.**
 
-- **Check status:** `PASS_WITH_WARNINGS` (0 errors, 3 warnings, 6 info)
+- **Check status:** `PASS_WITH_WARNINGS` (0 errors, 4 warnings, 6 info)
 - **Plan version:** v1
 - **Review status:** draft
-- **Created:** 2026-11-26T15:20:30+00:00
-- **LLM:** mock / `mock-llm` (fixtures: architecture/ble_coin_tag, components/ble_coin_tag, requirements/ble_coin_tag)
+- **Created:** 2026-11-28T08:16:58+00:00
+- **LLM:** mock / `mock-llm` (fixtures: architecture/ble_coin_tag, netlist/ble_coin_tag, parts/ble_coin_tag, requirements/ble_coin_tag)
   - Mock mode: the LLM answers are hand-authored fixtures, not model output.
-- **KiCad DRC:** KiCad DRC ran via kicad-cli-docker: Found 23 violations; Found 43 unconnected items
+- **KiCad DRC:** KiCad DRC ran via kicad-cli-docker: Found 26 violations; Found 43 unconnected items
 
 ## Prompt
 
@@ -16,11 +16,12 @@
 
 ## Findings
 
-### WARNING (3)
+### WARNING (4)
 
 | ID | Category | Message | Suggested fix |
 |---|---|---|---|
 | `DRC-ITEMS_NOT_ALLOWED:footprint` | DRC | KiCad DRC items_not_allowed: 2 item(s). Items not allowed (keepout area) [Pad 40 [<no net>] of U1 on F.Cu] \| Items not allowed (keepout area) [Pad 41 [<no net>] of U1 on F.Cu] All inside the KiCad library footprint(s) of U1: check that your fab accepts them or adapt the footprint. |  |
+| `DFM-DECOUPLING-DISTANCE:C4->U2.1` | placement | C4 is 3.1 mm from U2 pin 1 (limit 3 mm). | Move the capacitor next to the pin. |
 | `PWR-BATTERY-LIFE:plan` | power | Estimated battery life 385 days (average 19.0 uA, duty 0.3%, 80% usable capacity) vs target 365 days. Thin margin. |  |
 | `PWR-SOURCE:VBAT` | power | VBAT: peak demand 16.0 mA exceeds what the battery source can deliver (15 mA). | Use a stronger source, add bulk capacitance for short pulses, or reduce the peak load. |
 
@@ -30,10 +31,10 @@
 |---|---|---|---|
 | `DRC-LIB_FOOTPRINT_ISSUES:warning` | DRC | KiCad DRC lib_footprint_issues: 14 item(s). The current configuration does not include the library 'Battery'. [Footprint BT1] \| The current configuration does not include the library 'RF_Module'. [Footprint U1] \| The current configuration does not include the library 'Package_LGA'. [Footprint U2] \| The current configuration does not include the library 'LED_SMD'. [Footprint D1] (+10 more) Expected here: the board was checked without the KiCad footprint library tables. |  |
 | `DRC-SILK_EDGE_CLEARANCE:warning` | DRC | KiCad DRC silk_edge_clearance: 1 item(s). Silkscreen clipped by board edge [Segment on Edge.Cuts; Reference 'J1'] Expected here: silkscreen near the edge on edge-mounted connectors. |  |
-| `DRC-SILK_OVERLAP:warning` | DRC | KiCad DRC silk_overlap: 2 item(s). Silkscreen overlap [Segment on F.Silkscreen; Reference 'C2'] \| Silkscreen overlap [Segment on F.Silkscreen; Reference 'U2'] Expected here: silkscreen reference positions come from the library footprints. |  |
-| `DRC-SILK_OVER_COPPER:warning` | DRC | KiCad DRC silk_over_copper: 4 item(s). Silkscreen clipped by solder mask [Reference 'U2'] \| Silkscreen clipped by solder mask [Reference 'SW1'] \| Silkscreen clipped by solder mask [Reference 'C2'] \| Silkscreen clipped by solder mask [Reference 'R2'] Expected here: silkscreen reference positions come from the library footprints. |  |
+| `DRC-SILK_OVERLAP:warning` | DRC | KiCad DRC silk_overlap: 4 item(s). Silkscreen overlap [Reference 'C1'; Segment on F.Silkscreen] \| Silkscreen overlap [Reference 'C1'; Segment on F.Silkscreen] \| Silkscreen overlap [Segment on F.Silkscreen; Reference 'C2'] \| Silkscreen overlap [Reference 'U2'; Segment on F.Silkscreen] Expected here: silkscreen reference positions come from the library footprints. |  |
+| `DRC-SILK_OVER_COPPER:warning` | DRC | KiCad DRC silk_over_copper: 5 item(s). Silkscreen clipped by solder mask [Reference 'U2'] \| Silkscreen clipped by solder mask [Reference 'SW1'] \| Silkscreen clipped by solder mask [Reference 'C1'] \| Silkscreen clipped by solder mask [Reference 'C2'] (+1 more) Expected here: silkscreen reference positions come from the library footprints. |  |
 | `DRC-UNCONNECTED_ITEMS:error` | DRC | KiCad DRC unconnected_items: 43 item(s). Missing connection between items [Pad 12 [GND] of U2 on F.Cu; Pad 10 [GND] of U2 on F.Cu] \| Missing connection between items [Pad 5 [GND] of U2 on F.Cu; Pad 7 [GND] of U2 on F.Cu] \| Missing connection between items [Pad 7 [GND] of U2 on F.Cu; Pad 10 [GND] of U2 on F.Cu] \| Missing connection between items [Pad 2 [GND] of C2 on F.Cu; Pad 2 [GND] of C1 on F.Cu] (+39 more) Expected here: routing is a manual step; every ratsnest line is reported. |  |
-| `LIB-NO-DATASHEET:plan` | library | No trusted datasheet URL for BT1, D1, SW1 (KiCad metadata has none; URLs are never guessed). Look these up from the manufacturer. |  |
+| `LIB-NO-DATASHEET:plan` | library | No trusted datasheet URL for BT1, D1, SW1, C1, C2, R1, R2, C3, C4, R3, R4 (KiCad metadata has none; URLs are never guessed). Look these up from the manufacturer. |  |
 
 ## Requirements
 
@@ -93,12 +94,12 @@ Rationale: Direct battery supply keeps quiescent current minimal.
 
 | Ref | Role | MPN | Value | Footprint | Verified | Conf. | Status | Rationale |
 |---|---|---|---|---|---|---|---|---|
-| BT1 | CR2032 holder | 3034 |  | BatteryHolder_Keystone_3034_1x20mm | yes | 0.90 | proposed | Keystone SMD coin-cell retainer |
-| U1 | BLE MCU module | MDBT42Q-512KV2 |  | Raytac_MDBT42Q | yes | 0.85 | proposed | nRF52832 module with chip antenna, 2 uA sleep |
-| U2 | wake-on-motion accelerometer | LIS3DHTR |  | LGA-16_3x3mm_P0.5mm_LayoutBorder3x5y | yes | 0.85 | proposed | low-power accelerometer with interrupt |
-| D1 | status LED | LTST-C191KGKT | green | LED_0603_1608Metric | yes | 0.80 | proposed | green indicator |
-| SW1 | user button | PTS810 SJM 250 SMTR LFS |  | SW_SPST_PTS810 | yes | 0.80 | proposed | SMD tactile switch |
-| J1 | SWD programming footprint | TC2030-IDC-NL |  | Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical | yes | 0.90 | proposed | zero-cost Tag-Connect footprint |
+| BT1 | CR2032 holder | 3034 | 3034 | BatteryHolder_Keystone_3034_1x20mm | yes | 0.90 | proposed | Keystone SMD coin-cell retainer |
+| U1 | BLE MCU module | MDBT42Q-512KV2 | MDBT42Q-512KV2 | Raytac_MDBT42Q | yes | 0.90 | proposed | nRF52832 module with chip antenna, 2 uA sleep |
+| U2 | wake-on-motion accelerometer | LIS3DHTR | LIS3DHTR | LGA-16_3x3mm_P0.5mm_LayoutBorder3x5y | yes | 0.90 | proposed | low-power accelerometer with interrupt |
+| D1 | status LED | LTST-C191KGKT | green | LED_0603_1608Metric | yes | 0.90 | proposed | green indicator |
+| SW1 | user button | PTS810 SJM 250 SMTR LFS | PTS810 SJM 250 SMTR LFS | SW_SPST_PTS810 | yes | 0.90 | proposed | SMD tactile switch |
+| J1 | SWD programming footprint | TC2030-IDC-NL | TC2030-IDC-NL | Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical | yes | 0.90 | proposed | zero-cost Tag-Connect footprint |
 | C1 | Decoupling (4.7u) for BLE MCU module | GRM188R61A475KE15D | 4.7u | C_0603_1608Metric | yes | 0.90 | proposed | Decoupling on VBAT |
 | C2 | Decoupling (100n) for BLE MCU module | GRM155R71C104KA88D | 100n | C_0402_1005Metric | yes | 0.90 | proposed | Decoupling on VBAT |
 | R1 | I2C SDA pull-up (4.7k) | RC0402FR-074K7L | 4.7k | R_0402_1005Metric | yes | 0.90 | proposed | I2C SDA pull-up |
@@ -183,8 +184,7 @@ Estimated battery life: **385 days** (average 19.0 uA at 0.3% duty, 80% usable c
 | Ground | 0.4 | 0.15 | 0.6/0.3 |  | return currents; use a pour on B.Cu, short stubs elsewhere |
 
 - Decoupling: C1, C2 within 5 mm of U1 pin 11
-- Decoupling: C3 within 3 mm of U2 pin 1
-- Decoupling: C4 within 3 mm of U2 pin 14
+- Decoupling: C3, C4 within 3 mm of U2 pin 1
 - U1 on the top edge (PCB antenna must overhang/face the edge)
 
 ## Placement
@@ -194,7 +194,7 @@ Algorithm: zone shelf-packing with proximity ordering (deterministic).
 | Zone | Kind | Area (x, y, w, h mm) | Purpose |
 |---|---|---|---|
 | power | power | 0.6, 6.0, 23.7, 21.0 | Power entry, protection, charging and regulation; keep high-current loops short. |
-| mcu | mcu | 25.0, 0.0, 14.5, 17.1 | MCU and its local decoupling/strapping. |
+| mcu | mcu | 25.0, 0.0, 14.5, 17.5 | MCU and its local decoupling/strapping. |
 | sensor | sensor | 33.1, 23.5, 4.3, 4.7 | Sensors away from regulators and the MCU module to limit self-heating. |
 | debug | debug | 25.0, 25.5, 7.0, 4.0 | Programming/debug access near a board edge. |
 | general | general | 19.1, 19.5, 11.3, 9.2 | User I/O and miscellaneous parts. |
@@ -205,11 +205,11 @@ Algorithm: zone shelf-packing with proximity ordering (deterministic).
 | C1 | 26.50 | 14.00 | 0 | mcu | C1 within 5mm of U1 pin 11 |
 | C2 | 27.00 | 15.50 | 0 | mcu | C2 within 5mm of U1 pin 11 |
 | C3 | 34.00 | 24.00 | 0 | sensor | C3 within 3mm of U2 pin 1 |
-| C4 | 36.50 | 24.00 | 0 | sensor | C4 within 3mm of U2 pin 14 |
+| C4 | 36.50 | 24.00 | 0 | sensor | C4 within 3mm of U2 pin 1 |
 | D1 | 23.00 | 28.00 | 0 | general |  |
 | J1 | 28.50 | 27.50 | 0 | debug |  |
-| R1 | 27.00 | 8.00 | 0 | mcu | R1 within 10mm of U1 pin 2 |
-| R2 | 27.00 | 9.50 | 0 | mcu | R2 within 10mm of U1 pin 3 |
+| R1 | 27.00 | 12.50 | 0 | mcu | R1 within 10mm of U1 pin 11 |
+| R2 | 27.00 | 17.00 | 0 | mcu | R2 within 10mm of U1 pin 11 |
 | R3 | 20.00 | 28.00 | 0 | general | R3 within 10mm of D1 pin 2 |
 | R4 | 26.00 | 20.00 | 0 | general | R4 within 10mm of SW1 pin 1 |
 | SW1 | 27.50 | 23.00 | 0 | general |  |
@@ -235,13 +235,11 @@ Stackup: F.Cu 0.035 mm / Core 1.53 mm / B.Cu 0.035 mm
 - Power/GND vias 0.8/0.4 mm; use at least two in parallel per amp of current.
 - No vias inside SMD pads unless the fab offers filled/capped via-in-pad.
 - C1, C2 within 5 mm of U1 pin 11 (MDBT42Q-512KV2)
-- C3 within 3 mm of U2 pin 1 (LIS3DHTR)
-- C4 within 3 mm of U2 pin 14 (LIS3DHTR)
+- C3, C4 within 3 mm of U2 pin 1 (LIS3DHTR)
 
 ## Design notes (deterministic stages)
 
-- LIS3DHTR CS tied high to select I2C mode.
-- GPIO assignment on MDBT42Q-512KV2: I2C_SDA->P0.25, I2C_SCL->P0.26, sensor/sensor_motion_INT->P0.27, ui/led->P0.06, ui/switch->P0.07.
+- Parts: 14 entries; netlist: 12 nets, accepted after 1 submission(s)
 
 ## Review
 

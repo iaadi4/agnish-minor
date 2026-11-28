@@ -11,7 +11,7 @@ def library_findings(plan: DesignPlan, resolver: FootprintResolver | None = None
     out: list[Finding] = []
     no_ds = []
     for c in plan.components:
-        if not c.verified:
+        if not c.pins_known:
             continue
         if c.footprint:
             r = resolver.resolve(c.footprint)

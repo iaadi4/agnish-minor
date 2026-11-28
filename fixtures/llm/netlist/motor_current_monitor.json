@@ -1,0 +1,461 @@
+{
+ "_note": "Derived fixture (not a model recording): the synthesizer's design for this example in the shape the model submits. See scripts/derive_intent_fixtures.py.",
+ "match": [
+  "ina226",
+  "current monitor",
+  "power monitor"
+ ],
+ "prompt_sha256": "6d117ae258311f0d8d2d946bf24b857bde52b5e23cc8a0de79c9a27976efec88",
+ "responses": [
+  {
+   "nets": [
+    {
+     "name": "GND",
+     "pins": [
+      "C1.2",
+      "C2.2",
+      "C3.2",
+      "C4.2",
+      "C5.2",
+      "C6.2",
+      "C7.2",
+      "C8.2",
+      "C9.2",
+      "C10.2",
+      "C11.2",
+      "D2.2",
+      "D4.1",
+      "D5.2",
+      "J1.2",
+      "J4.1",
+      "Q1.2",
+      "R4.2",
+      "R5.2",
+      "SW1.2",
+      "SW2.2",
+      "U1.3",
+      "U1.5",
+      "U2.2",
+      "U3.1",
+      "U3.15",
+      "U3.38",
+      "U3.39",
+      "U4.1",
+      "U4.7",
+      "U4.9",
+      "U5.7",
+      "U5.1",
+      "U5.2",
+      "C12.2"
+     ],
+     "kind": "ground"
+    },
+    {
+     "name": "+3V3",
+     "pins": [
+      "C6.1",
+      "C7.1",
+      "C8.1",
+      "J4.4",
+      "R1.1",
+      "U2.5",
+      "U3.2",
+      "U5.6",
+      "C12.1",
+      "R7.1",
+      "R8.1"
+     ],
+     "kind": "power",
+     "voltage_v": 3.3
+    },
+    {
+     "name": "+5V",
+     "pins": [
+      "C3.1",
+      "C4.1",
+      "C5.1",
+      "D3.1",
+      "K1.2",
+      "L1.2",
+      "U1.4",
+      "U2.1",
+      "U2.3"
+     ],
+     "kind": "power",
+     "voltage_v": 5.0
+    },
+    {
+     "name": "VIN",
+     "pins": [
+      "C1.1",
+      "C2.1",
+      "D1.1",
+      "D2.1",
+      "U1.1",
+      "R6.1",
+      "U5.10"
+     ],
+     "kind": "power",
+     "voltage_v": 11.5
+    },
+    {
+     "name": "LED1_A",
+     "pins": [
+      "D4.2",
+      "R2.2"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "LED1_DRV",
+     "pins": [
+      "R2.1",
+      "U3.10"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "MCU_BOOT",
+     "pins": [
+      "SW1.1",
+      "U3.25"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "MCU_EN",
+     "pins": [
+      "C9.1",
+      "R1.2",
+      "SW2.1",
+      "U3.3"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "MOTOR1_ILIM",
+     "pins": [
+      "R5.1",
+      "U4.4"
+     ],
+     "kind": "signal",
+     "net_class": "analog"
+    },
+    {
+     "name": "MOTOR1_IN1",
+     "pins": [
+      "U3.12",
+      "U4.3"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "MOTOR1_IN2",
+     "pins": [
+      "U3.13",
+      "U4.2"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "MOTOR1_OUT1",
+     "pins": [
+      "J2.1",
+      "U4.6"
+     ],
+     "kind": "power",
+     "voltage_v": null
+    },
+    {
+     "name": "MOTOR1_OUT2",
+     "pins": [
+      "J2.2",
+      "U4.8"
+     ],
+     "kind": "power",
+     "voltage_v": null
+    },
+    {
+     "name": "RELAY1_COIL",
+     "pins": [
+      "D3.2",
+      "K1.5",
+      "Q1.3"
+     ],
+     "kind": "power",
+     "voltage_v": null
+    },
+    {
+     "name": "RELAY1_COM",
+     "pins": [
+      "J3.1",
+      "K1.1"
+     ],
+     "kind": "power",
+     "voltage_v": null
+    },
+    {
+     "name": "RELAY1_DRV",
+     "pins": [
+      "R3.1",
+      "U3.11"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "RELAY1_GATE",
+     "pins": [
+      "Q1.1",
+      "R3.2",
+      "R4.1"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "RELAY1_K3",
+     "pins": [
+      "J3.2",
+      "K1.3"
+     ],
+     "kind": "power",
+     "voltage_v": null
+    },
+    {
+     "name": "RELAY1_K4",
+     "pins": [
+      "J3.3",
+      "K1.4"
+     ],
+     "kind": "power",
+     "voltage_v": null
+    },
+    {
+     "name": "SW_5V",
+     "pins": [
+      "D5.1",
+      "L1.1",
+      "U1.2"
+     ],
+     "kind": "power",
+     "voltage_v": 5.0
+    },
+    {
+     "name": "UART_RX",
+     "pins": [
+      "J4.3",
+      "U3.34"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "UART_TX",
+     "pins": [
+      "J4.2",
+      "U3.35"
+     ],
+     "kind": "signal"
+    },
+    {
+     "name": "VIN_F",
+     "pins": [
+      "D1.2",
+      "F1.2"
+     ],
+     "kind": "power",
+     "voltage_v": 12.0
+    },
+    {
+     "name": "VIN_RAW",
+     "pins": [
+      "F1.1",
+      "J1.1"
+     ],
+     "kind": "power",
+     "voltage_v": 12.0
+    },
+    {
+     "name": "VMOT",
+     "kind": "power",
+     "voltage_v": 12.0,
+     "pins": [
+      "R6.2",
+      "U5.9",
+      "U5.8",
+      "U4.5",
+      "C10.1",
+      "C11.1"
+     ]
+    },
+    {
+     "name": "I2C_SDA",
+     "kind": "signal",
+     "pins": [
+      "U5.4",
+      "R7.2",
+      "U3.33"
+     ]
+    },
+    {
+     "name": "I2C_SCL",
+     "kind": "signal",
+     "pins": [
+      "U5.5",
+      "R8.2",
+      "U3.36"
+     ]
+    }
+   ],
+   "no_connect": [
+    {
+     "pin": "J1.MP",
+     "reason": "mechanical mounting pin"
+    },
+    {
+     "pin": "U2.4",
+     "reason": "NC per KiCad symbol"
+    },
+    {
+     "pin": "U3.4",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U3.5",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U3.6",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U3.7",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U3.8",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U3.9",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U3.14",
+     "reason": "strapping pin left at its internal default"
+    },
+    {
+     "pin": "U3.16",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U3.17",
+     "reason": "NC per KiCad symbol"
+    },
+    {
+     "pin": "U3.18",
+     "reason": "NC per KiCad symbol"
+    },
+    {
+     "pin": "U3.19",
+     "reason": "NC per KiCad symbol"
+    },
+    {
+     "pin": "U3.20",
+     "reason": "NC per KiCad symbol"
+    },
+    {
+     "pin": "U3.21",
+     "reason": "NC per KiCad symbol"
+    },
+    {
+     "pin": "U3.22",
+     "reason": "NC per KiCad symbol"
+    },
+    {
+     "pin": "U3.23",
+     "reason": "strapping pin left at its internal default"
+    },
+    {
+     "pin": "U3.24",
+     "reason": "strapping pin left at its internal default"
+    },
+    {
+     "pin": "U3.26",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U3.27",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U3.28",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U3.29",
+     "reason": "strapping pin left at its internal default"
+    },
+    {
+     "pin": "U3.30",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U3.31",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U3.32",
+     "reason": "NC per KiCad symbol"
+    },
+    {
+     "pin": "U3.37",
+     "reason": "unused GPIO"
+    },
+    {
+     "pin": "U5.3",
+     "reason": "ALERT unused; firmware polls"
+    }
+   ],
+   "rails": [
+    {
+     "net": "VIN",
+     "voltage_v": 11.5,
+     "source_ref": "J1",
+     "source_kind": "dc_input",
+     "parent_net": null,
+     "max_current_ma": 1000.0,
+     "min_v": 10.5,
+     "max_v": 13.0
+    },
+    {
+     "net": "+5V",
+     "voltage_v": 5.0,
+     "source_ref": "U1",
+     "source_kind": "buck",
+     "parent_net": "VIN",
+     "max_current_ma": 3000.0,
+     "min_v": 4.85,
+     "max_v": 5.15
+    },
+    {
+     "net": "+3V3",
+     "voltage_v": 3.3,
+     "source_ref": "U2",
+     "source_kind": "ldo",
+     "parent_net": "+5V",
+     "max_current_ma": 600.0,
+     "min_v": 3.201,
+     "max_v": 3.399
+    },
+    {
+     "net": "VMOT",
+     "voltage_v": 12.0,
+     "source_ref": "R6",
+     "source_kind": "other",
+     "parent_net": "VIN",
+     "min_v": 11.0,
+     "max_v": 13.0
+    }
+   ]
+  }
+ ]
+}

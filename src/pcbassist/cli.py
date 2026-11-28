@@ -26,11 +26,24 @@ review_app = typer.Typer(
 app.add_typer(library_app, name="library")
 app.add_typer(schema_app, name="schema")
 app.add_typer(review_app, name="review")
+kicad_app = typer.Typer(
+    help="Look up stock KiCad 8 symbols and footprints (the bundled index the LLM uses).",
+    no_args_is_help=True,
+)
+app.add_typer(kicad_app, name="kicad")
 
 MockOpt = Annotated[
     bool, typer.Option("--mock-llm", help="Use bundled fixtures instead of the API")
 ]
 ModelOpt = Annotated[str | None, typer.Option("--model", help="Override PCBASSIST_MODEL")]
+EngineOpt = Annotated[
+    str,
+    typer.Option(
+        "--engine",
+        help="intent: the LLM picks real KiCad parts and writes the netlist, verified and "
+        "repaired by deterministic checks (default); synth: curated parts + rule templates",
+    ),
+]
 NoDrcOpt = Annotated[bool, typer.Option("--no-drc", help="Skip KiCad DRC even if kicad-cli exists")]
 PlanArg = Annotated[Path, typer.Argument(help="Session directory, plan.json or plan.v<N>.json")]
 TargetOpt = Annotated[
@@ -130,6 +143,7 @@ def generate(
     model: ModelOpt = None,
     fab_profile: Annotated[str | None, typer.Option(help="generic_2layer | generic_4layer")] = None,
     no_drc: NoDrcOpt = False,
+    engine: EngineOpt = "intent",
     record_fixtures: Annotated[
         Path | None, typer.Option(help="Save live LLM answers as fixtures here")
     ] = None,
@@ -144,6 +158,8 @@ def generate(
     if not prompt:
         _fail("give a prompt argument or --prompt-file")
     assert prompt is not None
+    if engine not in ("intent", "synth"):
+        _fail("--engine must be 'intent' or 'synth'")
     session = Session(out)
     if session.exists():
         _fail(f"{out} already holds a session; use `pcbassist refine` or another --out")
@@ -154,7 +170,7 @@ def generate(
             client=client,
             lib=ComponentLibrary.load(),
             audit=session.audit(),
-            options=PipelineOptions(fab_profile=fab_profile),
+            options=PipelineOptions(fab_profile=fab_profile, engine=engine),
         )
     except LLMError as e:
         _fail(f"LLM stage '{e.stage}' failed: {e}", 2)
@@ -525,3 +541,64 @@ def schema_show(name: str) -> None:
 
 if __name__ == "__main__":  # pragma: no cover
     app()
+
+
+@kicad_app.command("search")
+def kicad_search(
+    query: Annotated[str, typer.Argument(help="Part number or words, e.g. INA226")],
+    limit: Annotated[int, typer.Option(help="Maximum results")] = 10,
+) -> None:
+    """Search every stock KiCad symbol library."""
+    from .kicad.symbols import default_symbol_index
+
+    hits = default_symbol_index().search(query, limit=limit)
+    if not hits:
+        _fail(f'no KiCad symbol matches "{query}"')
+    for s in hits:
+        typer.echo(f"{s.lib_id:45} {len(s.pins):4} pins  {s.footprint or '-'}")
+        if s.description:
+            typer.echo(f"{'':45} {s.description[:100]}")
+
+
+@kicad_app.command("pins")
+def kicad_pins(
+    lib_id: Annotated[str, typer.Argument(help="Lib:Name, e.g. Sensor_Energy:INA226")],
+) -> None:
+    """Real pins of a KiCad symbol (number, name, electrical type)."""
+    from .kicad.symbols import default_symbol_index, natural_key
+
+    r = default_symbol_index().resolve(lib_id)
+    if r.info is None:
+        _fail(r.message(lib_id))
+    assert r.info is not None
+    s = r.info
+    typer.echo(f"{s.lib_id}: {s.description}")
+    typer.echo(f"default footprint: {s.footprint or '-'}   datasheet: {s.datasheet or '-'}")
+    for p in sorted(s.pins, key=lambda p: natural_key(p.number)):
+        tags = ",".join(p.functions)
+        typer.echo(f"  {p.number:>5}  {p.name:16} {p.type:10} {tags}")
+
+
+@kicad_app.command("footprint")
+def kicad_footprint(
+    name: Annotated[str, typer.Argument(help="Lib:Name footprint id, or words to search")],
+) -> None:
+    """Pads and courtyard of a KiCad footprint (or search footprint names)."""
+    from .kicad.fpindex import default_footprint_index
+    from .kicad.symbols import natural_key
+
+    idx = default_footprint_index()
+    g = idx.geom(name) if ":" in name else None
+    if g is None:
+        hits = idx.search(name) if ":" not in name else idx.nearest(name)
+        if not hits:
+            _fail(f"no footprint matches {name}")
+        for h in hits:
+            typer.echo(h)
+        return
+    typer.echo(
+        f"{g.name}: courtyard {g.width:.2f} x {g.height:.2f} mm, {'SMD' if g.smd else 'THT'}"
+    )
+    for p in sorted(g.pads, key=lambda p: natural_key(p.number)):
+        where = f"({p.x:g}, {p.y:g})"
+        typer.echo(f"  {p.number or '(np)':>5}  {p.kind:12} {p.shape:9} {where}  {p.w:g} x {p.h:g}")

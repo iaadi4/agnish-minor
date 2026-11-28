@@ -5,10 +5,10 @@
 - **Check status:** `PASS_WITH_WARNINGS` (0 errors, 6 warnings, 6 info)
 - **Plan version:** v1
 - **Review status:** draft
-- **Created:** 2026-11-26T15:20:29+00:00
-- **LLM:** mock / `mock-llm` (fixtures: architecture/iot_env_sensor, components/iot_env_sensor, requirements/iot_env_sensor)
+- **Created:** 2026-11-28T08:16:54+00:00
+- **LLM:** mock / `mock-llm` (fixtures: architecture/iot_env_sensor, netlist/iot_env_sensor, parts/iot_env_sensor, requirements/iot_env_sensor)
   - Mock mode: the LLM answers are hand-authored fixtures, not model output.
-- **KiCad DRC:** KiCad DRC ran via kicad-cli-docker: Found 87 violations; Found 84 unconnected items
+- **KiCad DRC:** KiCad DRC ran via kicad-cli-docker: Found 90 violations; Found 84 unconnected items
 
 ## Prompt
 
@@ -33,10 +33,10 @@
 |---|---|---|---|
 | `DFM-MIXED-ASSEMBLY:plan` | DFM | 1 through-hole part(s) (J1) need a second assembly step (wave/selective/hand soldering). |  |
 | `DRC-LIB_FOOTPRINT_ISSUES:warning` | DRC | KiCad DRC lib_footprint_issues: 33 item(s). The current configuration does not include the library 'Connector_USB'. [Footprint J1] \| The current configuration does not include the library 'Package_TO_SOT_SMD'. [Footprint D1] \| The current configuration does not include the library 'Package_TO_SOT_SMD'. [Footprint U1] \| The current configuration does not include the library 'LED_SMD'. [Footprint D2] (+29 more) Expected here: the board was checked without the KiCad footprint library tables. |  |
-| `DRC-SILK_OVERLAP:warning` | DRC | KiCad DRC silk_overlap: 20 item(s). Silkscreen overlap [Reference 'D1'; Segment on F.Silkscreen] \| Silkscreen overlap [Reference 'U1'; Segment on F.Silkscreen] \| Silkscreen overlap [Segment on F.Silkscreen; Reference 'U1'] \| Silkscreen overlap [Reference 'D1'; Segment on F.Silkscreen] (+16 more) Expected here: silkscreen reference positions come from the library footprints. |  |
-| `DRC-SILK_OVER_COPPER:warning` | DRC | KiCad DRC silk_over_copper: 18 item(s). Silkscreen clipped by solder mask [Reference 'D1'] \| Silkscreen clipped by solder mask [Reference 'U1'] \| Silkscreen clipped by solder mask [Reference 'D2'] \| Silkscreen clipped by solder mask [Reference 'U2'] (+14 more) Expected here: silkscreen reference positions come from the library footprints. |  |
-| `DRC-UNCONNECTED_ITEMS:error` | DRC | KiCad DRC unconnected_items: 84 item(s). Missing connection between items [PTH pad S1 [GND] of J1; Pad B1 [GND] of J1 on F.Cu] \| Missing connection between items [Pad A1 [GND] of J1 on F.Cu; PTH pad S1 [GND] of J1] \| Missing connection between items [Pad 2 [GND] of C6 on F.Cu; Pad 2 [GND] of C7 on F.Cu] \| Missing connection between items [Pad 2 [GND] of R13 on F.Cu; Pad 2 [GND] of C9 on F.Cu] (+80 more) Expected here: routing is a manual step; every ratsnest line is reported. |  |
-| `LIB-NO-DATASHEET:plan` | library | No trusted datasheet URL for D2, J2, D3, SW1 (KiCad metadata has none; URLs are never guessed). Look these up from the manufacturer. |  |
+| `DRC-SILK_OVERLAP:warning` | DRC | KiCad DRC silk_overlap: 22 item(s). Silkscreen overlap [Reference 'D2'; Segment on F.Silkscreen] \| Silkscreen overlap [Reference 'D2'; Segment on F.Silkscreen] \| Silkscreen overlap [Reference 'U1'; Segment on F.Silkscreen] \| Silkscreen overlap [Segment on F.Silkscreen; Reference 'C1'] (+18 more) Expected here: silkscreen reference positions come from the library footprints. |  |
+| `DRC-SILK_OVER_COPPER:warning` | DRC | KiCad DRC silk_over_copper: 19 item(s). Silkscreen clipped by solder mask [Reference 'D1'] \| Silkscreen clipped by solder mask [Reference 'U1'] \| Silkscreen clipped by solder mask [Reference 'D2'] \| Silkscreen clipped by solder mask [Reference 'U2'] (+15 more) Expected here: silkscreen reference positions come from the library footprints. |  |
+| `DRC-UNCONNECTED_ITEMS:error` | DRC | KiCad DRC unconnected_items: 84 item(s). Missing connection between items [PTH pad S1 [GND] of J1; Pad A1 [GND] of J1 on F.Cu] \| Missing connection between items [PTH pad S1 [GND] of J1; Pad B1 [GND] of J1 on F.Cu] \| Missing connection between items [Pad 2 [GND] of C7 on F.Cu; Pad 2 [GND] of C6 on F.Cu] \| Missing connection between items [Pad 2 [GND] of R13 on F.Cu; Pad 2 [GND] of C9 on F.Cu] (+80 more) Expected here: routing is a manual step; every ratsnest line is reported. |  |
+| `LIB-NO-DATASHEET:plan` | library | No trusted datasheet URL for D2, J2, D3, SW1, C1, C2, R1, R2, C3, C4, C5, C6, R3, C7, R4, R5, SW2, R6, R7, R8, R9, C8, R10, R11, R12, R13, C9 (KiCad metadata has none; URLs are never guessed). Look these up from the manufacturer. |  |
 
 ## Requirements
 
@@ -106,16 +106,16 @@ Rationale: Single Wi-Fi SoC module; LDO from the battery so the board runs witho
 
 | Ref | Role | MPN | Value | Footprint | Verified | Conf. | Status | Rationale |
 |---|---|---|---|---|---|---|---|---|
-| J1 | USB-C receptacle (charging + data) | USB4105-GF-A |  | USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal | yes | 0.85 | proposed | USB 2.0 sink receptacle in the library |
-| D1 | USB ESD protection | USBLC6-2SC6 |  | SOT-23-6 | yes | 0.90 | proposed | standard 2-line TVS array for D+/D- and VBUS |
-| U1 | LiPo linear charger | MCP73831T-2ACI/OT |  | SOT-23-5 | yes | 0.90 | proposed | single-cell 4.2 V charger, 500 mA max, tiny SOT-23-5 |
-| D2 | charge status LED | LTST-C191KRKT | red | LED_0603_1608Metric | yes | 0.80 | proposed | red LED driven by the charger STAT pin |
-| J2 | LiPo battery connector | S2B-PH-SM4-TB(LF)(SN) |  | JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal | yes | 0.85 | proposed | JST-PH is the common LiPo lead |
-| U2 | 3.3 V LDO | AP2112K-3.3TRG1 |  | SOT-23-5 | yes | 0.80 | proposed | 600 mA covers ESP32-C3 Wi-Fi TX peaks; 250 mV dropout |
-| U3 | main Wi-Fi MCU | ESP32-C3-WROOM-02-N4 |  | ESP32-C3-WROOM-02 | yes | 0.85 | proposed | low-cost Wi-Fi/BLE module with native USB and deep sleep |
-| U4 | temperature/humidity sensor | SHT40-AD1B-R3 |  | Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad | yes | 0.90 | proposed | +/-0.2 C, +/-1.8 %RH, I2C, 0.08 uA idle |
-| D3 | status LED | LTST-C191KGKT | green | LED_0603_1608Metric | yes | 0.80 | proposed | green status indicator |
-| SW1 | user button | PTS810 SJM 250 SMTR LFS |  | SW_SPST_PTS810 | yes | 0.80 | proposed | small SMD tactile switch |
+| J1 | USB-C receptacle (charging + data) | USB4105-GF-A | USB4105-GF-A | USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal | yes | 0.90 | proposed | USB 2.0 sink receptacle in the library |
+| D1 | USB ESD protection | USBLC6-2SC6 | USBLC6-2SC6 | SOT-23-6 | yes | 0.90 | proposed | standard 2-line TVS array for D+/D- and VBUS |
+| U1 | LiPo linear charger | MCP73831T-2ACI/OT | MCP73831T-2ACI/OT | SOT-23-5 | yes | 0.90 | proposed | single-cell 4.2 V charger, 500 mA max, tiny SOT-23-5 |
+| D2 | charge status LED | LTST-C191KRKT | red | LED_0603_1608Metric | yes | 0.90 | proposed | red LED driven by the charger STAT pin |
+| J2 | LiPo battery connector | S2B-PH-SM4-TB(LF)(SN) | S2B-PH-SM4-TB(LF)(SN) | JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal | yes | 0.90 | proposed | JST-PH is the common LiPo lead |
+| U2 | 3.3 V LDO | AP2112K-3.3TRG1 | AP2112K-3.3TRG1 | SOT-23-5 | yes | 0.90 | proposed | 600 mA covers ESP32-C3 Wi-Fi TX peaks; 250 mV dropout |
+| U3 | main Wi-Fi MCU | ESP32-C3-WROOM-02-N4 | ESP32-C3-WROOM-02-N4 | ESP32-C3-WROOM-02 | yes | 0.90 | proposed | low-cost Wi-Fi/BLE module with native USB and deep sleep |
+| U4 | temperature/humidity sensor | SHT40-AD1B-R3 | SHT40-AD1B-R3 | Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad | yes | 0.90 | proposed | +/-0.2 C, +/-1.8 %RH, I2C, 0.08 uA idle |
+| D3 | status LED | LTST-C191KGKT | green | LED_0603_1608Metric | yes | 0.90 | proposed | green status indicator |
+| SW1 | user button | PTS810 SJM 250 SMTR LFS | PTS810 SJM 250 SMTR LFS | SW_SPST_PTS810 | yes | 0.90 | proposed | small SMD tactile switch |
 | C1 | Input capacitor (4.7u) for LiPo linear charger | GRM188R61A475KE15D | 4.7u | C_0603_1608Metric | yes | 0.90 | proposed | Input capacitor on VBUS |
 | C2 | Output capacitor (4.7u) for LiPo linear charger | GRM188R61A475KE15D | 4.7u | C_0603_1608Metric | yes | 0.90 | proposed | Output capacitor on VBAT |
 | R1 | Charge-current program resistor, I_REG = 1000/R = 500 mA (2k) | RC0603FR-072KL | 2k | R_0603_1608Metric | yes | 0.90 | proposed | Charge-current program resistor, I_REG = 1000/R = 500 mA |
@@ -128,7 +128,7 @@ Rationale: Single Wi-Fi SoC module; LDO from the battery so the board runs witho
 | C7 | EN reset-delay capacitor (1u) for main Wi-Fi MCU | GRM155R61A105KE15D | 1u | C_0402_1005Metric | yes | 0.90 | proposed | EN reset-delay capacitor on MCU_EN |
 | R4 | Strapping pull-up IO2 (10k) | RC0402FR-0710KL | 10k | R_0402_1005Metric | yes | 0.90 | proposed | Strapping pull-up IO2 |
 | R5 | Strapping pull-up IO8 (10k) | RC0402FR-0710KL | 10k | R_0402_1005Metric | yes | 0.90 | proposed | Strapping pull-up IO8 |
-| SW2 | BOOT button (hold during reset for download mode) | PTS810 SJM 250 SMTR LFS |  | SW_SPST_PTS810 | yes | 0.90 | proposed | boot strapping pin needs a way to be pulled low |
+| SW2 | BOOT button (hold during reset for download mode) | PTS810 SJM 250 SMTR LFS | PTS810 SJM 250 SMTR LFS | SW_SPST_PTS810 | yes | 0.90 | proposed | boot strapping pin needs a way to be pulled low |
 | R6 | CC1 pull-down (UFP/sink advertisement) (5.1k) | RC0402FR-075K1L | 5.1k | R_0402_1005Metric | yes | 0.90 | proposed | CC1 pull-down (UFP/sink advertisement) |
 | R7 | CC2 pull-down (UFP/sink advertisement) (5.1k) | RC0402FR-075K1L | 5.1k | R_0402_1005Metric | yes | 0.90 | proposed | CC2 pull-down (UFP/sink advertisement) |
 | R8 | I2C SDA pull-up (4.7k) | RC0402FR-074K7L | 4.7k | R_0402_1005Metric | yes | 0.90 | proposed | I2C SDA pull-up |
@@ -144,9 +144,9 @@ Rationale: Single Wi-Fi SoC module; LDO from the battery so the board runs witho
 
 | Rail | Nominal | Range | Source | From | Capability mA | Peak mA | Active mA | Sleep uA |
 |---|---|---|---|---|---|---|---|---|
-| VBUS | 5 V | 4.75-5.25 V | usb J1 | - | 500.0 | 503.5 | 500.50 | 500.0 |
-| VBAT | 3.7 V | 3-4.2 V | battery J2 | - | 1000.0 | 351.9 | 85.38 | 62.2 |
 | +3V3 | 3.3 V | 3.201-3.399 V | ldo U2 | VBAT | 600.0 | 351.8 | 85.32 | 5.1 |
+| VBAT | 3.7 V | 3-4.2 V | battery J2 | - | 1000.0 | 351.9 | 85.38 | 62.2 |
+| VBUS | 5 V | 4.75-5.25 V | usb J1 | - | 500.0 | 503.5 | 500.50 | 500.0 |
 
 Estimated battery life: **96 days** (average 346.6 uA at 0.333% duty, 80% usable capacity). Indicator LEDs are counted at peak only.
 
@@ -220,8 +220,8 @@ Algorithm: zone shelf-packing with proximity ordering (deterministic).
 
 | Zone | Kind | Area (x, y, w, h mm) | Purpose |
 |---|---|---|---|
-| power | power | 3.1, 8.0, 18.9, 17.2 | Power entry, protection, charging and regulation; keep high-current loops short. |
-| mcu | mcu | 20.8, 0.0, 28.5, 34.4 | MCU and its local decoupling/strapping. |
+| power | power | 3.1, 8.5, 16.4, 12.7 | Power entry, protection, charging and regulation; keep high-current loops short. |
+| mcu | mcu | 19.1, 0.0, 30.1, 29.2 | MCU and its local decoupling/strapping. |
 | sensor | sensor | 42.8, 30.0, 2.6, 3.5 | Sensors away from regulators and the MCU module to limit self-heating. |
 | general | general | 27.1, 26.5, 11.9, 5.3 | User I/O and miscellaneous parts. |
 | connector | connector | 0.0, 13.2, 24.6, 21.8 | Edge connectors. |
@@ -229,37 +229,37 @@ Algorithm: zone shelf-packing with proximity ordering (deterministic).
 
 | Ref | X mm | Y mm | Rot | Zone | Hint |
 |---|---|---|---|---|---|
-| C1 | 20.50 | 22.50 | 0 | power | C1 within 3mm of U1 pin 4 |
-| C2 | 13.50 | 24.50 | 0 | power | C2 within 3mm of U1 pin 3 |
-| C3 | 15.00 | 11.00 | 0 | power | C3 within 3mm of U2 pin 1 |
-| C4 | 17.50 | 11.00 | 0 | power | C4 within 3mm of U2 pin 5 |
+| C1 | 17.00 | 20.50 | 0 | power | C1 within 3mm of U1 pin 4 |
+| C2 | 13.50 | 20.50 | 0 | power | C2 within 3mm of U1 pin 3 |
+| C3 | 15.00 | 9.00 | 0 | power | C3 within 3mm of U2 pin 1 |
+| C4 | 17.50 | 9.00 | 0 | power | C4 within 3mm of U2 pin 5 |
 | C5 | 23.50 | 12.50 | 0 | mcu | C5 within 5mm of U3 pin 1 |
 | C6 | 24.00 | 14.00 | 0 | mcu | C6 within 5mm of U3 pin 1 |
 | C7 | 24.00 | 15.50 | 0 | mcu | C7 within 10mm of U3 pin 2 |
 | C8 | 44.50 | 33.00 | 0 | sensor | C8 within 3mm of U4 pin 3 |
 | C9 | 46.00 | 17.00 | 0 | mcu | C9 within 10mm of U3 pin 15 |
-| D1 | 16.50 | 17.50 | 0 | power |  |
-| D2 | 10.00 | 10.00 | 0 | power |  |
+| D1 | 43.50 | 27.50 | 0 | mcu | D1 within 10mm of U3 pin 13 |
+| D2 | 15.50 | 14.50 | 0 | power | D2 within 10mm of U1 pin 1 |
 | D3 | 37.00 | 29.50 | 0 | general |  |
 | J1 | 5.32 | 18.00 | 0 | connector | rotate so the mating face points off the board |
 | J2 | 20.00 | 29.90 | 0 | connector | rotate so the mating face points off the board |
-| R1 | 20.50 | 20.50 | 0 | power | R1 within 10mm of U1 pin 5 |
+| R1 | 12.50 | 16.50 | 0 | power | R1 within 10mm of U1 pin 5 |
 | R10 | 38.00 | 28.00 | 0 | general | R10 within 10mm of D3 pin 2 |
 | R11 | 28.00 | 27.00 | 0 | general | R11 within 10mm of SW1 pin 1 |
 | R12 | 46.00 | 15.50 | 0 | mcu | R12 within 10mm of U3 pin 15 |
 | R13 | 46.00 | 18.50 | 0 | mcu | R13 within 10mm of U3 pin 15 |
-| R2 | 11.00 | 8.50 | 0 | power | R2 within 10mm of D2 pin 2 |
-| R3 | 24.00 | 17.00 | 0 | mcu | R3 within 10mm of U3 pin 2 |
-| R4 | 46.00 | 14.00 | 0 | mcu | R4 within 10mm of U3 pin 16 |
-| R5 | 24.00 | 21.50 | 0 | mcu | R5 within 10mm of U3 pin 7 |
+| R2 | 18.50 | 14.50 | 0 | power | R2 within 10mm of D2 pin 2 |
+| R3 | 21.50 | 14.00 | 0 | mcu | R3 within 10mm of U3 pin 1 |
+| R4 | 24.00 | 17.00 | 0 | mcu | R4 within 10mm of U3 pin 1 |
+| R5 | 21.50 | 15.50 | 0 | mcu | R5 within 10mm of U3 pin 1 |
 | R6 | 4.00 | 12.50 | 0 | power | R6 within 10mm of J1 pin A5 |
 | R7 | 7.00 | 12.50 | 0 | power | R7 within 10mm of J1 pin B5 |
-| R8 | 24.00 | 18.50 | 0 | mcu | R8 within 10mm of U3 pin 5 |
-| R9 | 24.00 | 20.00 | 0 | mcu | R9 within 10mm of U3 pin 6 |
+| R8 | 21.50 | 17.00 | 0 | mcu | R8 within 10mm of U3 pin 1 |
+| R9 | 20.50 | 12.50 | 0 | mcu | R9 within 10mm of U3 pin 1 |
 | SW1 | 30.00 | 30.00 | 0 | general |  |
-| SW2 | 36.00 | 32.50 | 0 | mcu | SW2 within 10mm of U3 pin 8 |
-| U1 | 16.50 | 21.50 | 0 | power |  |
-| U2 | 16.00 | 13.50 | 0 | power |  |
+| SW2 | 22.00 | 20.00 | 0 | mcu | SW2 within 10mm of U3 |
+| U1 | 16.50 | 17.50 | 0 | power |  |
+| U2 | 16.00 | 11.50 | 0 | power |  |
 | U3 | 35.00 | 18.35 | 0 | mcu |  |
 | U4 | 44.00 | 31.00 | 0 | sensor |  |
 
@@ -273,7 +273,7 @@ Stackup: F.Cu 0.035 mm / Core 1.53 mm / B.Cu 0.035 mm
 
 1. **antenna keepout** - keep the module antenna area free of copper first
 2. **USB_DP/USB_DM** - route the USB pair first: short, parallel, no stubs, over GND
-3. **VBUS, VBAT, +3V3** - power rails at Power net-class width; star from the source
+3. **+3V3, VBAT, VBUS** - power rails at Power net-class width; star from the source
 4. **decoupling** - decoupling caps: pad -> cap -> via to GND, shortest possible
 5. **CHG_PROG, VBAT_SENSE** - analog/sense nets away from switching nodes and RF
 6. **remaining signals** - Default net class
@@ -295,11 +295,7 @@ Stackup: F.Cu 0.035 mm / Core 1.53 mm / B.Cu 0.035 mm
 
 ## Design notes (deterministic stages)
 
-- S2B-PH-SM4-TB(LF)(SN): pin 1 = battery +, pin 2 = battery -. JST-PH battery lead polarity is NOT standardised between vendors - check before connecting.
-- Charge current 500 mA = 0.50C for 1000 mAh.
-- AP2112K-3.3TRG1 enable tied to its input: always on.
-- Battery sense divider 1M/1M halves VBAT on IO3; leaks 2.1 uA continuously.
-- GPIO assignment on ESP32-C3-WROOM-02-N4: I2C_SDA->IO6, I2C_SCL->IO7, ui/led->IO10, ui/switch->IO4, VBAT_SENSE->IO3.
+- Parts: 33 entries; netlist: 21 nets, accepted after 1 submission(s)
 
 ## Review
 

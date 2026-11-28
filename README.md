@@ -18,15 +18,23 @@ partial regeneration with a diff, either on the CLI or in a local web UI.
 |---|---|
 | Interpreting the prompt; assumptions, open questions, conflicts | LLM, output validated against the `Requirements` schema |
 | Block architecture | LLM (`Architecture`), coverage checked in code |
-| Choosing functional parts **from library candidates** | LLM (`ComponentSelection`), every MPN cross-checked against the library |
-| Every pin connection, support passive and value | **Deterministic synthesizer** using pin tables derived from KiCad |
+| Choosing **every part**, support passives included: a curated MPN, or any of the 21,700 stock KiCad 8 symbols with an exact footprint | LLM (`PartsManifest`) with lookup tools; **every** symbol, footprint and pin-to-pad match checked against the bundled KiCad index |
+| The pin-level netlist (`REF.PIN` endpoints, no-connects with reasons, rails) | LLM (`NetlistIntent`) from a pin dossier of real pins; **every** endpoint, pin, short and rail checked, then ERC and the power budget |
+| Repairing what the checks find | LLM, in a loop: each submission comes back with the problems to fix until it validates |
 | Constraints, IPC-2221 trace widths, outline, holes, placement, routing guidance | **Deterministic** |
 | ERC, power budget, DFM, DRC | **Deterministic** Python plus `kicad-cli` |
 
-The LLM never writes a pin number or a coordinate. It can only pick MPNs offered to it.
-A part outside the library is kept but marked `verified=false` with confidence ≤ 0.3,
-and it stays out of the netlist. Datasheet URLs come only from KiCad symbol metadata;
-when that has none, the URL stays empty instead of being guessed.
+This "intent engine" follows the design of
+[copperhead](https://github.com/copperheadhq/copperhead): the model authors *intent* (parts
+and connections), never geometry, and nothing is accepted until deterministic tools agree.
+The model never sees an invented pin: its pin dossier, the `symbol_pins` tool and every
+validator message come from the KiCad libraries. A part outside the curated library gets
+its pins from its KiCad symbol and is flagged `LIB-KICAD-ONLY` (MPN, package match and
+ratings unverified); any ratings the model states are flagged `LIB-CLAIMED-RATINGS`.
+Datasheet URLs come only from curated data or KiCad symbol metadata, never from the model.
+
+`--engine synth` keeps the original rule-based path: the LLM picks curated MPNs and a
+deterministic synthesizer wires them (only the subcircuits it has rules for).
 
 ## Quick start
 
@@ -37,6 +45,11 @@ uv run pcbassist generate -f examples/iot_env_sensor/prompt.txt --out out/iot --
 # Live: Anthropic API (model from PCBASSIST_MODEL, default claude-sonnet-5-5)
 export ANTHROPIC_API_KEY=...
 uv run pcbassist generate "USB-C powered CO2 sensor with an e-paper display" --out out/co2
+
+# Look up what the model can use (the bundled KiCad 8 index)
+uv run pcbassist kicad search INA226
+uv run pcbassist kicad pins Sensor_Energy:INA226
+uv run pcbassist kicad footprint Package_SO:VSSOP-10_3x3mm_P0.5mm
 ```
 
 `out/iot/` is a **session**:
@@ -48,20 +61,42 @@ v1/                board.kicad_pcb  board.kicad_sch  board.kicad_pro  board.net
                    bom.csv  report.md  drc.json (when kicad-cli ran)
 ```
 
-`make demo` generates all four examples plus a refinement into `out/demo/`;
+`make demo` generates all five examples plus a refinement into `out/demo/`;
 `make serve-demo` opens them in the review UI at http://127.0.0.1:8000.
 
 ## Pipeline
 
 ```
-prompt -> requirements -> architecture -> components -> netlist -> constraints
-  (LLM)       (LLM)           (LLM)       (synthesis)     (rules)
+prompt -> requirements -> architecture -> parts ("components") -> netlist -> constraints
+  (LLM)       (LLM)           (LLM + tools, validated)   (LLM + tools, validated + ERC)
+                                     ^------ part-level ERC problems loop back ------'
        -> placement -> routing -> checks -> exports
            (rules)      (rules)   ERC/power/DFM/library (+ KiCad DRC on export)
 ```
 
-Each LLM stage puts the JSON Schema of its output model in the system prompt and
-validates the reply with Pydantic. Unknown keys are rejected (`extra="forbid"`). On a
+**Parts and netlist stages** run as a tool loop on the Anthropic Messages API. The model
+can call `search_parts` (curated library), `search_symbols`, `symbol_pins`,
+`check_footprints` and `search_footprints` (the KiCad index), and submits with `submit`.
+Each submission is parsed with Pydantic and then checked by `pipeline/intent.py`:
+
+* parts: one entry per refdes, value is a value not prose, the block exists, the KiCad
+  symbol exists (with "did you mean" / "installed as" suggestions), the footprint exists,
+  every symbol pin is a footprint pad, MPN present for active parts, curated parts keep
+  their verified symbol and footprint, locked parts stay, rejected parts stay out;
+* netlist: every endpoint is a real `REF.PIN` (the error lists the part's pins, or maps
+  a pin *name* to its number), no pin in two nets, every pin of every part is in a net or
+  a no-connect with a reason, power inputs and grounds are never no-connect, every rail
+  has a voltage; then ERC (decoupling, pull-ups, USB-C CC, flyback, LED resistor, driver
+  conflicts, supply range, ground pins) and the power budget.
+
+Problems are sent back as `is_error` tool results, up to 5 submissions per stage. Problems
+that rewiring cannot fix (a missing decoupling capacitor or pull-up) send the parts stage
+round again with that feedback (up to 2 extra rounds). What is still open at the end is
+reported as error findings, never dropped. Tool stages are streamed and use automatic
+prompt caching.
+
+The requirements and architecture stages put the JSON Schema of their output model in
+the system prompt and validate the reply with Pydantic. Unknown keys are rejected (`extra="forbid"`). On a
 validation error the errors are sent back and the model retries, up to 3 attempts in
 total. A truncated reply counts as invalid. Refusals and API failures surface as typed
 `LLMError`s with readable messages.
@@ -88,11 +123,13 @@ pcbassist check out/iot                                   # exit 1 on FAIL
 | "move / place / closer / rotate..." | placement |
 | "route / trace / ground plane / stackup..." | routing |
 | "60 x 40 mm", "4 layers", "mounting hole", "fab profile" | constraints |
+| "connect / wire / pull-up / tie / strap / GPIO / pinout..." | netlist (components with `--engine synth`) |
 | Anything else | requirements |
 
 Only that stage and the ones after it are regenerated. Numeric directives (board size,
 layer count) are applied directly. Locked and edited parts are carried over and the LLM
-is told about them; rejected MPNs are excluded. Approvals carry over to parts that did not
+is told about them; a rejected MPN is refused by the parts validator, and if the model
+proposes it again anyway it stays flagged `rejected` with a `SEL-REJECTED-AGAIN` error. Approvals carry over to parts that did not
 change. A locked net that changes produces an error. Each refinement is saved as a new
 version, and `diff` reports what changed: parts, nets, rails, outline, moved parts,
 findings and the status change.
@@ -143,18 +180,31 @@ Committed in `examples/<name>/` (prompt and full session output). Regenerate wit
 | `iot_env_sensor` | ESP32-C3, USB-C + LiPo charger, LDO, SHT40, battery sense; plus a **v2 refinement** (SHT40 → BME280, see `out/diff_v1_v2.txt`) | PASS_WITH_WARNINGS (thin battery-life margin, LDO dropout at low battery, VBUS at its 500 mA limit) |
 | `ble_coin_tag` | nRF52832 module on a CR2032, LIS3DH wake-on-motion, Tag-Connect SWD | PASS_WITH_WARNINGS |
 | `relay_motor_12v` | 12 V input with fuse, series diode and TVS; LM2596 buck; LDO; ESP32; DRV8871 H-bridge; relay with FET + flyback; screw terminals; 4 M3 holes | PASS_WITH_WARNINGS |
-| `flawed_coin_wifi` | **Intentionally flawed:** Wi-Fi on a coin cell, 3.3 V LDO from 3 V, 5 V relay on 3.3 V, two identical I2C sensors, 15 x 15 mm board, an off-library part | **FAIL**: 12 errors (I2C address clash, supply range, dropout, regulator capacity, source capacity, battery life, board too small...) |
+| `motor_current_monitor` | `relay_motor_12v` plus an **INA226** high-side current monitor on the motor supply. The INA226 is not in the curated library: it comes from the KiCad symbol `Sensor_Energy:INA226` and is wired pin by pin (shunt, VBUS sense, I2C with pull-ups, address straps, decoupling) | PASS_WITH_WARNINGS (`LIB-KICAD-ONLY` for the INA226) |
+| `flawed_coin_wifi` | **Intentionally flawed:** Wi-Fi on a coin cell, 3.3 V LDO from 3 V, 5 V relay on 3.3 V, two identical I2C sensors, 15 x 15 mm board, an off-library transistor left unwired | **FAIL**: 14 errors (I2C address clash, supply range, dropout, regulator capacity, source capacity, battery life, board too small...) |
 
 ## Mock mode and honesty notes
 
-* **Mock fixtures are hand-authored**, not recordings. No API key was available while
+* **Mock fixtures are not recordings.** The requirements, architecture and (synth-engine)
+  selection fixtures are hand-authored; the parts and netlist fixtures are *derived* from
+  the synthesizer's design for each example (`scripts/derive_intent_fixtures.py`), plus a
+  hand-written INA226 addition for `motor_current_monitor`. Mock mode pushes them through
+  the same validators, ERC repair loop and downstream stages as a live run.
+* **Mock fixtures in general**: No API key was available while
   this was built. They live in `fixtures/llm/<stage>/<example>.json`, are generated from
   `scripts/author_fixtures.py`, and are written in exactly the JSON shape the live model is
   asked for. Lookup order is an exact prompt hash, then keyword match, then `_default`. A
   non-exact match adds a `MOCK-NEAREST` warning, because the plan then describes the
   nearest example, not your prompt. `generate --record-fixtures DIR` saves live answers as
   new fixtures.
-* The live Anthropic path is tested against a faked SDK client only.
+* The live Anthropic path (including the streamed tool loop) is tested against a faked
+  SDK client only.
+* **KiCad index:** `data/kicad/symbol_index.json.gz` and `footprint_geom.json.gz` (3.6 MB)
+  hold every stock KiCad 8.0.9 symbol's pins and every footprint's pads and courtyard,
+  built by `scripts/build_kicad_index.py`. Exported boards embed the real footprint file
+  when a KiCad library tree is available (`make kicad-libs` copies it out of the Docker
+  image), and otherwise a footprint rebuilt from the index (pads + courtyard; KiCad's
+  *Update Footprints from Library* restores the graphics).
 * **Pin tables** come from the official KiCad symbol libraries. Each pin is cross-checked
   against a pad of the KiCad footprint at seed-build time (`scripts/build_seed.py`). No IC
   pin table was typed by hand. Pins are still the KiCad community's data: verify against
@@ -175,6 +225,8 @@ Committed in `examples/<name>/` (prompt and full session output). Regenerate wit
 | `PCBASSIST_LLM_FALLBACKS` | `off` disables server-side fallback models |
 | `PCBASSIST_LLM_EFFORT` | Optional effort setting passed to the API |
 | `PCBASSIST_KICAD_CLI` | Path to `kicad-cli` (or `scripts/kicad-cli-docker`) |
+| `PCBASSIST_KICAD_FOOTPRINT_DIR` | KiCad footprint tree for full footprint files (`none` disables) |
+| `PCBASSIST_SYMBOL_INDEX`, `PCBASSIST_FOOTPRINT_INDEX` | Override the bundled KiCad index files |
 | `PCBASSIST_DATA_DIR`, `PCBASSIST_FIXTURES_DIR` | Override the bundled data / fixtures |
 
 ## Development
@@ -183,7 +235,9 @@ Committed in `examples/<name>/` (prompt and full session output). Regenerate wit
 make check-all     # ruff, ruff format --check, mypy --strict (core modules), pytest + 80% coverage, library validate
 make test-kicad    # the two tests that need real KiCad
 make seed          # rebuild the component library from KiCad sources (network)
-make fixtures      # regenerate mock fixtures
+make fixtures      # regenerate mock fixtures (hand-authored + derived parts/netlist)
+make kicad-libs    # copy KiCad 8.0.9 libraries out of Docker into ~/.cache/pcbassist
+make kicad-index   # rebuild the bundled symbol/footprint index from them
 ```
 
 Layout: `schemas/` (Pydantic models + JSON Schema export), `llm/` (client, mock,
@@ -200,10 +254,12 @@ are in [PLAN.md](PLAN.md).
 * The schematic is one flat sheet of generated box symbols with net labels. It is
   correct by construction (KiCad's netlist from it matches the plan) but not a
   hand-drawn schematic.
-* Subcircuits are synthesized only for the parts the rules cover: ESP32/nRF52 modules,
-  MCP73831, fixed LDOs, LM2596-5.0, I2C sensors, USB-C, relays, DRV8871, LEDs, buttons,
-  SWD/UART/Qwiic headers and input protection. Any other part is wired to power and
-  ground; its remaining pins are left as explicit no-connects with a `SYNTH-INCOMPLETE`
-  warning.
+* The intent engine's quality depends on the model: the validators guarantee that every
+  part and pin exists and that ERC/power rules pass, not that the circuit is the best one.
+  Ratings of parts outside the curated library are the model's datasheet claims.
+* With `--engine synth`, subcircuits exist only for the parts the rules cover (ESP32/nRF52
+  modules, MCP73831, fixed LDOs, LM2596-5.0, I2C sensors, USB-C, relays, DRV8871, LEDs,
+  buttons, SWD/UART/Qwiic headers, input protection); other parts get power and ground
+  only, with a `SYNTH-INCOMPLETE` warning.
 * The fab profiles are generic and conservative, not any specific fab's published rules.
 * Mains, safety and RF certification are out of scope.
